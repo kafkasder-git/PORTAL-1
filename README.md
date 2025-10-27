@@ -19,7 +19,7 @@ Bu proje, orijinal React + Vite projesinden Next.js 15'e taşınmıştır. Şu a
 
 ### Kurulum
 
-\`\`\`bash
+```bash
 # Bağımlılıkları yükle
 npm install
 
@@ -28,7 +28,7 @@ npm run dev
 
 # Tarayıcıda aç
 # http://localhost:3000
-\`\`\`
+```
 
 ### Test Hesapları
 
@@ -58,7 +58,7 @@ npm run dev
 
 ## 📁 Proje Yapısı
 
-\`\`\`
+```
 src/
 ├── app/                 # Next.js App Router
 ├── components/          # React components
@@ -66,7 +66,7 @@ src/
 ├── stores/             # Zustand stores
 ├── data/mock/          # Mock JSON data
 └── types/              # TypeScript types
-\`\`\`
+```
 
 ---
 
@@ -205,16 +205,16 @@ See `.env.example` for complete configuration.
 
 ## 🔄 Mock Backend
 
-Mock data kullanılıyor. Gerçek backend için \`src/lib/api/mock-api.ts\` dosyasını düzenleyin.
+Mock data kullanılıyor. Gerçek backend için `src/lib/api/mock-api.ts` dosyasını düzenleyin.
 
 ---
 
 ## 🚀 Build & Deploy
 
-\`\`\`bash
+```bash
 npm run build
 npm start
-\`\`\`
+```
 
 Self-hosted veya Vercel'e deploy edebilirsiniz.
 
