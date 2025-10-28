@@ -759,6 +759,222 @@ export const meetingsApi = {
 };
 
 /**
+ * Messages API
+ */
+export const messagesApi = {
+  async getMessages(params?: QueryParams): Promise<AppwriteResponse<MessageDocument[]>> {
+    return await handleAppwriteError(async () => {
+      const queries = [
+        Query.limit(params?.limit || 20),
+        Query.offset(((params?.page || 1) - 1) * (params?.limit || 20)),
+        Query.orderDesc('$createdAt')
+      ];
+
+      if (params?.search) {
+        queries.push(Query.search('subject', params.search));
+      }
+
+      if (params?.filters?.message_type) {
+        queries.push(Query.equal('message_type', params.filters.message_type));
+      }
+
+      if (params?.filters?.status) {
+        queries.push(Query.equal('status', params.filters.status));
+      }
+
+      if (params?.filters?.sender) {
+        queries.push(Query.equal('sender', params.filters.sender));
+      }
+
+      if (params?.filters?.is_bulk !== undefined) {
+        queries.push(Query.equal('is_bulk', params.filters.is_bulk));
+      }
+
+      const response = await databases.listDocuments(DATABASE_ID, COLLECTIONS.MESSAGES, queries);
+      
+      return {
+        data: response.documents as unknown as MessageDocument[],
+        error: null,
+        total: response.total
+      };
+    });
+  },
+
+  async getMessage(id: string): Promise<AppwriteResponse<MessageDocument>> {
+    return await handleAppwriteError(async () => {
+      const message = await databases.getDocument(DATABASE_ID, COLLECTIONS.MESSAGES, id);
+      return {
+        data: message as unknown as MessageDocument,
+        error: null
+      };
+    });
+  },
+
+  async createMessage(data: CreateDocumentData<MessageDocument>): Promise<AppwriteResponse<MessageDocument>> {
+    return await handleAppwriteError(async () => {
+      const message = await databases.createDocument(
+        DATABASE_ID,
+        COLLECTIONS.MESSAGES,
+        ID.unique(),
+        {
+          ...data,
+          status: data.status || 'draft'
+        }
+      );
+      return {
+        data: message as unknown as MessageDocument,
+        error: null
+      };
+    });
+  },
+
+  async updateMessage(id: string, data: UpdateDocumentData<MessageDocument>): Promise<AppwriteResponse<MessageDocument>> {
+    return await handleAppwriteError(async () => {
+      const message = await databases.updateDocument(DATABASE_ID, COLLECTIONS.MESSAGES, id, data);
+      return {
+        data: message as unknown as MessageDocument,
+        error: null
+      };
+    });
+  },
+
+  async deleteMessage(id: string): Promise<AppwriteResponse<null>> {
+    return await handleAppwriteError(async () => {
+      await databases.deleteDocument(DATABASE_ID, COLLECTIONS.MESSAGES, id);
+      return {
+        data: null,
+        error: null
+      };
+    });
+  },
+
+  async sendMessage(id: string): Promise<AppwriteResponse<MessageDocument>> {
+    return await handleAppwriteError(async () => {
+      const message = await databases.updateDocument(
+        DATABASE_ID,
+        COLLECTIONS.MESSAGES,
+        id,
+        {
+          status: 'sent',
+          sent_at: new Date().toISOString()
+        }
+      );
+      
+      return {
+        data: message as unknown as MessageDocument,
+        error: null
+      };
+    });
+  },
+
+  async getMessagesByType(messageType: 'sms' | 'email' | 'internal'): Promise<AppwriteResponse<MessageDocument[]>> {
+    return await handleAppwriteError(async () => {
+      const queries = [
+        Query.equal('message_type', messageType),
+        Query.orderDesc('$createdAt')
+      ];
+
+      const response = await databases.listDocuments(DATABASE_ID, COLLECTIONS.MESSAGES, queries);
+      
+      return {
+        data: response.documents as unknown as MessageDocument[],
+        error: null,
+        total: response.total
+      };
+    });
+  },
+
+  async getMessagesBySender(senderId: string): Promise<AppwriteResponse<MessageDocument[]>> {
+    return await handleAppwriteError(async () => {
+      const queries = [
+        Query.equal('sender', senderId),
+        Query.orderDesc('$createdAt')
+      ];
+
+      const response = await databases.listDocuments(DATABASE_ID, COLLECTIONS.MESSAGES, queries);
+      
+      return {
+        data: response.documents as unknown as MessageDocument[],
+        error: null,
+        total: response.total
+      };
+    });
+  },
+
+  async getMessagesStatistics(): Promise<AppwriteResponse<{
+    totalSms: number;
+    totalEmails: number;
+    failedMessages: number;
+    draftMessages: number;
+  }>> {
+    return await handleAppwriteError(async () => {
+      const smsResponse = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.MESSAGES,
+        [Query.equal('message_type', 'sms'), Query.equal('status', 'sent'), Query.limit(1)]
+      );
+
+      const emailResponse = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.MESSAGES,
+        [Query.equal('message_type', 'email'), Query.equal('status', 'sent'), Query.limit(1)]
+      );
+
+      const failedResponse = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.MESSAGES,
+        [Query.equal('status', 'failed'), Query.limit(1)]
+      );
+
+      const draftResponse = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.MESSAGES,
+        [Query.equal('status', 'draft'), Query.limit(1)]
+      );
+
+      const statistics = {
+        totalSms: smsResponse.total,
+        totalEmails: emailResponse.total,
+        failedMessages: failedResponse.total,
+        draftMessages: draftResponse.total
+      };
+
+      return {
+        data: statistics,
+        error: null
+      };
+    });
+  },
+
+  async getInboxMessages(userId: string): Promise<AppwriteResponse<MessageDocument[]>> {
+    return await handleAppwriteError(async () => {
+      const queries = [
+        Query.equal('message_type', 'internal'),
+        Query.contains('recipients', userId),
+        Query.orderDesc('$createdAt')
+      ];
+
+      const response = await databases.listDocuments(DATABASE_ID, COLLECTIONS.MESSAGES, queries);
+      
+      return {
+        data: response.documents as unknown as MessageDocument[],
+        error: null,
+        total: response.total
+      };
+    });
+  },
+
+  async markAsRead(id: string, userId: string): Promise<AppwriteResponse<MessageDocument>> {
+    return await handleAppwriteError(async () => {
+      const message = await databases.getDocument(DATABASE_ID, COLLECTIONS.MESSAGES, id);
+      
+      return {
+        data: message as unknown as MessageDocument,
+        error: null
+      };
+    });
+  }
+};
 
 /**
  * Main API object (replaces mockApi)
@@ -939,325 +1155,6 @@ export const parametersApi = {
   }
 };
 
-
-/**
- * Messages API
- */
-export const messagesApi = {
-  async getMessages(params?: QueryParams): Promise<AppwriteResponse<MessageDocument[]>> {
-    return await handleAppwriteError(async () => {
-      const queries = [
-        Query.limit(params?.limit || 20),
-        Query.offset(((params?.page || 1) - 1) * (params?.limit || 20)),
-        Query.orderDesc('$createdAt')
-      ];
-
-      if (params?.search) {
-        queries.push(Query.search('subject', params.search));
-      }
-
-      if (params?.filters?.message_type) {
-        queries.push(Query.equal('message_type', params.filters.message_type));
-      }
-
-      if (params?.filters?.status) {
-        queries.push(Query.equal('status', params.filters.status));
-      }
-
-      if (params?.filters?.sender) {
-        queries.push(Query.equal('sender', params.filters.sender));
-      }
-
-      if (params?.filters?.is_bulk !== undefined) {
-        queries.push(Query.equal('is_bulk', params.filters.is_bulk));
-      }
-
-      const response = await databases.listDocuments(DATABASE_ID, COLLECTIONS.MESSAGES, queries);
-      
-      return {
-        data: response.documents as unknown as MessageDocument[],
-        error: null,
-        total: response.total
-      };
-    });
-  },
-
-  async getMessage(id: string): Promise<AppwriteResponse<MessageDocument>> {
-    return await handleAppwriteError(async () => {
-      const message = await databases.getDocument(DATABASE_ID, COLLECTIONS.MESSAGES, id);
-      return {
-        data: message as unknown as MessageDocument,
-        error: null
-      };
-    });
-  },
-
-  async createMessage(data: CreateDocumentData<MessageDocument>): Promise<AppwriteResponse<MessageDocument>> {
-    return await handleAppwriteError(async () => {
-      const message = await databases.createDocument(
-        DATABASE_ID,
-        COLLECTIONS.MESSAGES,
-        ID.unique(),
-        {
-          ...data,
-          status: data.status || 'draft'
-        }
-      );
-      return {
-        data: message as unknown as MessageDocument,
-        error: null
-      };
-    });
-  },
-
-  async updateMessage(id: string, data: UpdateDocumentData<MessageDocument>): Promise<AppwriteResponse<MessageDocument>> {
-    return await handleAppwriteError(async () => {
-      const message = await databases.updateDocument(DATABASE_ID, COLLECTIONS.MESSAGES, id, data);
-      return {
-        data: message as unknown as MessageDocument,
-        error: null
-      };
-    });
-  },
-
-  async deleteMessage(id: string): Promise<AppwriteResponse<null>> {
-    return await handleAppwriteError(async () => {
-      await databases.deleteDocument(DATABASE_ID, COLLECTIONS.MESSAGES, id);
-      return {
-        data: null,
-        error: null
-      };
-    });
-  },
-
-  /**
-   * Send a message (SMS/Email/Internal)
-   * 
-   * ⚠️ PLACEHOLDER IMPLEMENTATION WARNING ⚠️
-   * This method currently only updates the message status to 'sent' in the database.
-   * It does NOT actually send SMS or Email messages.
-   * 
-   * @param id - Message document ID to send
-   * @returns Updated message document with 'sent' status and sent_at timestamp
-   * 
-   * @todo Integration Required:
-   * - SMS: Integrate with SMS provider (e.g., Twilio, Vonage, Netgsm)
-   * - Email: Integrate with email service (e.g., SendGrid, AWS SES, Mailgun)
-   * - Internal: Implement push notification or in-app notification system
-   * 
-   * @example
-   * ```typescript
-   * // Current behavior (placeholder):
-   * const result = await messagesApi.sendMessage('message-id-123');
-   * // Only updates DB status, no actual SMS/Email sent
-   * 
-   * // Future implementation should:
-   * // 1. Get message details from DB
-   * // 2. Determine message type (sms/email/internal)
-   * // 3. Call appropriate provider API
-   * // 4. Handle delivery status and errors
-   * // 5. Update DB with actual delivery status
-   * ```
-   * 
-   * @see MessageDocument.message_type - Determines which provider to use
-   * @see MessageDocument.status - Current status: 'draft' | 'sent' | 'failed' | 'delivered'
-   */
-  async sendMessage(id: string): Promise<AppwriteResponse<MessageDocument>> {
-    return await handleAppwriteError(async () => {
-      // Update status to 'sent' and set sent_at timestamp
-      const message = await databases.updateDocument(
-        DATABASE_ID,
-        COLLECTIONS.MESSAGES,
-        id,
-        {
-          status: 'sent',
-          sent_at: new Date().toISOString()
-        }
-      );
-      
-      // In a real implementation, this would integrate with SMS/Email service providers
-      // For now, we'll just update the status
-      
-      return {
-        data: message as unknown as MessageDocument,
-        error: null
-      };
-    });
-  },
-
-  async getMessagesByType(messageType: 'sms' | 'email' | 'internal'): Promise<AppwriteResponse<MessageDocument[]>> {
-    return await handleAppwriteError(async () => {
-      const queries = [
-        Query.equal('message_type', messageType),
-        Query.orderDesc('$createdAt')
-      ];
-
-      const response = await databases.listDocuments(DATABASE_ID, COLLECTIONS.MESSAGES, queries);
-      
-      return {
-        data: response.documents as unknown as MessageDocument[],
-        error: null,
-        total: response.total
-      };
-    });
-  },
-
-  async getMessagesBySender(senderId: string): Promise<AppwriteResponse<MessageDocument[]>> {
-    return await handleAppwriteError(async () => {
-      const queries = [
-        Query.equal('sender', senderId),
-        Query.orderDesc('$createdAt')
-      ];
-
-      const response = await databases.listDocuments(DATABASE_ID, COLLECTIONS.MESSAGES, queries);
-      
-      return {
-        data: response.documents as unknown as MessageDocument[],
-        error: null,
-        total: response.total
-      };
-    });
-  },
-
-  async getMessagesStatistics(): Promise<AppwriteResponse<{
-    totalSms: number;
-    totalEmails: number;
-    failedMessages: number;
-    draftMessages: number;
-  }>> {
-    return await handleAppwriteError(async () => {
-      // Get SMS count
-      const smsResponse = await databases.listDocuments(
-        DATABASE_ID,
-        COLLECTIONS.MESSAGES,
-        [Query.equal('message_type', 'sms'), Query.equal('status', 'sent'), Query.limit(1)]
-      );
-
-      // Get Email count
-      const emailResponse = await databases.listDocuments(
-        DATABASE_ID,
-        COLLECTIONS.MESSAGES,
-        [Query.equal('message_type', 'email'), Query.equal('status', 'sent'), Query.limit(1)]
-      );
-
-      // Get failed messages count
-      const failedResponse = await databases.listDocuments(
-        DATABASE_ID,
-        COLLECTIONS.MESSAGES,
-        [Query.equal('status', 'failed'), Query.limit(1)]
-      );
-
-      // Get draft messages count
-      const draftResponse = await databases.listDocuments(
-        DATABASE_ID,
-        COLLECTIONS.MESSAGES,
-        [Query.equal('status', 'draft'), Query.limit(1)]
-      );
-
-      const statistics = {
-        totalSms: smsResponse.total,
-        totalEmails: emailResponse.total,
-        failedMessages: failedResponse.total,
-        draftMessages: draftResponse.total
-      };
-
-      return {
-        data: statistics,
-        error: null
-      };
-    });
-  },
-
-  async getInboxMessages(userId: string): Promise<AppwriteResponse<MessageDocument[]>> {
-    return await handleAppwriteError(async () => {
-      const queries = [
-        Query.equal('message_type', 'internal'),
-        Query.contains('recipients', userId),
-        Query.orderDesc('$createdAt')
-      ];
-
-      const response = await databases.listDocuments(DATABASE_ID, COLLECTIONS.MESSAGES, queries);
-      
-      return {
-        data: response.documents as unknown as MessageDocument[],
-        error: null,
-        total: response.total
-      };
-    });
-  },
-
-  /**
-   * Mark a message as read by a user
-   * 
-   * ⚠️ PLACEHOLDER IMPLEMENTATION WARNING ⚠️
-   * This method currently only fetches the message without marking it as read.
-   * Read receipt functionality is NOT implemented.
-   * 
-   * @param id - Message document ID
-   * @param userId - User ID who is marking the message as read
-   * @returns Message document (unchanged)
-   * 
-   * @todo Implementation Options:
-   * 
-   * **Option 1: Add read_by array field to MessageDocument**
-   * - Pros: Simple, no additional collection needed
-   * - Cons: Limited scalability for large recipient lists
-   * - Implementation:
-   *   ```typescript
-   *   await databases.updateDocument(DATABASE_ID, COLLECTIONS.MESSAGES, id, {
-   *     read_by: [...message.read_by, userId],
-   *     read_at: new Date().toISOString()
-   *   });
-   *   ```
-   * 
-   * **Option 2: Create separate READ_RECEIPTS collection**
-   * - Pros: Better scalability, detailed read tracking (timestamp per user)
-   * - Cons: Additional collection, more complex queries
-   * - Schema:
-   *   ```typescript
-   *   interface ReadReceiptDocument {
-   *     message_id: string;
-   *     user_id: string;
-   *     read_at: string;
-   *   }
-   *   ```
-   * 
-   * **Option 3: Use Appwrite Realtime for live read receipts**
-   * - Pros: Real-time updates, modern UX
-   * - Cons: Requires WebSocket setup, more complex
-   * 
-   * @recommendation Use Option 2 (separate collection) for production
-   * 
-   * @example
-   * ```typescript
-   * // Current behavior (placeholder):
-   * const result = await messagesApi.markAsRead('msg-123', 'user-456');
-   * // Returns message without any changes
-   * 
-   * // Future implementation (Option 2):
-   * // 1. Create read receipt document
-   * // 2. Update message read count
-   * // 3. Trigger real-time notification to sender
-   * ```
-   * 
-   * @see MessageDocument.recipients - List of users who should receive the message
-   * @see getInboxMessages - Fetches messages for a specific user
-   */
-  async markAsRead(id: string, userId: string): Promise<AppwriteResponse<MessageDocument>> {
-    return await handleAppwriteError(async () => {
-      // This is a placeholder for future read receipts functionality
-      // In a real implementation, you might need a separate collection for read receipts
-      // or add a read_by array field to the MessageDocument
-      
-      const message = await databases.getDocument(DATABASE_ID, COLLECTIONS.MESSAGES, id);
-      
-      return {
-        data: message as unknown as MessageDocument,
-        error: null
-      };
-    });
-  }
-};
 
 /**
  * Aid Applications API (Portal Plus Style - 182 kayıt)

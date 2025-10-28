@@ -52,15 +52,15 @@ export function MessageForm({ onSuccess, onCancel, initialData, messageId, defau
     setValue,
     watch,
     formState: { errors, isSubmitting },
-  } = useForm<MessageFormData>({
-    resolver: zodResolver(messageSchema),
+  } = useForm({
+    resolver: zodResolver(messageSchema) as any,
     defaultValues: {
       message_type: initialData?.message_type || defaultMessageType || 'sms',
-      sender: user?.$id || '',
+      sender: user?.id || '',
       recipients: initialData?.recipients || [],
       subject: initialData?.subject || '',
       content: initialData?.content || '',
-      status: initialData?.status || 'draft',
+      status: (initialData?.status || 'draft') as 'draft' | 'sent' | 'failed',
       is_bulk: initialData?.is_bulk || false,
       template_id: initialData?.template_id || undefined,
       sent_at: initialData?.sent_at || undefined,
@@ -161,14 +161,14 @@ export function MessageForm({ onSuccess, onCancel, initialData, messageId, defau
   };
 
   const onSubmit = async (data: MessageFormData) => {
-    if (!user?.$id) {
+    if (!user?.id) {
       toast.error('Gönderen kullanıcı bilgisi bulunamadı. Lütfen tekrar giriş yapın.');
       return;
     }
 
     const submissionData = {
       ...data,
-      sender: user.$id,
+      sender: user.id,
       recipients: selectedRecipients,
       is_bulk: selectedRecipients.length > 1,
       template_id: selectedTemplate || undefined,
@@ -182,7 +182,7 @@ export function MessageForm({ onSuccess, onCancel, initialData, messageId, defau
   };
 
   const handleSend = async (data: MessageFormData) => {
-    if (!user?.$id) {
+    if (!user?.id) {
       toast.error('Gönderen kullanıcı bilgisi bulunamadı. Lütfen tekrar giriş yapın.');
       return;
     }
@@ -202,7 +202,7 @@ export function MessageForm({ onSuccess, onCancel, initialData, messageId, defau
 
     const submissionData = {
       ...data,
-      sender: user.$id,
+      sender: user.id,
       recipients: selectedRecipients,
       is_bulk: selectedRecipients.length > 1,
       template_id: selectedTemplate || undefined,
@@ -275,7 +275,7 @@ export function MessageForm({ onSuccess, onCancel, initialData, messageId, defau
         <CardTitle>{isEditMode ? 'Mesajı Düzenle' : 'Yeni Mesaj Oluştur'}</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit as any)} className="space-y-6">
           {/* Message Type */}
           <div className="space-y-2">
             <Label htmlFor="message_type">Mesaj Türü *</Label>
@@ -394,7 +394,7 @@ export function MessageForm({ onSuccess, onCancel, initialData, messageId, defau
                 </Badge>
                 {watch('sent_at') && (
                   <span className="text-sm text-gray-500">
-                    Gönderim: {new Date(watch('sent_at')).toLocaleString('tr-TR')}
+                    Gönderim: {new Date(watch('sent_at')!).toLocaleString('tr-TR')}
                   </span>
                 )}
               </div>
@@ -467,7 +467,10 @@ export function MessageForm({ onSuccess, onCancel, initialData, messageId, defau
             {!isEditMode && (
               <Button
                 type="button"
-                onClick={handleSubmit(handleSend)}
+                onClick={() => {
+                  const data = watch();
+                  handleSend(data);
+                }}
                 disabled={isSubmitting || selectedRecipients.length === 0}
                 className="flex-1 sm:flex-none"
               >

@@ -4,16 +4,19 @@ import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Upload, X, FileText, Image, File } from 'lucide-react';
+import { Upload, X, FileText, Image, File, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { validateFile } from '@/lib/sanitization';
 
 interface FileUploadProps {
-  onFileSelect: (file: File | null) => void;
+  onFileSelect: (file: File | null, sanitizedFilename?: string) => void;
   accept?: string;
   maxSize?: number; // in MB
   placeholder?: string;
   className?: string;
   disabled?: boolean;
+  allowedTypes?: string[]; // MIME types
+  allowedExtensions?: string[];
 }
 
 export function FileUpload({
@@ -23,34 +26,53 @@ export function FileUpload({
   placeholder = "Dosya seçin veya sürükleyin",
   className,
   disabled = false,
+  allowedTypes,
+  allowedExtensions,
 }: FileUploadProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const validateFile = (file: File): boolean => {
-    // Check file size
-    if (file.size > maxSize * 1024 * 1024) {
-      setError(`Dosya boyutu ${maxSize}MB'dan büyük olamaz`);
-      return false;
+  const validateFileUpload = (file: File): { valid: boolean; sanitizedFilename?: string } => {
+    // Use advanced validation from sanitization library
+    const validation = validateFile(file, {
+      maxSize: maxSize * 1024 * 1024,
+      allowedTypes,
+      allowedExtensions,
+    });
+
+    if (!validation.valid) {
+      setError(validation.error || 'Geçersiz dosya');
+      return { valid: false };
     }
 
-    // Check file type if specified
-    if (accept !== "*" && !file.type.match(accept.replace("*", ".*"))) {
-      setError("Geçersiz dosya türü");
-      return false;
+    // Additional security checks
+    // Check for double extensions (e.g., file.pdf.exe)
+    const parts = file.name.split('.');
+    if (parts.length > 2) {
+      setError('Dosya adı birden fazla uzantı içeremez');
+      return { valid: false };
+    }
+
+    // Check for suspiciously long filenames
+    if (file.name.length > 255) {
+      setError('Dosya adı çok uzun');
+      return { valid: false };
     }
 
     setError(null);
-    return true;
+    return { valid: true, sanitizedFilename: validation.sanitizedFilename };
   };
 
   const handleFileSelect = (file: File | null) => {
-    if (file && validateFile(file)) {
-      setSelectedFile(file);
-      onFileSelect(file);
-    } else if (!file) {
+    if (file) {
+      const validation = validateFileUpload(file);
+      if (validation.valid) {
+        setSelectedFile(file);
+        onFileSelect(file, validation.sanitizedFilename);
+      }
+    } else {
       setSelectedFile(null);
       onFileSelect(null);
       setError(null);

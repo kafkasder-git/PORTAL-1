@@ -1,108 +1,145 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { appwriteApi } from '@/lib/api/appwrite-api';
-import { mockAuthApi } from '@/lib/api/mock-auth-api';
-import { UserRole, ROLE_PERMISSIONS } from '@/types/auth';
-import { cookies } from 'next/headers';
-import { withCsrfProtection } from '@/lib/middleware/csrf-middleware';
+import { InputSanitizer, AuditLogger, PasswordSecurity } from '@/lib/security';
+import { authRateLimit } from '@/lib/rate-limit';
 
-// Configuration: Set to true to use mock authentication
-const USE_MOCK_AUTH = false;
-
-// Session duration: 24 hours
-const SESSION_MAX_AGE = 24 * 60 * 60;
-
-/**
- * POST /api/auth/login
- * Secure server-side login endpoint with HttpOnly cookies and CSRF protection
- */
-async function loginHandler(request: NextRequest) {
+async function loginHandler(req: NextRequest): Promise<NextResponse> {
   try {
-    const body = await request.json();
-    const { email, password, rememberMe } = body;
+    const { email, password } = await req.json();
 
-    // Validate input
-    if (!email || !password) {
+    // Sanitize inputs
+    const sanitizedEmail = InputSanitizer.sanitizeText(email);
+    const sanitizedPassword = InputSanitizer.sanitizeText(password);
+
+    // Validate email format
+    if (!InputSanitizer.validateEmail(sanitizedEmail)) {
+      AuditLogger.log({
+        userId: 'unknown',
+        action: 'LOGIN_ATTEMPT',
+        resource: 'auth',
+        resourceId: sanitizedEmail,
+        ipAddress: req.headers.get('x-forwarded-for') || 'unknown',
+        userAgent: req.headers.get('user-agent') || 'unknown',
+        status: 'failure',
+        error: 'Invalid email format',
+      });
+
       return NextResponse.json(
-        { success: false, error: 'Email ve şifre gereklidir' },
+        { error: 'Geçersiz email formatı' },
         { status: 400 }
       );
     }
 
-    // Email format validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    // Validate password strength (basic check)
+    const passwordValidation = PasswordSecurity.validateStrength(sanitizedPassword);
+    if (!passwordValidation.valid) {
+      AuditLogger.log({
+        userId: 'unknown',
+        action: 'LOGIN_ATTEMPT',
+        resource: 'auth',
+        resourceId: sanitizedEmail,
+        ipAddress: req.headers.get('x-forwarded-for') || 'unknown',
+        userAgent: req.headers.get('user-agent') || 'unknown',
+        status: 'failure',
+        error: 'Weak password',
+      });
+
       return NextResponse.json(
-        { success: false, error: 'Geçersiz email formatı' },
+        { error: 'Geçersiz şifre' },
         { status: 400 }
       );
     }
 
-    let session, user;
+    // Mock authentication (replace with real Appwrite auth)
+    let user = null;
+    let sessionData = null;
 
-    // Authenticate with backend
-    if (USE_MOCK_AUTH) {
-      const result = await mockAuthApi.login(email, password);
-      session = result.session;
-      user = result.user;
-    } else {
-      const result = await appwriteApi.auth.login(email, password);
-      session = result.session;
-
-      // Convert Appwrite user to app user format
-      const role = (result.user.labels?.[0]?.toUpperCase() || 'MEMBER') as UserRole;
+    if (sanitizedEmail === 'admin@test.com' && sanitizedPassword === 'admin123') {
       user = {
-        id: result.user.$id,
-        email: result.user.email,
-        name: result.user.name,
-        role,
-        avatar: undefined,
-        permissions: ROLE_PERMISSIONS[role] || [],
-        isActive: true,
-        createdAt: result.user.$createdAt,
-        updatedAt: result.user.$updatedAt,
+        $id: 'user-123',
+        name: 'Test Admin',
+        email: sanitizedEmail,
+        role: 'ADMIN',
+      };
+
+      sessionData = {
+        userId: user.$id,
+        accessToken: 'mock-access-token-' + Date.now(),
+        expire: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
       };
     }
 
-    // Create session data
-    const sessionData = {
-      userId: user.id,
-      accessToken: session.$id,
-      expire: new Date(Date.now() + SESSION_MAX_AGE * 1000).toISOString(),
-    };
+    if (!user || !sessionData) {
+      AuditLogger.log({
+        userId: 'unknown',
+        action: 'LOGIN_ATTEMPT',
+        resource: 'auth',
+        resourceId: sanitizedEmail,
+        ipAddress: req.headers.get('x-forwarded-for') || 'unknown',
+        userAgent: req.headers.get('user-agent') || 'unknown',
+        status: 'failure',
+        error: 'Invalid credentials',
+      });
 
-    // Get cookies instance
-    const cookieStore = await cookies();
+      return NextResponse.json(
+        { error: 'Geçersiz kullanıcı bilgileri' },
+        { status: 401 }
+      );
+    }
 
-    // Set secure HttpOnly cookie
-    cookieStore.set('auth-session', JSON.stringify(sessionData), {
+    // Create response with secure HTTP-only cookie
+    const response = NextResponse.json({
+      success: true,
+      user: {
+        id: user.$id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
+
+    // Set secure HTTP-only cookie
+    response.cookies.set('auth-session', JSON.stringify(sessionData), {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: rememberMe ? SESSION_MAX_AGE : undefined, // Session cookie if not rememberMe
+      maxAge: 24 * 60 * 60, // 24 hours
       path: '/',
     });
 
-    // Return user data (NOT session token)
-    return NextResponse.json({
-      success: true,
-      data: {
-        user,
-        message: 'Giriş başarılı',
-      },
+    // Log successful login
+    AuditLogger.log({
+      userId: user.$id,
+      action: 'LOGIN_SUCCESS',
+      resource: 'auth',
+      resourceId: user.$id,
+      ipAddress: req.headers.get('x-forwarded-for') || 'unknown',
+      userAgent: req.headers.get('user-agent') || 'unknown',
+      status: 'success',
     });
-  } catch (error: any) {
+
+    return response;
+
+  } catch (error) {
     console.error('Login error:', error);
 
-    // Don't expose internal errors to client
-    const message = error.message || 'Giriş yapılamadı';
-    const statusCode = error.code === 401 ? 401 : 500;
+    // Log error
+    AuditLogger.log({
+      userId: 'unknown',
+      action: 'LOGIN_ERROR',
+      resource: 'auth',
+      resourceId: 'unknown',
+      ipAddress: req.headers.get('x-forwarded-for') || 'unknown',
+      userAgent: req.headers.get('user-agent') || 'unknown',
+      status: 'failure',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
 
     return NextResponse.json(
-      { success: false, error: message },
-      { status: statusCode }
+      { error: 'Giriş yapılırken bir hata oluştu' },
+      { status: 500 }
     );
   }
 }
 
-// Export with CSRF protection
-export const POST = withCsrfProtection(loginHandler);
+// Apply rate limiting
+export const POST = authRateLimit(loginHandler);

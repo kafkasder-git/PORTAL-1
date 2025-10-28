@@ -7,12 +7,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { validateCsrfToken, getCsrfTokenHeader } from '@/lib/csrf';
 
 /**
- * Wrap API route handler with CSRF protection
- */
-export function withCsrfProtection(
-  handler: (request: NextRequest) => Promise<NextResponse>
+* Wrap API route handler with CSRF protection
+*/
+export function withCsrfProtection<T extends any[]>(
+handler: (request: NextRequest, ...args: T) => Promise<NextResponse>
 ) {
-  return async (request: NextRequest): Promise<NextResponse> => {
+return async (request: NextRequest, ...args: T): Promise<NextResponse> => {
     const method = request.method.toUpperCase();
 
     // Only check CSRF for state-changing methods
@@ -45,6 +45,6 @@ export function withCsrfProtection(
     }
 
     // CSRF validation passed, proceed to handler
-    return handler(request);
+    return handler(request, ...args);
   };
 }

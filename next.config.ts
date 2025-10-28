@@ -1,15 +1,124 @@
 import type { NextConfig } from "next";
+import withBundleAnalyzer from '@next/bundle-analyzer';
 
-const nextConfig: NextConfig = {
-  // Font optimization settings
-  experimental: {
-    optimizePackageImports: ['lucide-react'],
+const bundleAnalyzer = withBundleAnalyzer({
+enabled: process.env.ANALYZE === 'true',
+});
+
+const nextConfig: NextConfig = bundleAnalyzer({
+// Performance optimizations
+experimental: {
+optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
+  optimizeCss: true,
   },
-  
-  // Reduce preload warnings
+
+  // Turbopack configuration
+  turbopack: {},
+
+  // Image optimization
+  images: {
+    formats: ['image/webp', 'image/avif'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+  },
+
+  // Compression
+  compress: true,
+
+  // Security headers
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'origin-when-cross-origin',
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=()',
+          },
+        ],
+      },
+      {
+        source: '/api/(.*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+        ],
+      },
+    ];
+  },
+
+  // Webpack optimizations
+  webpack: (config, { dev, isServer }) => {
+    // Bundle analyzer
+    if (process.env.ANALYZE) {
+      // Bundle analyzer will be handled by the wrapper
+    }
+
+    // Production optimizations
+    if (!dev && !isServer) {
+      // Enable webpack optimizations
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            vendor: {
+              test: /[\/]node_modules[\/]/,
+              name: 'vendors',
+              chunks: 'all',
+            },
+            radix: {
+              test: /[\/]node_modules[\/]@radix-ui[\/]/,
+              name: 'radix-ui',
+              chunks: 'all',
+            },
+            lucide: {
+              test: /[\/]node_modules[\/]lucide-react[\/]/,
+              name: 'lucide-icons',
+              chunks: 'all',
+            },
+          },
+        },
+      };
+    }
+
+    // SVG optimization
+    config.module.rules.push({
+      test: /\.svg$/,
+      use: ['@svgr/webpack'],
+    });
+
+    return config;
+  },
+
+  // Console removal in production
   compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
+    removeConsole: process.env.NODE_ENV === 'production' ? {
+      exclude: ['error', 'warn'],
+    } : false,
   },
-};
+
+  // Output optimization
+  output: 'standalone',
+  poweredByHeader: false,
+});
 
 export default nextConfig;

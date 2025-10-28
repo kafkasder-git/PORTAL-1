@@ -45,10 +45,10 @@ function validateBeneficiaryUpdate(data: any): { isValid: boolean; errors: strin
  */
 async function getBeneficiaryHandler(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     if (!id) {
       return NextResponse.json(
@@ -87,10 +87,10 @@ async function getBeneficiaryHandler(
  */
 async function updateBeneficiaryHandler(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     if (!id) {
       return NextResponse.json(
@@ -155,10 +155,10 @@ async function updateBeneficiaryHandler(
  */
 async function deleteBeneficiaryHandler(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     if (!id) {
       return NextResponse.json(
@@ -191,6 +191,6 @@ async function deleteBeneficiaryHandler(
 }
 
 // Export handlers with CSRF protection for state-changing operations
-export const GET = getBeneficiariesHandler;
+export const GET = getBeneficiaryHandler;
 export const PUT = withCsrfProtection(updateBeneficiaryHandler);
 export const DELETE = withCsrfProtection(deleteBeneficiaryHandler);
