@@ -28,8 +28,6 @@ interface AuthState {
   // UI state
   showLoginModal: boolean;
   rememberMe: boolean;
-  loginAttempts: number;
-  lastLoginAttempt?: Date;
 }
 
 interface AuthActions {
@@ -54,8 +52,6 @@ interface AuthActions {
   setSession: (session: Session | null) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
-  incrementLoginAttempts: () => void;
-  resetLoginAttempts: () => void;
 }
 
 type AuthStore = AuthState & AuthActions;
@@ -93,23 +89,32 @@ export const useAuthStore = create<AuthStore>()(
           error: null,
           showLoginModal: false,
           rememberMe: false,
-          loginAttempts: 0,
 
           // Initialize authentication
           initializeAuth: () => {
             const stored = localStorage.getItem('auth-session');
             if (stored) {
               try {
-                const session = JSON.parse(stored);
-                const expiresAt = new Date(session.expire);
-
-                if (expiresAt > new Date()) {
+                const sessionData = JSON.parse(stored);
+                // Check if we have a valid session
+                if (sessionData.userId) {
                   set((state) => {
-                    state.session = session;
+                    state.user = {
+                      id: sessionData.userId,
+                      email: sessionData.email,
+                      name: sessionData.name,
+                      role: sessionData.role,
+                      permissions: [],
+                      avatar: null,
+                      isActive: true,
+                      createdAt: new Date().toISOString(),
+                      updatedAt: new Date().toISOString(),
+                    };
                     state.isAuthenticated = true;
+                    state.isInitialized = true;
+                    state.isLoading = false;
                   });
-                } else {
-                  localStorage.removeItem('auth-session');
+                  return;
                 }
               } catch (error) {
                 localStorage.removeItem('auth-session');
@@ -118,26 +123,12 @@ export const useAuthStore = create<AuthStore>()(
 
             set((state) => {
               state.isInitialized = true;
+              state.isLoading = false;
             });
           },
 
           // Login action
           login: async (email: string, password: string, rememberMe = false) => {
-            const state = get();
-
-            // Rate limiting
-            if (state.loginAttempts >= 5) {
-              const lastAttempt = state.lastLoginAttempt;
-              if (lastAttempt && Date.now() - lastAttempt.getTime() < 15 * 60 * 1000) {
-                set((state) => {
-                  state.error = 'Çok fazla deneme. 15 dakika sonra tekrar deneyin.';
-                });
-                throw new Error('Çok fazla deneme. 15 dakika sonra tekrar deneyin.');
-              } else {
-                get().resetLoginAttempts();
-              }
-            }
-
             set((state) => {
               state.isLoading = true;
               state.error = null;
@@ -178,8 +169,13 @@ export const useAuthStore = create<AuthStore>()(
                 expire: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
               };
 
-              // Save minimal session info to localStorage (for persistence)
-              localStorage.setItem('auth-session', JSON.stringify({ userId: user.id }));
+              // Save session info to localStorage (for persistence)
+              localStorage.setItem('auth-session', JSON.stringify({ 
+                userId: user.id,
+                email: user.email,
+                name: user.name,
+                role: user.role
+              }));
 
               set((state) => {
                 state.user = user;
@@ -189,9 +185,7 @@ export const useAuthStore = create<AuthStore>()(
                 state.error = null;
               });
 
-              get().resetLoginAttempts();
             } catch (error: any) {
-              get().incrementLoginAttempts();
 
               const errorMessage = error.message || 'Giriş yapılamadı';
 
@@ -302,19 +296,6 @@ export const useAuthStore = create<AuthStore>()(
             });
           },
 
-          incrementLoginAttempts: () => {
-            set((state) => {
-              state.loginAttempts += 1;
-              state.lastLoginAttempt = new Date();
-            });
-          },
-
-          resetLoginAttempts: () => {
-            set((state) => {
-              state.loginAttempts = 0;
-              state.lastLoginAttempt = undefined;
-            });
-          },
         })),
         {
           name: 'auth-store',
@@ -325,10 +306,13 @@ export const useAuthStore = create<AuthStore>()(
             isAuthenticated: state.isAuthenticated,
             isInitialized: state.isInitialized,
             rememberMe: state.rememberMe,
-            loginAttempts: state.loginAttempts,
-            lastLoginAttempt: state.lastLoginAttempt,
           }),
           version: 1,
+          onRehydrateStorage: () => (state) => {
+            if (state) {
+              state.isLoading = false;
+            }
+          },
         }
       )
     ),

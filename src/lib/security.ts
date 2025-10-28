@@ -15,13 +15,13 @@ export class InputSanitizer {
   }
 
   static validateEmail(email: string): boolean {
-    const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   }
 
   static validatePhone(phone: string): boolean {
     // Turkish phone validation
-    const phoneRegex = /^(\\+90|0)?[5][0-9]{9}$/;
+    const phoneRegex = /^(\+90|0)?[5][0-9]{9}$/;
     return phoneRegex.test(phone.replace(/\s+/g, ''));
   }
 
@@ -221,6 +221,18 @@ export class PasswordSecurity {
   static validateStrength(password: string): { valid: boolean; errors: string[] } {
     const errors: string[] = [];
 
+    // Test ortamı için gevşetilmiş kurallar
+    if (process.env.NODE_ENV === 'development') {
+      if (password.length < 6) {
+        errors.push('Şifre en az 6 karakter olmalıdır');
+      }
+      return {
+        valid: errors.length === 0,
+        errors,
+      };
+    }
+
+    // Production ortamı için sıkı kurallar
     if (password.length < 8) {
       errors.push('Şifre en az 8 karakter olmalıdır');
     }

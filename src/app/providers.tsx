@@ -20,11 +20,18 @@ export function Providers({ children }: { children: React.ReactNode }) {
       })
   );
 
-  const initializeAuth = useAuthStore((state) => state.initializeAuth);
+  const [mounted, setMounted] = useState(false);
+  const initializeAuth = useAuthStore((state) => state?.initializeAuth);
 
   useEffect(() => {
-    initializeAuth();
-  }, [initializeAuth]);
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted && initializeAuth) {
+      initializeAuth();
+    }
+  }, [mounted, initializeAuth]);
 
   return (
     <QueryClientProvider client={queryClient}>

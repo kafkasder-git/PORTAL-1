@@ -20,7 +20,7 @@ export default function DashboardLayout({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { isAuthenticated, isInitialized, user, logout } = useAuthStore();
+  const { isAuthenticated, isInitialized, user, logout, initializeAuth } = useAuthStore();
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
     if (typeof window === 'undefined') {
@@ -31,6 +31,11 @@ export default function DashboardLayout({
     return stored === 'true';
   });
   const [isScrolled, setIsScrolled] = useState(false);
+
+  // Initialize auth on mount
+  useEffect(() => {
+    initializeAuth();
+  }, [initializeAuth]);
 
   useEffect(() => {
     if (isInitialized && !isAuthenticated) {

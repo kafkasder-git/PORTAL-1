@@ -321,12 +321,16 @@ export default function TasksPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Tümü</SelectItem>
-                <SelectItem value="">Atanmamış</SelectItem>
-                {users.map((user: UserDocument) => (
+                <SelectItem value="unassigned">Atanmamış</SelectItem>
+                {users && users.length > 0 ? users.map((user: UserDocument) => (
                   <SelectItem key={user.$id} value={user.$id}>
-                    {user.name}
+                    {user.name || 'İsimsiz Kullanıcı'}
                   </SelectItem>
-                ))}
+                )) : (
+                  <SelectItem value="no-users" disabled>
+                    Kullanıcı bulunamadı
+                  </SelectItem>
+                )}
               </SelectContent>
             </Select>
           </div>

@@ -1,3 +1,4 @@
+import React from "react";
 // Performance monitoring utilities
 export class PerformanceMonitor {
   private static instance: PerformanceMonitor;
@@ -102,63 +103,14 @@ export function lazyLoadComponent<T extends React.ComponentType<any>>(
 ) {
   const Component = React.lazy(importFunc);
 
-  return (props: React.ComponentProps<T>) => (
-    <React.Suspense fallback={fallback ? <fallback /> : <div>Loading...</div>}>
-      <Component {...props} />
-    </React.Suspense>
-  );
-}
-
-// Image optimization utilities
-export function getOptimizedImageUrl(src: string, width: number, height?: number): string {
-  // Use Next.js Image optimization
-  const params = new URLSearchParams({
-    url: src,
-    w: width.toString(),
-    q: '75', // quality
-  });
-
-  if (height) {
-    params.set('h', height.toString());
-  }
-
-  return `/_next/image?${params.toString()}`;
-}
-
-// Bundle size monitoring
-export function logBundleSize() {
-  if (typeof window !== 'undefined' && 'performance' in window) {
-    // Log resource sizes
-    const resources = performance.getEntriesByType('resource') as PerformanceResourceTiming[];
-
-    const bundleResources = resources.filter(resource =>
-      resource.name.includes('.js') && !resource.name.includes('node_modules')
-    );
-
-    bundleResources.forEach(resource => {
-      console.log(`📦 ${resource.name.split('/').pop()}: ${(resource.transferSize / 1024).toFixed(2)}KB`);
-    });
-  }
-}
-
-// React Query optimization
-export const queryConfig = {
-  defaultOptions: {
-    queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes
-      retry: (failureCount: number, error: any) => {
-        // Don't retry on 4xx errors
-        if (error?.status >= 400 && error?.status < 500) {
-          return false;
-        }
-        return failureCount < 3;
+  return (props: React.ComponentProps<T>) => 
+    React.createElement(
+      React.Suspense,
+      {
+        fallback: fallback 
+          ? React.createElement(fallback) 
+          : React.createElement("div", null, "Loading...")
       },
-      refetchOnWindowFocus: false,
-      refetchOnMount: true,
-    },
-    mutations: {
-      retry: 1,
-    },
-  },
-};
+      React.createElement(Component, props)
+    );
+}

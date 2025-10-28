@@ -14,17 +14,19 @@ export default function LoginPage() {
   const [email, setEmail] = useState('admin@test.com');
   const [password, setPassword] = useState('admin123');
   const [mounted, setMounted] = useState(false);
-  const { login, isAuthenticated, isLoading } = useAuthStore();
+  const { login, isAuthenticated, isLoading, initializeAuth } = useAuthStore();
 
   // Handle hydration
   useEffect(() => {
     setMounted(true);
-  }, []);
+    initializeAuth();
+  }, [initializeAuth]);
 
   // Redirect if already authenticated
   useEffect(() => {
     if (mounted && isAuthenticated) {
-      router.push('/genel');
+      const from = new URLSearchParams(window.location.search).get('from') || '/genel';
+      router.push(from);
     }
   }, [mounted, isAuthenticated, router]);
 
@@ -35,8 +37,8 @@ export default function LoginPage() {
       await login(email, password);
       toast.success('Giriş başarılı!');
 
-      // Force a full page reload to ensure state is properly hydrated
-      window.location.href = '/genel';
+      // Use router.push instead of window.location.href to preserve state
+      router.push('/genel');
     } catch (err: any) {
       toast.error(err.message || 'Giriş başarısız');
     }
