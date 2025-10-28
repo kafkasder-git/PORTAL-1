@@ -1,11 +1,12 @@
 import type { NextConfig } from "next";
 import withBundleAnalyzer from '@next/bundle-analyzer';
+import { withSentryConfig } from "@sentry/nextjs";
 
 const bundleAnalyzer = withBundleAnalyzer({
 enabled: process.env.ANALYZE === 'true',
 });
 
-const nextConfig: NextConfig = bundleAnalyzer({
+const baseConfig: NextConfig = {
 // Performance optimizations
 experimental: {
 optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
@@ -81,17 +82,17 @@ optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
           chunks: 'all',
           cacheGroups: {
             vendor: {
-              test: /[\/]node_modules[\/]/,
+              test: /[\\/]node_modules[\\/]/,
               name: 'vendors',
               chunks: 'all',
             },
             radix: {
-              test: /[\/]node_modules[\/]@radix-ui[\/]/,
+              test: /[\\/]node_modules[\\/]@radix-ui[\\/]/,
               name: 'radix-ui',
               chunks: 'all',
             },
             lucide: {
-              test: /[\/]node_modules[\/]lucide-react[\/]/,
+              test: /[\\/]node_modules[\\/]lucide-react[\\/]/,
               name: 'lucide-icons',
               chunks: 'all',
             },
@@ -102,7 +103,7 @@ optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
 
     // SVG optimization
     config.module.rules.push({
-      test: /\.svg$/,
+      test: /\\.svg$/,
       use: ['@svgr/webpack'],
     });
 
@@ -119,6 +120,21 @@ optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
   // Output optimization
   output: 'standalone',
   poweredByHeader: false,
-});
+};
 
-export default nextConfig;
+const nextConfig: NextConfig = bundleAnalyzer(baseConfig);
+
+export default withSentryConfig(
+  nextConfig,
+  {
+    silent: true,
+    org: process.env.SENTRY_ORG,
+    project: process.env.SENTRY_PROJECT,
+  },
+  {
+    // For all available options, see:
+    // https://github.com/getsentry/sentry-javascript/blob/develop/packages/nextjs/src/config/types.ts
+    hideSourceMaps: true,
+    disableLogger: true,
+  }
+);

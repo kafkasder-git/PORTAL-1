@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { DatePicker } from '@/components/ui/date-picker';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { appwriteApi } from '@/lib/api/appwrite-api';
+import api from '@/lib/api';
 import { useAuthStore } from '@/stores/authStore';
 import { toast } from 'sonner';
 import { Loader2, X, AlertCircle, User, Calendar } from 'lucide-react';
@@ -62,7 +62,7 @@ export function TaskForm({ onSuccess, onCancel, initialData, taskId }: TaskFormP
   // Fetch users for assigned_to dropdown
   const { data: usersResponse } = useQuery({
     queryKey: ['users'],
-    queryFn: () => appwriteApi.users.getUsers({ limit: 100 }),
+    queryFn: () => api.users.getUsers({ limit: 100 } as any),
     enabled: true,
   });
 
@@ -70,7 +70,7 @@ export function TaskForm({ onSuccess, onCancel, initialData, taskId }: TaskFormP
 
   // Create task mutation
   const createTaskMutation = useMutation({
-    mutationFn: (data: TaskFormData) => appwriteApi.tasks.createTask(data),
+    mutationFn: (data: TaskFormData) => api.tasks.createTask(data),
     onSuccess: () => {
       toast.success('Görev başarıyla oluşturuldu');
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
@@ -84,7 +84,7 @@ export function TaskForm({ onSuccess, onCancel, initialData, taskId }: TaskFormP
 
   // Update task mutation
   const updateTaskMutation = useMutation({
-    mutationFn: (data: TaskFormData) => appwriteApi.tasks.updateTask(taskId!, data),
+    mutationFn: (data: TaskFormData) => api.tasks.updateTask(taskId!, data),
     onSuccess: () => {
       toast.success('Görev başarıyla güncellendi');
       queryClient.invalidateQueries({ queryKey: ['tasks'] });

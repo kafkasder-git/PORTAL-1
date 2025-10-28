@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { appwriteApi } from '@/lib/api/appwrite-api';
+import api from '@/lib/api';
 import { toast } from 'sonner';
 import { Loader2, User, MapPin, Users, Wallet, Heart, GraduationCap, HandHeart, UserCheck } from 'lucide-react';
 import { ParameterSelect } from './ParameterSelect';
@@ -126,7 +126,7 @@ export function AdvancedBeneficiaryForm({ onSuccess, onCancel, initialData }: Ad
 
   const createBeneficiaryMutation = useMutation({
     mutationFn: (data: any) =>
-      appwriteApi.beneficiaries.createBeneficiary({
+      api.beneficiaries.createBeneficiary({
         ...data,
         status: 'active',
         approval_status: 'pending',

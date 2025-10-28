@@ -158,17 +158,17 @@ async function createBucket(bucketId: string, bucketName: string) {
     await storage.createBucket(
       bucketId,
       bucketName,
-      // Permissions
+      // Permissions - tighten defaults: only authenticated users
       [
-        Permission.read(Role.any()),
-        Permission.create(Role.any()),
-        Permission.update(Role.any()),
-        Permission.delete(Role.any()),
+        Permission.read(Role.users()),
+        Permission.create(Role.users()),
+        Permission.update(Role.users()),
+        Permission.delete(Role.users()),
       ],
       false, // not encrypted
       false, // antivirus disabled
-      100 * 1024 * 1024, // 100 MB max file size
-      ['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt'] // allowed extensions
+      20 * 1024 * 1024, // 20 MB max file size (stricter default)
+      ['jpg', 'jpeg', 'png', 'pdf'] // allowed extensions (stricter default)
     );
     console.log(`✅ Bucket '${bucketId}' created`);
   } catch (error: any) {

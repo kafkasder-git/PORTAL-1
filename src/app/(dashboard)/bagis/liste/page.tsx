@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { appwriteApi } from '@/lib/api/appwrite-api';
+import api from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
@@ -20,7 +20,7 @@ export default function DonationsPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ['donations', page, search],
-    queryFn: () => appwriteApi.donations.getDonations({ page, limit, search }),
+    queryFn: () => api.donations.getDonations({ page, limit, search }),
   });
 
   const donations = data?.data || [];

@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { parametersApi } from '@/lib/api/appwrite-api';
+import { parametersApi } from '@/lib/api';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import type { ParameterCategory } from '@/types/collections';

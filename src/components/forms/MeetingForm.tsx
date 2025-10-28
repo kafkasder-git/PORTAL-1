@@ -22,7 +22,7 @@ import {
 import { DatePicker } from '@/components/ui/date-picker';
 import { Badge } from '@/components/ui/badge';
 
-import { appwriteApi } from '@/lib/api/appwrite-api';
+import api from '@/lib/api';
 import { useAuthStore } from '@/stores/authStore';
 import {
   meetingSchema,
@@ -63,7 +63,7 @@ export function MeetingForm({ onSuccess, onCancel, initialData, meetingId }: Mee
   // Fetch users for participant selection
   const { data: usersResponse, isLoading: isLoadingUsers } = useQuery({
     queryKey: ['users'],
-    queryFn: () => appwriteApi.users.getUsers({ limit: 100 }),
+    queryFn: () => api.users.getUsers({ limit: 100 } as any),
   });
 
   const users = usersResponse?.data || [];
@@ -118,9 +118,9 @@ export function MeetingForm({ onSuccess, onCancel, initialData, meetingId }: Mee
   const mutation = useMutation({
     mutationFn: async (data: MeetingFormData | MeetingEditFormData) => {
       if (isEditMode && meetingId) {
-        return await appwriteApi.meetings.updateMeeting(meetingId, data);
+        return await api.meetings.updateMeeting(meetingId, data);
       } else {
-        return await appwriteApi.meetings.createMeeting(data);
+        return await api.meetings.createMeeting(data);
       }
     },
     onSuccess: () => {
@@ -141,7 +141,7 @@ export function MeetingForm({ onSuccess, onCancel, initialData, meetingId }: Mee
   const startMeetingMutation = useMutation({
     mutationFn: async () => {
       if (!meetingId) return;
-      return await appwriteApi.meetings.updateMeetingStatus(meetingId, 'ongoing');
+      return await api.meetings.updateMeetingStatus(meetingId, 'ongoing');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['meetings'] });

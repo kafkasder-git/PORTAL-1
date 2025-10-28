@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { appwriteApi } from '@/lib/api/appwrite-api';
+import api from '@/lib/api';
 import { withCsrfProtection } from '@/lib/middleware/csrf-middleware';
 
 /**
@@ -57,7 +57,8 @@ async function getBeneficiaryHandler(
       );
     }
 
-    const response = await appwriteApi.beneficiaries.getBeneficiary(id);
+    const response = await api.beneficiaries.getBeneficiary(id);
+ry(id);
 
     if (response.error) {
       return NextResponse.json(
@@ -117,7 +118,7 @@ async function updateBeneficiaryHandler(
       );
     }
 
-    const response = await appwriteApi.beneficiaries.updateBeneficiary(id, body);
+    const response = await api.beneficiaries.updateBeneficiary(id, body);
 
     if (response.error) {
       return NextResponse.json(
@@ -167,7 +168,7 @@ async function deleteBeneficiaryHandler(
       );
     }
 
-    const response = await appwriteApi.beneficiaries.deleteBeneficiary(id);
+    const response = await api.beneficiaries.deleteBeneficiary(id);
 
     if (response.error) {
       return NextResponse.json(

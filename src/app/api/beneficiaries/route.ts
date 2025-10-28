@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { appwriteApi } from '@/lib/api/appwrite-api';
+import api from '@/lib/api';
 import { BeneficiaryDocument } from '@/types/collections';
 import { withCsrfProtection } from '@/lib/middleware/csrf-middleware';
 import { QueryParams } from '@/types/collections';
@@ -93,7 +93,7 @@ async function getBeneficiariesHandler(request: NextRequest) {
       filters: Object.keys(filters).length > 0 ? filters : undefined,
     };
 
-    const response = await appwriteApi.beneficiaries.getBeneficiaries(queryParams);
+    const response = await api.beneficiaries.getBeneficiaries(queryParams);
 
     if (response.error) {
       return NextResponse.json(
@@ -149,7 +149,7 @@ async function createBeneficiaryHandler(request: NextRequest) {
       status: body.status || 'TASLAK',
     };
 
-    const response = await appwriteApi.beneficiaries.createBeneficiary(beneficiaryData);
+    const response = await api.beneficiaries.createBeneficiary(beneficiaryData);
 
     if (response.error) {
       return NextResponse.json(
