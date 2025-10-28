@@ -41,7 +41,7 @@ async function checkSession(request: NextRequest): Promise<boolean> {
   }
 }
 
-export async function proxy(request: NextRequest) {
+export default async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Check if user has valid session

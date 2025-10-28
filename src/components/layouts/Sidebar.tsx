@@ -217,7 +217,7 @@ export function Sidebar({ isMobileOpen = false, onMobileToggle }: SidebarProps) 
       <aside
         className={cn(
           'fixed left-0 top-16 h-[calc(100vh-4rem)] bg-white border-r z-40 overflow-y-auto transition-all duration-300 ease-in-out',
-          isCollapsed ? 'w-20' : 'w-64',
+          isCollapsed ? 'w-20 sidebar-collapsed' : 'w-64 sidebar-expanded',
           isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         )}
         aria-label="Sidebar"
@@ -476,6 +476,7 @@ export function Sidebar({ isMobileOpen = false, onMobileToggle }: SidebarProps) 
                 onClick={toggleSidebar}
                 className="w-full justify-start hover:bg-accent hover:text-accent-foreground transition-colors"
                 aria-label="Toggle sidebar"
+                data-testid="sidebar-toggle"
               >
                 <PanelLeftClose className="w-4 h-4 mr-2" />
                 Daralt
@@ -489,6 +490,7 @@ export function Sidebar({ isMobileOpen = false, onMobileToggle }: SidebarProps) 
                     onClick={toggleSidebar}
                     className="w-full justify-center hover:bg-accent hover:text-accent-foreground transition-colors"
                     aria-label="Toggle sidebar"
+                    data-testid="sidebar-toggle"
                   >
                     <PanelLeftOpen className="w-4 h-4" />
                   </Button>
