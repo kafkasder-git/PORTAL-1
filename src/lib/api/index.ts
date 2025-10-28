@@ -1,7 +1,7 @@
 // Unified API resolver (mock | appwrite)
 // Import concrete implementations
 import * as mock from './mock-api';
-import { appwriteApi } from './appwrite-api';
+import { appwriteApi, parametersApi as realParametersApi, aidApplicationsApi as realAidApplicationsApi } from './appwrite-api';
 
 // Infer provider from environment (client-safe first)
 const clientProvider = typeof window !== 'undefined' ? process.env.NEXT_PUBLIC_BACKEND_PROVIDER : undefined;
@@ -32,38 +32,77 @@ const mockApi = {
     },
   },
 
-  // Beneficiaries
-  async getBeneficiaries(params?: any) {
-    return mock.getBeneficiaries(params);
+  // Beneficiaries (match appwriteApi surface where possible)
+  beneficiaries: {
+    getBeneficiaries: (params?: any) => mock.getBeneficiaries(params),
+    getBeneficiary: (id: string) => mock.getBeneficiary(id),
+    createBeneficiary: (data: any) => mock.createBeneficiary(data as any),
+    updateBeneficiary: (id: string, data: any) => mock.updateBeneficiary(id, data as any),
+    deleteBeneficiary: (id: string) => mock.deleteBeneficiary(id),
   },
-  async getBeneficiary(id: string) {
-    return mock.getBeneficiary(id);
+
+  donations: {
+    getDonations: (params?: any) => ({ data: [], error: null, total: 0 }),
+    getDonation: async (_id: string) => ({ data: null, error: 'Not implemented in mock' }),
+    createDonation: async (_data: any) => ({ data: null, error: 'Not implemented in mock' }),
+    updateDonation: async (_id: string, _data: any) => ({ data: null, error: 'Not implemented in mock' }),
+    deleteDonation: async (_id: string) => ({ data: null, error: null }),
   },
-  async createBeneficiary(data: any) {
-    return mock.createBeneficiary(data as any);
+
+  tasks: {
+    getTasks: async (_params?: any) => ({ data: [], error: null, total: 0 }),
+    getTask: async (_id: string) => ({ data: null, error: 'Not implemented in mock' }),
+    createTask: async (_data: any) => ({ data: null, error: 'Not implemented in mock' }),
+    updateTask: async (_id: string, _data: any) => ({ data: null, error: 'Not implemented in mock' }),
+    deleteTask: async (_id: string) => ({ data: null, error: null }),
   },
-  async updateBeneficiary(id: string, data: any) {
-    return mock.updateBeneficiary(id, data as any);
+
+  meetings: {
+    getMeetings: async (_params?: any) => ({ data: [], error: null, total: 0 }),
   },
-  async deleteBeneficiary(id: string) {
-    return mock.deleteBeneficiary(id);
+
+  messages: {
+    getMessages: async (_params?: any) => ({ data: [], error: null, total: 0 }),
   },
-  async uploadBeneficiaryPhoto(id: string, file: File) {
-    return mock.uploadBeneficiaryPhoto(id, file);
+
+  storage: {
+    uploadFile: async (_args: any) => ({ data: null, error: 'Not implemented in mock' }),
+    getFile: async (_bucketId: string, _fileId: string) => ({ data: null, error: 'Not implemented in mock' }),
+    deleteFile: async (_bucketId: string, _fileId: string) => ({ data: null, error: null }),
+    getFileDownload: async (_bucketId: string, _fileId: string) => '',
+    getFilePreview: async (_bucketId: string, _fileId: string) => '',
   },
-  async generateFileNumber(category: string, fundRegion: string) {
-    return mock.generateFileNumber(category, fundRegion);
-  },
-  async getBeneficiaryStats() {
-    return mock.getBeneficiaryStats();
-  },
-  async exportBeneficiaries(params?: any) {
-    return mock.exportBeneficiaries(params);
+
+  dashboard: {
+    getMetrics: async () => ({ data: { totalBeneficiaries: 0, totalDonations: 0, totalDonationAmount: 0, activeUsers: 0 }, error: null }),
   },
 } as const;
 
 // Selected API surface
 export const api = provider === 'appwrite' ? appwriteApi : mockApi;
+
+// Expose parameters and aid applications APIs
+export const parametersApi = provider === 'appwrite'
+  ? realParametersApi
+  : {
+      getParametersByCategory: async (_category: string) => ({ data: [], error: null, total: 0 }),
+      getAllParameters: async (_params?: any) => ({ data: [], error: null, total: 0 }),
+      getParameter: async (_id: string) => ({ data: null, error: 'Not implemented in mock' }),
+      createParameter: async (_data: any) => ({ data: null, error: 'Not implemented in mock' }),
+      updateParameter: async (_id: string, _data: any) => ({ data: null, error: 'Not implemented in mock' }),
+      deleteParameter: async (_id: string) => ({ data: null, error: null }),
+    };
+
+export const aidApplicationsApi = provider === 'appwrite'
+  ? realAidApplicationsApi
+  : {
+      getAidApplications: async (_params?: any) => ({ data: [], error: null, total: 0 }),
+      getAidApplication: async (_id: string) => ({ data: null, error: 'Not implemented in mock' }),
+      createAidApplication: async (_data: any) => ({ data: null, error: 'Not implemented in mock' }),
+      updateAidApplication: async (_id: string, _data: any) => ({ data: null, error: 'Not implemented in mock' }),
+      deleteAidApplication: async (_id: string) => ({ data: null, error: null }),
+      updateStage: async (_id: string, _stage: string) => ({ data: null, error: 'Not implemented in mock' }),
+    };
 
 // Also export named for compatibility if needed
 export type SelectedApi = typeof api;

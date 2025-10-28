@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { appwriteApi } from '@/lib/api/appwrite-api';
+import api from '@/lib/api';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 import { FileUpload } from '@/components/ui/file-upload';
@@ -61,7 +61,7 @@ export function DonationForm({ onSuccess, onCancel }: DonationFormProps) {
 
   const createDonationMutation = useMutation({
     mutationFn: (data: DonationFormData) =>
-      appwriteApi.donations.createDonation(data),
+      api.donations.createDonation(data),
     onSuccess: () => {
       toast.success('Bağış başarıyla kaydedildi');
       queryClient.invalidateQueries({ queryKey: ['donations'] });
@@ -80,12 +80,12 @@ export function DonationForm({ onSuccess, onCancel }: DonationFormProps) {
 
       // Upload receipt file if provided
       if (receiptFile) {
-        const uploadResult = await appwriteApi.storage.uploadFile({
+        const uploadResult = await api.storage.uploadFile({
           file: receiptFile,
           bucketId: 'receipts',
           permissions: []
         });
-        uploadedFileId = uploadResult.data?.$id;
+        uploadedFileId = (uploadResult as any).data?.$id;
       }
 
       // Create donation with file reference

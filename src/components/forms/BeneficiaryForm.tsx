@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { appwriteApi } from '@/lib/api/appwrite-api';
+import api from '@/lib/api';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 
@@ -61,7 +61,7 @@ export function BeneficiaryForm({ onSuccess, onCancel }: BeneficiaryFormProps) {
 
   const createBeneficiaryMutation = useMutation({
     mutationFn: (data: BeneficiaryFormData) =>
-      appwriteApi.beneficiaries.createBeneficiary(data),
+      api.beneficiaries.createBeneficiary(data),
     onSuccess: () => {
       toast.success('İhtiyaç sahibi başarıyla eklendi');
       queryClient.invalidateQueries({ queryKey: ['beneficiaries'] });
