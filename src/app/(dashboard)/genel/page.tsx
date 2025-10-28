@@ -11,7 +11,7 @@ import { Users, Heart, TrendingUp, DollarSign, ClipboardList, Calendar, Building
 import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
 import { useQuery } from '@tanstack/react-query';
-import { appwriteApi } from '@/lib/api/appwrite-api';
+import api from '@/lib/api';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -21,7 +21,7 @@ export default function DashboardPage() {
 
   const { data: metrics, isLoading } = useQuery({
     queryKey: ['dashboard-metrics'],
-    queryFn: () => appwriteApi.getDashboardMetrics(),
+    queryFn: () => api.getDashboardMetrics(),
   });
 
   // Add pending tasks count query

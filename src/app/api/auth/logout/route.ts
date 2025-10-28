@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { appwriteApi } from '@/lib/api/appwrite-api';
-import { mockAuthApi } from '@/lib/api/mock-auth-api';
+import api from '@/lib/api';
 import { cookies } from 'next/headers';
-
-// Configuration: Set to true to use mock authentication
-const USE_MOCK_AUTH = false;
 
 /**
  * POST /api/auth/logout
@@ -13,11 +9,7 @@ const USE_MOCK_AUTH = false;
 export async function POST(request: NextRequest) {
   try {
     // Call backend logout
-    if (USE_MOCK_AUTH) {
-      await mockAuthApi.logout();
-    } else {
-      await appwriteApi.auth.logout();
-    }
+    await api.auth.logout();
 
     // Get cookies instance
     const cookieStore = await cookies();

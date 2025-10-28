@@ -8,10 +8,6 @@
 import { create } from 'zustand';
 import { devtools, persist, subscribeWithSelector, createJSONStorage } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import { appwriteApi } from '@/lib/api/appwrite-api';
-import { mockAuthApi } from '@/lib/api/mock-auth-api';
-import { account } from '@/lib/appwrite/client';
-import { createUserLabels } from '@/lib/appwrite/permissions';
 import { User, UserRole, Permission, ROLE_PERMISSIONS } from '@/types/auth';
 
 interface Session {

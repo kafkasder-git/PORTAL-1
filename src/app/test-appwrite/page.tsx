@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { appwriteApi } from '@/lib/api/appwrite-api';
+import api from '@/lib/api';
 import { useAuthStore } from '@/stores/authStore';
 
 export default function TestAppwritePage() {
@@ -29,7 +29,7 @@ export default function TestAppwritePage() {
 
       // Test 2: Test beneficiaries API
       try {
-        const beneficiaries = await appwriteApi.beneficiaries.getBeneficiaries({ page: 1, limit: 5 });
+        const beneficiaries = await api.beneficiaries.getBeneficiaries({ page: 1, limit: 5 });
         addResult(`✅ Beneficiaries API working: ${beneficiaries.total} total records`);
       } catch (error: any) {
         addResult(`❌ Beneficiaries API error: ${error.message}`);
@@ -37,7 +37,7 @@ export default function TestAppwritePage() {
 
       // Test 3: Test donations API
       try {
-        const donations = await appwriteApi.donations.getDonations({ page: 1, limit: 5 });
+        const donations = await api.donations.getDonations({ page: 1, limit: 5 });
         addResult(`✅ Donations API working: ${donations.total} total records`);
       } catch (error: any) {
         addResult(`❌ Donations API error: ${error.message}`);
@@ -45,7 +45,7 @@ export default function TestAppwritePage() {
 
       // Test 4: Test users API
       try {
-        const users = await appwriteApi.users.getUsers({ page: 1, limit: 5 });
+        const users = await api.users.getUsers({ page: 1, limit: 5 } as any);
         addResult(`✅ Users API working: ${users.total} total records`);
       } catch (error: any) {
         addResult(`❌ Users API error: ${error.message}`);
