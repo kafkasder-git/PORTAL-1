@@ -60,13 +60,13 @@ export function MeetingForm({ onSuccess, onCancel, initialData, meetingId }: Mee
     return '';
   });
 
-  // Fetch users for participant selection
-  const { data: usersResponse, isLoading: isLoadingUsers } = useQuery({
-    queryKey: ['users'],
-    queryFn: () => api.users.getUsers({ limit: 100 } as any),
-  });
+  // Fetch users for participant selection - disabled for now
+  // const { data: usersResponse, isLoading: isLoadingUsers } = useQuery({
+  //   queryKey: ['users'],
+  //   queryFn: () => api.users.getUsers({ limit: 100 } as any),
+  // });
 
-  const users = usersResponse?.data || [];
+  const users: any[] = []; // Empty for now
 
   // Form setup
   const {
@@ -75,11 +75,11 @@ export function MeetingForm({ onSuccess, onCancel, initialData, meetingId }: Mee
     setValue,
     watch,
     formState: { errors, isSubmitting },
-  } = useForm<MeetingFormData | MeetingEditFormData>({
+  } = useForm({
     resolver: zodResolver(isEditMode ? meetingEditSchema : meetingSchema),
     defaultValues: {
       ...initialData,
-      organizer: user?.$id || '',
+      organizer: user?.id || '',
       status: initialData?.status || 'scheduled',
       meeting_type: initialData?.meeting_type || 'general',
     },
@@ -90,11 +90,11 @@ export function MeetingForm({ onSuccess, onCancel, initialData, meetingId }: Mee
 
   // Auto-set organizer when user is loaded
   useEffect(() => {
-    if (user?.$id && !isEditMode) {
-      setValue('organizer', user.$id);
+    if (user?.id && !isEditMode) {
+      setValue('organizer', user.id);
       // Auto-add organizer to participants if not already there
-      if (!selectedParticipants.includes(user.$id)) {
-        setSelectedParticipants([...selectedParticipants, user.$id]);
+      if (!selectedParticipants.includes(user.id)) {
+        setSelectedParticipants([...selectedParticipants, user.id]);
       }
     }
   }, [user, isEditMode, setValue, selectedParticipants]);
@@ -160,7 +160,7 @@ export function MeetingForm({ onSuccess, onCancel, initialData, meetingId }: Mee
   const handleParticipantToggle = (userId: string) => {
     if (selectedParticipants.includes(userId)) {
       // Don't allow removing organizer
-      if (userId === user?.$id) {
+      if (userId === user?.id) {
         toast.error('Düzenleyen katılımcılardan çıkarılamaz');
         return;
       }
@@ -323,7 +323,7 @@ export function MeetingForm({ onSuccess, onCancel, initialData, meetingId }: Mee
                 <SelectValue placeholder="Katılımcı seçin" />
               </SelectTrigger>
               <SelectContent>
-                {isLoadingUsers ? (
+                {false ? (
                   <SelectItem value="loading" disabled>
                     Yükleniyor...
                   </SelectItem>
@@ -342,12 +342,12 @@ export function MeetingForm({ onSuccess, onCancel, initialData, meetingId }: Mee
               {selectedParticipants.map((userId) => (
                 <Badge
                   key={userId}
-                  variant={userId === user?.$id ? 'default' : 'secondary'}
+                  variant={userId === user?.id ? 'default' : 'secondary'}
                   className="cursor-pointer"
                   onClick={() => handleParticipantToggle(userId)}
                 >
                   {getUserName(userId)}
-                  {userId !== user?.$id && ' ×'}
+                  {userId !== user?.id && ' ×'}
                 </Badge>
               ))}
             </div>

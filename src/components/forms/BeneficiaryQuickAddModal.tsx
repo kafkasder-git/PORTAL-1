@@ -62,7 +62,7 @@ export function BeneficiaryQuickAddModal({
   const [isLoading, setIsLoading] = useState(false)
   const [isGeneratingFileNumber, setIsGeneratingFileNumber] = useState(false)
 
-  const form = useForm<QuickAddBeneficiaryFormData>({
+  const form = useForm({
     resolver: zodResolver(quickAddBeneficiarySchema),
     defaultValues: {
       category: undefined,
@@ -114,7 +114,7 @@ export function BeneficiaryQuickAddModal({
       // Appwrite API için data mapping - CreateDocumentData<BeneficiaryDocument> contract
       const beneficiaryData: CreateDocumentData<BeneficiaryDocument> = {
         name: `${data.firstName} ${data.lastName}`,
-        tc_no: data.identityNumber,
+        tc_no: data.identityNumber || '',
         phone: '', // Required field - empty for now, can be collected later
         address: '', // Required field - empty for now, can be collected later
         city: '', // Required field - empty for now, can be collected later

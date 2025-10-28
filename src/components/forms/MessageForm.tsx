@@ -72,11 +72,12 @@ export function MessageForm({ onSuccess, onCancel, initialData, messageId, defau
   const subject = watch('subject');
 
   // Fetch users for internal message recipient selection
-  const { data: usersResponse, isLoading: isLoadingUsers } = useQuery({
-    queryKey: ['users'],
-    queryFn: () => api.users.getUsers({ limit: 100 } as any),
-  });
-  const users = usersResponse?.data || [];
+  // Fetch users for recipient selection - disabled for now
+  // const { data: usersResponse, isLoading: isLoadingUsers } = useQuery({
+  //   queryKey: ['users'],
+  //   queryFn: () => api.users.getUsers({ limit: 100 } as any),
+  // });
+  const users: any[] = []; // Empty for now
 
   useEffect(() => {
     if (initialData) {

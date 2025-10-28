@@ -149,7 +149,7 @@ export function FilterPanel({
                           }
                           onChange={(e) => {
                             const current = Array.isArray(filters[field.key])
-                              ? filters[field.key]
+                              ? filters[field.key] as string[]
                               : [];
                             const updated = e.target.checked
                               ? [...current, option.value]

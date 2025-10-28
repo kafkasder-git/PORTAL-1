@@ -60,8 +60,19 @@ export function BeneficiaryForm({ onSuccess, onCancel }: BeneficiaryFormProps) {
   });
 
   const createBeneficiaryMutation = useMutation({
-    mutationFn: (data: BeneficiaryFormData) =>
-      api.beneficiaries.createBeneficiary(data),
+    mutationFn: (data: BeneficiaryFormData) => {
+      // Map status values to Turkish
+      const statusMap = {
+        'active': 'AKTIF',
+        'inactive': 'PASIF',
+        'archived': 'SILINDI'
+      } as const;
+      
+      return api.beneficiaries.createBeneficiary({
+        ...data,
+        status: statusMap[data.status] || 'AKTIF'
+      }) as Promise<any>;
+    },
     onSuccess: () => {
       toast.success('İhtiyaç sahibi başarıyla eklendi');
       queryClient.invalidateQueries({ queryKey: ['beneficiaries'] });

@@ -285,6 +285,7 @@ export function Sidebar({ isMobileOpen = false, onMobileToggle }: SidebarProps) 
                 size="sm"
                 onClick={handleSearch}
                 className="flex-1 justify-start hover:bg-accent hover:text-accent-foreground transition-colors"
+                data-testid="search-button"
               >
                 <Search className="w-4 h-4 mr-2" />
                 Ara
@@ -294,11 +295,13 @@ export function Sidebar({ isMobileOpen = false, onMobileToggle }: SidebarProps) 
                 size="sm"
                 onClick={handleNotifications}
                 className="relative hover:bg-accent hover:text-accent-foreground transition-colors"
+                data-testid="notification-button"
               >
                 <Bell className="w-4 h-4" />
                 <Badge
                   variant="destructive"
                   className="absolute -top-1 -right-1 h-5 min-w-5 flex items-center justify-center p-0 px-1.5 text-xs"
+                  data-testid="notification-badge"
                 >
                   3
                 </Badge>
@@ -314,6 +317,7 @@ export function Sidebar({ isMobileOpen = false, onMobileToggle }: SidebarProps) 
                     onClick={handleSearch}
                     className="w-10 h-10 p-0 hover:bg-accent hover:text-accent-foreground transition-colors"
                     aria-label="Ara"
+                    data-testid="search-button-collapsed"
                   >
                     <Search className="w-4 h-4" />
                   </Button>
@@ -329,11 +333,13 @@ export function Sidebar({ isMobileOpen = false, onMobileToggle }: SidebarProps) 
                     onClick={handleNotifications}
                     className="relative w-10 h-10 p-0 hover:bg-accent hover:text-accent-foreground transition-colors"
                     aria-label="Bildirimler"
+                    data-testid="notification-button-collapsed"
                   >
                     <Bell className="w-4 h-4" />
                     <Badge
                       variant="destructive"
                       className="absolute -top-1 -right-1 h-5 min-w-5 flex items-center justify-center p-0 px-1.5 text-xs"
+                      data-testid="notification-badge-collapsed"
                     >
                       3
                     </Badge>

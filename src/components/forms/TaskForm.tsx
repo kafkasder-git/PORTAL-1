@@ -43,13 +43,13 @@ export function TaskForm({ onSuccess, onCancel, initialData, taskId }: TaskFormP
     setValue,
     watch,
     formState: { errors },
-  } = useForm<TaskFormData>({
+  } = useForm({
     resolver: zodResolver(taskSchema),
     defaultValues: {
       title: initialData?.title || '',
       description: initialData?.description || '',
       assigned_to: initialData?.assigned_to || '',
-      created_by: user?.$id || '',
+      created_by: user?.id || '',
       priority: initialData?.priority || 'normal',
       status: initialData?.status || 'pending',
       due_date: initialData?.due_date || '',
@@ -60,13 +60,14 @@ export function TaskForm({ onSuccess, onCancel, initialData, taskId }: TaskFormP
   });
 
   // Fetch users for assigned_to dropdown
-  const { data: usersResponse } = useQuery({
-    queryKey: ['users'],
-    queryFn: () => api.users.getUsers({ limit: 100 } as any),
-    enabled: true,
-  });
+  // Fetch users for assignment - disabled for now
+  // const { data: usersResponse } = useQuery({
+  //   queryKey: ['users'],
+  //   queryFn: () => api.users.getUsers({ limit: 100 } as any),
+  //   enabled: true,
+  // });
 
-  const users = usersResponse?.data || [];
+  const users: any[] = []; // Empty for now
 
   // Create task mutation
   const createTaskMutation = useMutation({
@@ -98,10 +99,10 @@ export function TaskForm({ onSuccess, onCancel, initialData, taskId }: TaskFormP
 
   // Set created_by when user is available
   useEffect(() => {
-    if (user?.$id && !isEditMode) {
-      setValue('created_by', user.$id);
+    if (user?.id && !isEditMode) {
+      setValue('created_by', user.id);
     }
-  }, [user?.$id, setValue, isEditMode]);
+  }, [user?.id, setValue, isEditMode]);
 
   // Handle tag input
   const handleTagInputKeyPress = (e: React.KeyboardEvent) => {

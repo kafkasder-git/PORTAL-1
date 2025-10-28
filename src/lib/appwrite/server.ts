@@ -113,10 +113,10 @@ export function initializeServerClient(): void {
  * Safe initialization with warnings instead of errors
  * Automatically called on first use if not explicitly initialized
  */
-let isServerInitialized = false;
+let _serverInitFlag = false;
 export function ensureServerInitialized(): boolean {
-  if (!isServerInitialized) {
-    isServerInitialized = true;
+  if (!_serverInitFlag) {
+    _serverInitFlag = true;
     return validateServerConfigSafe();
   }
   return true;

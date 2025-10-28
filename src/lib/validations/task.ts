@@ -45,36 +45,33 @@ export const taskSchema = z.object({
     .min(1, 'Oluşturan kullanıcı zorunludur'),
   
   priority: priorityEnum,
-  
-  status: statusEnum.default('pending'),
-  
+
+  status: statusEnum,
+
+  tags: z.array(tagSchema)
+    .max(10, 'En fazla 10 etiket eklenebilir'),
+
+  is_read: z.boolean(),
+
   // Optional fields
   description: z.string()
     .max(1000, 'Açıklama en fazla 1000 karakter olmalıdır')
     .optional()
     .or(z.literal('')),
-  
+
   assigned_to: z.string()
     .optional()
     .or(z.literal('')),
-  
+
   due_date: futureDateSchema,
-  
+
   completed_at: z.string()
     .optional(),
-  
+
   category: z.string()
     .max(50, 'Kategori en fazla 50 karakter olmalıdır')
     .optional()
-    .or(z.literal('')),
-  
-  tags: z.array(tagSchema)
-    .max(10, 'En fazla 10 etiket eklenebilir')
-    .optional()
-    .default([]),
-  
-  is_read: z.boolean()
-    .default(false)
+    .or(z.literal(''))
 }).refine((data) => {
   // Auto-set completed_at when status becomes 'completed'
   if (data.status === 'completed' && !data.completed_at) {

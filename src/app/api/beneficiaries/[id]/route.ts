@@ -58,7 +58,6 @@ async function getBeneficiaryHandler(
     }
 
     const response = await api.beneficiaries.getBeneficiary(id);
-ry(id);
 
     if (response.error) {
       return NextResponse.json(

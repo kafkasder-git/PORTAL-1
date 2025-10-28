@@ -32,6 +32,15 @@ const mockApi = {
     },
   },
 
+  // Users API
+  users: {
+    getUsers: async (_params?: any) => ({ data: [], error: null, total: 0 }),
+    getUser: async (_id: string) => ({ data: null, error: 'Not implemented in mock' }),
+    createUser: async (_data: any) => ({ data: null, error: 'Not implemented in mock' }),
+    updateUser: async (_id: string, _data: any) => ({ data: null, error: 'Not implemented in mock' }),
+    deleteUser: async (_id: string) => ({ data: null, error: null }),
+  },
+
   // Beneficiaries (match appwriteApi surface where possible)
   beneficiaries: {
     getBeneficiaries: (params?: any) => mock.getBeneficiaries(params),
@@ -59,10 +68,20 @@ const mockApi = {
 
   meetings: {
     getMeetings: async (_params?: any) => ({ data: [], error: null, total: 0 }),
+    createMeeting: async (_data: any) => ({ data: null, error: 'Not implemented in mock' }),
+    updateMeeting: async (_id: string, _data: any) => ({ data: null, error: 'Not implemented in mock' }),
+    updateMeetingStatus: async (_id: string, _status: string) => ({ data: null, error: 'Not implemented in mock' }),
+    deleteMeeting: async (_id: string) => ({ data: null, error: null }),
   },
 
   messages: {
     getMessages: async (_params?: any) => ({ data: [], error: null, total: 0 }),
+    getMessage: async (_id: string) => ({ data: null, error: 'Not implemented in mock' }),
+    createMessage: async (_data: any) => ({ data: null, error: 'Not implemented in mock' }),
+    updateMessage: async (_id: string, _data: any) => ({ data: null, error: 'Not implemented in mock' }),
+    sendMessage: async (_id: string) => ({ data: null, error: 'Not implemented in mock' }),
+    deleteMessage: async (_id: string) => ({ data: null, error: null }),
+    markAsRead: async (_id: string, _userId: string) => ({ data: null, error: 'Not implemented in mock' }),
   },
 
   storage: {

@@ -21,13 +21,13 @@ export default function DashboardPage() {
 
   const { data: metrics, isLoading } = useQuery({
     queryKey: ['dashboard-metrics'],
-    queryFn: () => api.getDashboardMetrics(),
+    queryFn: () => api.dashboard.getMetrics(),
   });
 
   // Add pending tasks count query
   const { data: pendingTasksResponse, isLoading: isPendingTasksLoading } = useQuery({
     queryKey: ['pending-tasks-count'],
-    queryFn: () => appwriteApi.tasks.getPendingTasksCount(),
+    queryFn: () => api.tasks.getTasks({ filters: { status: 'pending' } }),
   });
 
   const pendingTasksCount = pendingTasksResponse?.data || 0;
@@ -35,7 +35,7 @@ export default function DashboardPage() {
   // Add messages statistics query - temporarily disabled
   // const { data: messagesStatsResponse, isLoading: isMessagesStatsLoading } = useQuery({
   //   queryKey: ['messages-statistics'],
-  //   queryFn: () => appwriteApi.messages.getMessagesStatistics(),
+  //   queryFn: () => api.messages.getMessagesStatistics(),
   // });
 
   // const messagesStats = messagesStatsResponse?.data || {
@@ -55,7 +55,7 @@ export default function DashboardPage() {
   // Add upcoming meetings count query
   const { data: upcomingMeetingsResponse, isLoading: isUpcomingMeetingsLoading } = useQuery({
     queryKey: ['upcoming-meetings-count'],
-    queryFn: () => appwriteApi.meetings.getUpcomingMeetingsCount(),
+    queryFn: () => api.meetings.getMeetings({ filters: { status: 'upcoming' } }),
   });
 
   const upcomingMeetingsCount = upcomingMeetingsResponse?.data || 0;
@@ -65,7 +65,7 @@ export default function DashboardPage() {
     queryKey: ['meetings-invited', user?.id],
     queryFn: () => {
       if (!user?.id) return Promise.resolve({ data: [], error: null });
-      return appwriteApi.meetings.getMeetingsByTab(user.id, 'invited');
+      return api.meetings.getMeetings({ filters: { user_id: user.id, status: 'invited' } });
     },
     enabled: !!user?.id,
   });
@@ -74,7 +74,7 @@ export default function DashboardPage() {
     queryKey: ['meetings-attended', user?.id],
     queryFn: () => {
       if (!user?.id) return Promise.resolve({ data: [], error: null });
-      return appwriteApi.meetings.getMeetingsByTab(user.id, 'attended');
+      return api.meetings.getMeetings({ filters: { user_id: user.id, status: 'attended' } });
     },
     enabled: !!user?.id,
   });
@@ -83,7 +83,7 @@ export default function DashboardPage() {
     queryKey: ['meetings-informed', user?.id],
     queryFn: () => {
       if (!user?.id) return Promise.resolve({ data: [], error: null });
-      return appwriteApi.meetings.getMeetingsByTab(user.id, 'informed');
+      return api.meetings.getMeetings({ filters: { user_id: user.id, status: 'informed' } });
     },
     enabled: !!user?.id,
   });
@@ -92,7 +92,7 @@ export default function DashboardPage() {
     queryKey: ['meetings-open', user?.id],
     queryFn: () => {
       if (!user?.id) return Promise.resolve({ data: [], error: null });
-      return appwriteApi.meetings.getMeetingsByTab(user.id, 'open');
+      return api.meetings.getMeetings({ filters: { user_id: user.id, status: 'open' } });
     },
     enabled: !!user?.id,
   });

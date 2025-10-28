@@ -130,7 +130,7 @@ export function AdvancedBeneficiaryForm({ onSuccess, onCancel, initialData }: Ad
         ...data,
         status: 'active',
         approval_status: 'pending',
-      }),
+      }) as Promise<any>,
     onSuccess: () => {
       toast.success('İhtiyaç sahibi başarıyla eklendi');
       queryClient.invalidateQueries({ queryKey: ['beneficiaries'] });

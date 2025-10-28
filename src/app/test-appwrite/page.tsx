@@ -30,7 +30,8 @@ export default function TestAppwritePage() {
       // Test 2: Test beneficiaries API
       try {
         const beneficiaries = await api.beneficiaries.getBeneficiaries({ page: 1, limit: 5 });
-        addResult(`✅ Beneficiaries API working: ${beneficiaries.total} total records`);
+        const total = Array.isArray(beneficiaries.data) ? beneficiaries.data.length : beneficiaries.data?.total || 0;
+        addResult(`✅ Beneficiaries API working: ${total} total records`);
       } catch (error: any) {
         addResult(`❌ Beneficiaries API error: ${error.message}`);
       }
@@ -43,12 +44,12 @@ export default function TestAppwritePage() {
         addResult(`❌ Donations API error: ${error.message}`);
       }
 
-      // Test 4: Test users API
+      // Test 4: Test tasks API
       try {
-        const users = await api.users.getUsers({ page: 1, limit: 5 } as any);
-        addResult(`✅ Users API working: ${users.total} total records`);
+        const tasks = await api.tasks.getTasks({ page: 1, limit: 5 });
+        addResult(`✅ Tasks API working: ${tasks.total} total records`);
       } catch (error: any) {
-        addResult(`❌ Users API error: ${error.message}`);
+        addResult(`❌ Tasks API error: ${error.message}`);
       }
 
       addResult('🎉 Appwrite integration test completed!');

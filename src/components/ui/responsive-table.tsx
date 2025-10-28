@@ -77,7 +77,7 @@ export function ResponsiveTable({
           <tbody>
             {data.map((row, index) => (
               <tr
-                key={row[rowKey]}
+                key={String(row[rowKey])}
                 className={`border-b hover:bg-blue-50 transition-colors cursor-pointer ${
                   index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
                 }`}
@@ -86,7 +86,7 @@ export function ResponsiveTable({
                 {columns
                   .filter((col) => col.hidden !== 'desktop')
                   .map((col) => (
-                    <td key={`${row[rowKey]}-${col.key}`} className="px-4 py-3 text-sm text-gray-900">
+                    <td key={`${String(row[rowKey])}-${col.key}`} className="px-4 py-3 text-sm text-gray-900">
                       {col.render ? col.render(row[col.key], row) : String(row[col.key] || '-')}
                     </td>
                   ))}
@@ -101,7 +101,7 @@ export function ResponsiveTable({
       <div className="hidden md:lg:grid gap-4 grid-cols-1 lg:hidden">
         {data.map((row) => (
           <Card
-            key={row[rowKey]}
+            key={String(row[rowKey])}
             className="p-4 hover:shadow-lg transition-shadow cursor-pointer"
             onClick={() => onRowClick?.(row)}
           >
@@ -110,7 +110,7 @@ export function ResponsiveTable({
                 .filter((col) => col.hidden !== 'tablet' && col.hidden !== 'mobile-tablet')
                 .slice(0, 4)
                 .map((col) => (
-                  <div key={`${row[rowKey]}-${col.key}`}>
+                  <div key={`${String(row[rowKey])}-${col.key}`}>
                     <p className="text-xs font-medium text-gray-500 uppercase">{col.label}</p>
                     <p className="text-sm text-gray-900 mt-1">
                       {col.render ? col.render(row[col.key], row) : String(row[col.key] || '-')}
@@ -131,7 +131,7 @@ export function ResponsiveTable({
       <div className="md:hidden space-y-4">
         {data.map((row) => (
           <Card
-            key={row[rowKey]}
+            key={String(row[rowKey])}
             className="p-4 space-y-3 hover:shadow-lg transition-shadow cursor-pointer"
             onClick={() => onRowClick?.(row)}
           >
@@ -139,7 +139,7 @@ export function ResponsiveTable({
               .filter((col) => col.hidden !== 'mobile' && col.hidden !== 'mobile-tablet')
               .slice(0, 3)
               .map((col) => (
-                <div key={`${row[rowKey]}-${col.key}`} className="flex justify-between items-start">
+                <div key={`${String(row[rowKey])}-${col.key}`} className="flex justify-between items-start">
                   <p className="text-xs font-medium text-gray-500 uppercase">{col.label}</p>
                   <p className="text-sm text-gray-900 text-right max-w-[50%]">
                     {col.render ? col.render(row[col.key], row) : String(row[col.key] || '-')}

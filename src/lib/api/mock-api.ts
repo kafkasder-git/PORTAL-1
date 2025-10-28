@@ -54,8 +54,8 @@ let mockBeneficiaries: Beneficiary[] = [
     consentStatement: "Kişisel verilerimin işlenmesine rıza gösteriyorum.",
     deleteRecord: false,
     status: "AKTIF" as any,
-    createdAt: new Date("2024-01-15T10:30:00.000Z"),
-    updatedAt: new Date("2024-01-15T10:30:00.000Z"),
+    createdAt: "2024-01-15T10:30:00.000Z",
+    updatedAt: "2024-01-15T10:30:00.000Z",
     createdBy: "admin@test.com",
     updatedBy: "admin@test.com"
   },
@@ -88,8 +88,8 @@ let mockBeneficiaries: Beneficiary[] = [
     consentStatement: "Kişisel verilerimin işlenmesine rıza gösteriyorum.",
     deleteRecord: false,
     status: "AKTIF" as any,
-    createdAt: new Date("2024-02-10T14:20:00.000Z"),
-    updatedAt: new Date("2024-02-10T14:20:00.000Z"),
+    createdAt: "2024-02-10T14:20:00.000Z",
+    updatedAt: "2024-02-10T14:20:00.000Z",
     createdBy: "manager@test.com",
     updatedBy: "manager@test.com"
   },
@@ -122,8 +122,8 @@ let mockBeneficiaries: Beneficiary[] = [
     consentStatement: "Kişisel verilerimin işlenmesine rıza gösteriyorum.",
     deleteRecord: false,
     status: "TASLAK" as any,
-    createdAt: new Date("2024-03-05T09:15:00.000Z"),
-    updatedAt: new Date("2024-03-05T09:15:00.000Z"),
+    createdAt: "2024-03-05T09:15:00.000Z",
+    updatedAt: "2024-03-05T09:15:00.000Z",
     createdBy: "member@test.com",
     updatedBy: "member@test.com"
   }
@@ -147,8 +147,8 @@ export const createBeneficiary = async (data: BeneficiaryQuickAdd): Promise<ApiR
       id: generateId(),
       ...data,
       status: 'TASLAK' as any,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
       createdBy: 'current-user',
       updatedBy: 'current-user'
     };
@@ -189,7 +189,7 @@ export const updateBeneficiary = async (id: string, data: Partial<Beneficiary>):
     const updatedBeneficiary: Beneficiary = {
       ...mockBeneficiaries[index],
       ...data,
-      updatedAt: new Date(),
+      updatedAt: new Date().toISOString(),
       updatedBy: 'current-user'
     };
     

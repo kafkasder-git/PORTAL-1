@@ -130,11 +130,5 @@ export default withSentryConfig(
     silent: true,
     org: process.env.SENTRY_ORG,
     project: process.env.SENTRY_PROJECT,
-  },
-  {
-    // For all available options, see:
-    // https://github.com/getsentry/sentry-javascript/blob/develop/packages/nextjs/src/config/types.ts
-    hideSourceMaps: true,
-    disableLogger: true,
   }
 );

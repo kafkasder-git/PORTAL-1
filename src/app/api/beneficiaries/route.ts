@@ -102,11 +102,15 @@ async function getBeneficiariesHandler(request: NextRequest) {
       );
     }
 
+    // Handle different response structures
+    const beneficiaries = Array.isArray(response.data) ? response.data : response.data?.data || [];
+    const total = Array.isArray(response.data) ? response.data.length : response.data?.total || 0;
+
     return NextResponse.json({
       success: true,
-      data: response.data || [],
-      total: response.total || 0,
-      message: `${response.total || 0} kayıt bulundu`,
+      data: beneficiaries,
+      total: total,
+      message: `${total} kayıt bulundu`,
     });
   } catch (error: any) {
     console.error('Beneficiaries list error:', error);
