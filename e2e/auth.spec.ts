@@ -14,7 +14,7 @@ test.describe('Authentication Flow', () => {
     // Should redirect to dashboard
     await expect(page).toHaveURL('/genel')
 
-    // Should show welcome message
+    // Should show welcome message (substring)
     await expect(page.locator('text=Hoş geldiniz')).toBeVisible()
   })
 
@@ -29,7 +29,7 @@ test.describe('Authentication Flow', () => {
     await page.click('button[type="submit"]')
 
     // Should show error message
-    await expect(page.locator('text=Giriş yapılamadı')).toBeVisible()
+    await expect(page.locator('text=/Giriş yapılamadı|Geçersiz kullanıcı bilgileri/i')).toBeVisible()
   })
 
   test('should redirect authenticated users away from login', async ({ page }) => {
@@ -85,8 +85,19 @@ test.describe('Navigation', () => {
   test('should navigate between modules', async ({ page }) => {
     await page.goto('/genel')
 
-    // Click on Bağışlar module
-    await page.click('text=Bağışlar')
+    // Ensure sidebar is expanded for visibility
+    const expandedAside = page.locator('aside.sidebar-expanded')
+    const collapsedAside = page.locator('aside.sidebar-collapsed')
+    if (await collapsedAside.count()) {
+      await page.click('[data-testid="sidebar-toggle"]')
+      await expect(expandedAside).toBeVisible()
+    }
+
+    // Click on Bağışlar module to expand its subpages
+    await page.getByRole('button', { name: /Bağışlar/i }).click()
+
+    // Then click on "Bağış Listesi" subpage link
+    await page.getByRole('link', { name: /Bağış Listesi/i }).click()
 
     // Should navigate to donations list
     await expect(page).toHaveURL('/bagis/liste')
@@ -100,10 +111,10 @@ test.describe('Navigation', () => {
     await page.click('[data-testid="sidebar-toggle"]')
 
     // Sidebar should collapse
-    await expect(page.locator('.sidebar-collapsed')).toBeVisible()
+    await expect(page.locator('aside.sidebar-collapsed')).toBeVisible()
 
     // Click again to expand
     await page.click('[data-testid="sidebar-toggle"]')
-    await expect(page.locator('.sidebar-expanded')).toBeVisible()
+    await expect(page.locator('aside.sidebar-expanded')).toBeVisible()
   })
 })

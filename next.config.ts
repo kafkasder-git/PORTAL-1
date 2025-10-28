@@ -48,6 +48,27 @@ optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=()',
           },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=63072000; includeSubDomains; preload',
+          },
+          {
+            key: 'Content-Security-Policy',
+            // Basic CSP suitable for Next.js dev/prod with inline styles and eval in dev
+            // Adjust as needed for external resources (images/fonts/api endpoints)
+            value: [
+              "default-src 'self'",
+              "base-uri 'self'",
+              "form-action 'self'",
+              "img-src 'self' data: blob: https:",
+              "font-src 'self' data:",
+              "object-src 'none'",
+              "frame-ancestors 'none'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+              "style-src 'self' 'unsafe-inline'",
+              "connect-src 'self' https:"
+            ].join('; '),
+          },
         ],
       },
       {
