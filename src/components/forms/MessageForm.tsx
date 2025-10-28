@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { appwriteApi } from '@/lib/api/appwrite-api';
+import api from '@/lib/api';
 import { useAuthStore } from '@/stores/authStore';
 import { toast } from 'sonner';
 import { Loader2, X, AlertCircle, MessageSquare, Mail, Users, Send, Save, Phone, AtSign } from 'lucide-react';
@@ -74,7 +74,7 @@ export function MessageForm({ onSuccess, onCancel, initialData, messageId, defau
   // Fetch users for internal message recipient selection
   const { data: usersResponse, isLoading: isLoadingUsers } = useQuery({
     queryKey: ['users'],
-    queryFn: () => appwriteApi.users.getUsers({ limit: 100 }),
+    queryFn: () => api.users.getUsers({ limit: 100 } as any),
   });
   const users = usersResponse?.data || [];
 
@@ -90,7 +90,7 @@ export function MessageForm({ onSuccess, onCancel, initialData, messageId, defau
   }, [initialData, setValue]);
 
   const createMessageMutation = useMutation({
-    mutationFn: (data: MessageFormData) => appwriteApi.messages.createMessage(data),
+    mutationFn: (data: MessageFormData) => api.messages.createMessage(data),
     onSuccess: () => {
       toast.success('Mesaj başarıyla oluşturuldu.');
       queryClient.invalidateQueries({ queryKey: ['messages'] });
@@ -104,7 +104,7 @@ export function MessageForm({ onSuccess, onCancel, initialData, messageId, defau
 
   const updateMessageMutation = useMutation({
     mutationFn: (data: { id: string; data: MessageFormData }) =>
-      appwriteApi.messages.updateMessage(data.id, data.data),
+      api.messages.updateMessage(data.id, data.data),
     onSuccess: () => {
       toast.success('Mesaj başarıyla güncellendi.');
       queryClient.invalidateQueries({ queryKey: ['messages'] });
@@ -117,7 +117,7 @@ export function MessageForm({ onSuccess, onCancel, initialData, messageId, defau
   });
 
   const sendMessageMutation = useMutation({
-    mutationFn: (id: string) => appwriteApi.messages.sendMessage(id),
+    mutationFn: (id: string) => api.messages.sendMessage(id),
     onSuccess: () => {
       toast.success('Mesaj başarıyla gönderildi.');
       queryClient.invalidateQueries({ queryKey: ['messages'] });
