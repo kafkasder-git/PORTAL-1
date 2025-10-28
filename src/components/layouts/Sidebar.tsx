@@ -216,8 +216,8 @@ export function Sidebar({ isMobileOpen = false, onMobileToggle }: SidebarProps) 
       {/* Sidebar */}
       <aside
         className={cn(
-          'fixed left-0 top-16 h-[calc(100vh-4rem)] bg-white border-r z-40 overflow-y-auto transition-all duration-300 ease-in-out',
-          isCollapsed ? 'w-20' : 'w-64',
+          'fixed left-0 top-16 h-[calc(100vh-4rem)] bg-sidebar text-sidebar-foreground border-r border-sidebar-border z-40 overflow-y-auto transition-all duration-300 ease-in-out backdrop-blur-xl',
+          isCollapsed ? 'w-20 sidebar-collapsed' : 'w-64 sidebar-expanded',
           isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         )}
         aria-label="Sidebar"
@@ -226,7 +226,7 @@ export function Sidebar({ isMobileOpen = false, onMobileToggle }: SidebarProps) 
         {/* User Profile Section */}
         <div
           className={cn(
-            'p-4 border-b transition-colors hover:bg-accent cursor-pointer',
+            'p-4 border-b border-sidebar-border transition-colors hover:bg-primary/5 cursor-pointer',
             isCollapsed && 'flex justify-center'
           )}
           aria-label="User profile"
@@ -331,9 +331,8 @@ export function Sidebar({ isMobileOpen = false, onMobileToggle }: SidebarProps) 
                     variant="ghost"
                     size="sm"
                     onClick={handleNotifications}
-                    className="relative w-10 h-10 p-0 hover:bg-accent hover:text-accent-foreground transition-colors"
-                    aria-label="Bildirimler"
-                    data-testid="notification-button-collapsed"
+                    className="relative hover:bg-primary/10 hover:text-primary transition-colors"
+                    data-testid="notification-button"
                   >
                     <Bell className="w-4 h-4" />
                     <Badge
@@ -428,10 +427,10 @@ export function Sidebar({ isMobileOpen = false, onMobileToggle }: SidebarProps) 
                           }
                         }}
                         className={cn(
-                          'w-full flex items-center justify-center p-3 rounded-lg transition-all duration-200 ease-in-out hover:scale-110',
+                          'w-full flex items-center justify-center p-3 rounded-lg transition-all duration-200 ease-in-out hover:bg-primary/10 hover:text-primary',
                           hasActiveSubpage
                             ? 'bg-primary/10 text-primary'
-                            : 'text-foreground hover:bg-accent hover:text-accent-foreground'
+                            : 'text-foreground'
                         )}
                         aria-label={module.name}
                       >
@@ -466,7 +465,7 @@ export function Sidebar({ isMobileOpen = false, onMobileToggle }: SidebarProps) 
         </nav>
 
         {/* Bottom Section: Collapse Toggle & Settings */}
-        <div className="sticky bottom-0 bg-white border-t mt-auto">
+        <div className="sticky bottom-0 bg-sidebar border-t border-sidebar-border mt-auto">
           {/* Collapse Toggle */}
           <div className="p-4">
             {!isCollapsed ? (
@@ -474,8 +473,9 @@ export function Sidebar({ isMobileOpen = false, onMobileToggle }: SidebarProps) 
                 variant="ghost"
                 size="sm"
                 onClick={toggleSidebar}
-                className="w-full justify-start hover:bg-accent hover:text-accent-foreground transition-colors"
+                className="w-full justify-start hover:bg-primary/10 hover:text-primary transition-colors"
                 aria-label="Toggle sidebar"
+                data-testid="sidebar-toggle"
               >
                 <PanelLeftClose className="w-4 h-4 mr-2" />
                 Daralt
@@ -487,8 +487,9 @@ export function Sidebar({ isMobileOpen = false, onMobileToggle }: SidebarProps) 
                     variant="ghost"
                     size="sm"
                     onClick={toggleSidebar}
-                    className="w-full justify-center hover:bg-accent hover:text-accent-foreground transition-colors"
+                    className="w-full justify-center hover:bg-primary/10 hover:text-primary transition-colors"
                     aria-label="Toggle sidebar"
+                    data-testid="sidebar-toggle"
                   >
                     <PanelLeftOpen className="w-4 h-4" />
                   </Button>
@@ -507,7 +508,7 @@ export function Sidebar({ isMobileOpen = false, onMobileToggle }: SidebarProps) 
                   'w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-heading font-semibold transition-colors',
                   isActive('/settings')
                     ? 'bg-primary/10 text-primary'
-                    : 'text-foreground hover:bg-accent hover:text-accent-foreground'
+                    : 'text-foreground hover:bg-primary/10 hover:text-primary'
                 )}
               >
                 <Settings className="w-5 h-5" />
@@ -522,7 +523,7 @@ export function Sidebar({ isMobileOpen = false, onMobileToggle }: SidebarProps) 
                       'flex items-center justify-center p-3 rounded-lg transition-colors',
                       isActive('/settings')
                         ? 'bg-primary/10 text-primary'
-                        : 'text-foreground hover:bg-accent hover:text-accent-foreground'
+                        : 'text-foreground hover:bg-primary/10 hover:text-primary'
                     )}
                     aria-label="Ayarlar"
                   >

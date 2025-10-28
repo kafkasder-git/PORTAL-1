@@ -2,6 +2,7 @@
 // Import concrete implementations
 import * as mock from './mock-api';
 import { appwriteApi, parametersApi as realParametersApi, aidApplicationsApi as realAidApplicationsApi } from './appwrite-api';
+import { appwriteServerApi } from './appwrite-server-api';
 
 // Infer provider from environment (client-safe first)
 const clientProvider = typeof window !== 'undefined' ? process.env.NEXT_PUBLIC_BACKEND_PROVIDER : undefined;
@@ -98,7 +99,13 @@ const mockApi = {
 } as const;
 
 // Selected API surface
-export const api = provider === 'appwrite' ? appwriteApi : mockApi;
+const selectedApi = (() => {
+  if (provider !== 'appwrite') return mockApi;
+  // Use server API on the server, client API in the browser
+  return typeof window === 'undefined' ? appwriteServerApi : appwriteApi;
+})();
+
+export const api = selectedApi;
 
 // Expose parameters and aid applications APIs
 export const parametersApi = provider === 'appwrite'
