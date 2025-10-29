@@ -4,8 +4,8 @@ test.describe('Beneficiaries Module', () => {
   test.beforeEach(async ({ page }) => {
     // Login before each test
     await page.goto('/login');
-    await page.fill('input[type="email"]', 'admin@test.com');
-    await page.fill('input[type="password"]', 'admin123');
+    await page.fill('#email', 'admin@test.com');
+    await page.fill('#password', 'admin123');
     await page.click('button[type="submit"]');
     await expect(page).toHaveURL('/genel');
   });
@@ -173,8 +173,8 @@ test.describe('Beneficiary Form Validation', () => {
   test.beforeEach(async ({ page }) => {
     // Login
     await page.goto('/login');
-    await page.fill('input[type="email"]', 'admin@test.com');
-    await page.fill('input[type="password"]', 'admin123');
+    await page.fill('#email', 'admin@test.com');
+    await page.fill('#password', 'admin123');
     await page.click('button[type="submit"]');
     await expect(page).toHaveURL('/genel');
   });

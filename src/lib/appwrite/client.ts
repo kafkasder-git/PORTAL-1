@@ -3,47 +3,57 @@
 /**
  * Appwrite Client Instances
  * Provides client-side Appwrite SDK instances for browser/React components
- * 
+ *
  * ⚠️ IMPORTANT: This file uses 'use client' directive for Next.js 13+ App Router
- * 
+ *
  * WHY 'use client' IS REQUIRED:
  * - This module uses the browser-compatible Appwrite SDK (from 'appwrite' package)
  * - It's designed for client-side operations (authentication, user sessions, etc.)
  * - Next.js 13+ App Router requires explicit 'use client' for client-side code
  * - Without this directive, Next.js would try to run this code on the server
- * 
+ *
  * WHEN TO USE THIS FILE:
  * ✅ React components (client components)
  * ✅ Browser-side authentication (login, logout, session management)
  * ✅ Client-side database queries (user-specific data)
  * ✅ File uploads from browser
- * 
+ *
  * WHEN NOT TO USE THIS FILE:
  * ❌ Server Components (use @/lib/appwrite/server instead)
  * ❌ API Routes (use @/lib/appwrite/server instead)
  * ❌ Server Actions (use @/lib/appwrite/server instead)
  * ❌ Admin operations requiring API key (use @/lib/appwrite/server instead)
- * 
+ *
+ * SDK GUARD VALIDATION:
+ * This module includes SDK usage validation to prevent accidental misuse.
+ * Warnings will appear if the client SDK is used in the wrong context (e.g., server-side).
+ * See @/lib/appwrite/sdk-guard.ts for details on validation logic.
+ *
  * RELATED FILES:
  * @see /src/lib/appwrite/server.ts - Server-side SDK with API key (node-appwrite)
  * @see /src/lib/appwrite/config.ts - Shared configuration
  * @see /src/lib/api/appwrite-api.ts - API wrapper using this client
- * 
+ * @see /src/lib/appwrite/sdk-guard.ts - SDK usage validation guard
+ *
  * SDK PACKAGE:
  * This file uses 'appwrite' package (client SDK) from package.json
  * For server-side operations, server.ts uses 'node-appwrite' package
- * 
+ *
  * @packageDocumentation
  */
 
 import { Client, Account, Databases, Storage, Query } from 'appwrite';
 import { appwriteConfig, validateAppwriteConfig, validateAppwriteConfigSafe } from './config';
+import { validateClientSDKUsage } from './sdk-guard';
 
 // Validation moved to lazy initialization - see initializeClient()
 // validateAppwriteConfig(); // ❌ Removed to prevent import-time crash
 
 // Safe validation at module load - warns but doesn't throw
 validateAppwriteConfigSafe();
+
+// SDK usage validation - ensures client SDK is used in browser context
+validateClientSDKUsage();
 
 /**
  * Client-side Appwrite client
@@ -93,10 +103,17 @@ export { Query };
 
 /**
  * Check if client is properly initialized with valid configuration
- * @returns true if client has valid endpoint and project ID
+ * @returns true if client has valid endpoint and project ID, and is in correct environment
  */
 export function isClientInitialized(): boolean {
   try {
+    // Check if running in browser environment
+    const isBrowser = typeof window !== 'undefined';
+    if (!isBrowser) {
+      console.warn('⚠️ isClientInitialized called from server context. Client SDK should only be used in browser.');
+      return false;
+    }
+
     const hasConfig = !!(client && appwriteConfig.endpoint && appwriteConfig.projectId);
     if (!hasConfig) {
       console.warn('⚠️ Appwrite client is not properly configured');

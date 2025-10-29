@@ -1,7 +1,16 @@
 /**
  * Appwrite Configuration
  * Central configuration for Appwrite client initialization
+ * 
+ * Enhanced with comprehensive validation utilities from validation.ts
+ * 
+ * Usage examples:
+ * - getConfigStatus(): Get detailed config validation status
+ * - getConfigValidationWarnings(): Retrieve warnings from safe validations
+ * - See validation.ts for detailed validation functions
  */
+
+import { validateAppwriteEndpoint, validateProjectId, validateApiKey, getValidationReport, ValidationSeverity } from './validation';
 
 export const appwriteConfig = {
   endpoint: process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || '',
@@ -100,6 +109,9 @@ export const COLLECTION_SCHEMAS = {
   },
 } as const;
 
+// Module-level array to store validation warnings
+let configValidationWarnings: string[] = [];
+
 /**
  * Validate configuration (throws error if invalid)
  * Use validateAppwriteConfigSafe() for non-throwing validation
@@ -116,18 +128,42 @@ export function validateAppwriteConfig() {
 /**
  * Non-throwing validation - logs warnings instead of throwing errors
  * Safe to call at module import time
+ * Now includes format validation and stores warnings for retrieval
  */
 export function validateAppwriteConfigSafe(): boolean {
   let isValid = true;
+  configValidationWarnings = []; // Reset warnings
   
   if (!appwriteConfig.endpoint) {
     console.warn('⚠️ NEXT_PUBLIC_APPWRITE_ENDPOINT is not defined. Appwrite client may not work properly.');
     isValid = false;
+    configValidationWarnings.push('NEXT_PUBLIC_APPWRITE_ENDPOINT is not defined');
+  } else {
+    const endpointValidation = validateAppwriteEndpoint(appwriteConfig.endpoint);
+    if (!endpointValidation.isValid) {
+      console.warn(`⚠️ ${endpointValidation.message}`);
+      if (endpointValidation.suggestion) {
+        console.warn(`💡 ${endpointValidation.suggestion}`);
+      }
+      isValid = false;
+      configValidationWarnings.push(endpointValidation.message);
+    }
   }
   
   if (!appwriteConfig.projectId) {
     console.warn('⚠️ NEXT_PUBLIC_APPWRITE_PROJECT_ID is not defined. Appwrite client may not work properly.');
     isValid = false;
+    configValidationWarnings.push('NEXT_PUBLIC_APPWRITE_PROJECT_ID is not defined');
+  } else {
+    const projectIdValidation = validateProjectId(appwriteConfig.projectId);
+    if (!projectIdValidation.isValid) {
+      console.warn(`⚠️ ${projectIdValidation.message}`);
+      if (projectIdValidation.suggestion) {
+        console.warn(`💡 ${projectIdValidation.suggestion}`);
+      }
+      isValid = false;
+      configValidationWarnings.push(projectIdValidation.message);
+    }
   }
   
   return isValid;
@@ -147,14 +183,54 @@ export function validateServerConfig() {
 /**
  * Non-throwing server validation - logs warnings instead of throwing errors
  * Safe to call at module import time
+ * Now includes API key format validation and stores warnings
  */
 export function validateServerConfigSafe(): boolean {
   const clientValid = validateAppwriteConfigSafe();
   
   if (!appwriteConfig.apiKey) {
     console.warn('⚠️ APPWRITE_API_KEY is not defined. Server-side operations may not work properly.');
+    configValidationWarnings.push('APPWRITE_API_KEY is not defined');
     return false;
+  } else {
+    const apiKeyValidation = validateApiKey(appwriteConfig.apiKey);
+    if (!apiKeyValidation.isValid) {
+      console.warn(`⚠️ ${apiKeyValidation.message}`);
+      if (apiKeyValidation.suggestion) {
+        console.warn(`💡 ${apiKeyValidation.suggestion}`);
+      }
+      configValidationWarnings.push(apiKeyValidation.message);
+      return false;
+    }
   }
   
   return clientValid;
+}
+
+/**
+ * Get validation warnings collected during safe validation calls
+ * Clears warnings after retrieval for next validation cycle
+ */
+export function getConfigValidationWarnings(): string[] {
+  const warnings = [...configValidationWarnings];
+  configValidationWarnings = []; // Clear after retrieval
+  return warnings;
+}
+
+/**
+ * Get comprehensive config status object
+ * Includes validation results, warnings, errors, and suggestions
+ * Uses validation utility for detailed checks
+ */
+export function getConfigStatus() {
+  const report = getValidationReport();
+  const warnings = getConfigValidationWarnings();
+  
+  return {
+    isValid: report.summary.errors === 0,
+    warnings: warnings,
+    errors: report.results.filter(r => r.severity === ValidationSeverity.ERROR).map(r => r.message),
+    suggestions: report.results.filter(r => r.suggestion).map(r => ({ variable: r.variable, suggestion: r.suggestion })),
+    timestamp: report.timestamp,
+  };
 }

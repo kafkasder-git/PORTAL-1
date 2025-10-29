@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils';
 import { BackgroundPattern } from '@/components/ui/background-pattern';
 import { AnimatedGradient } from '@/components/ui/animated-gradient';
 import { LoadingOverlay } from '@/components/ui/loading-overlay';
+import { SuspenseBoundary } from '@/components/ui/suspense-boundary';
 
 export default function DashboardLayout({
   children,
@@ -34,11 +35,24 @@ export default function DashboardLayout({
 
   // Initialize auth on mount
   useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔐 [Dashboard] Initializing auth...', { isInitialized, isAuthenticated });
+      console.log('💾 [Dashboard] LocalStorage:', localStorage.getItem('auth-session'));
+      console.log('🔄 [Dashboard] Hydration status:', useAuthStore.persist?.hasHydrated?.());
+    }
+
     initializeAuth();
-  }, [initializeAuth]);
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔐 [Dashboard] Auth initialized:', { isInitialized, isAuthenticated, user });
+    }
+  }, [initializeAuth, isInitialized, isAuthenticated, user]);
 
   useEffect(() => {
     if (isInitialized && !isAuthenticated) {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔀 [Dashboard] Redirecting to login...', { isInitialized, isAuthenticated });
+      }
       router.push('/login');
     }
   }, [isAuthenticated, isInitialized, router]);
@@ -52,6 +66,10 @@ export default function DashboardLayout({
     const handleStorageChange = () => {
       const stored = window.localStorage.getItem('sidebar-collapsed');
       setIsSidebarCollapsed(stored === 'true');
+
+      if (process.env.NODE_ENV === 'development') {
+        console.log('📱 [Dashboard] Sidebar state changed:', stored === 'true');
+      }
     };
 
     window.addEventListener('storage', handleStorageChange);
@@ -83,6 +101,9 @@ export default function DashboardLayout({
   };
 
   if (!isInitialized || !isAuthenticated) {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('⏳ [Dashboard] Loading...', { isInitialized, isAuthenticated });
+    }
     return <LoadingOverlay variant="pulse" fullscreen={true} text="Yükleniyor..." />;
   }
 
@@ -154,10 +175,12 @@ export default function DashboardLayout({
 
       <div className="flex">
         {/* Sidebar */}
-        <Sidebar
-          isMobileOpen={isMobileSidebarOpen}
-          onMobileToggle={() => setIsMobileSidebarOpen(false)}
-        />
+        <SuspenseBoundary loadingVariant="spinner">
+          <Sidebar
+            isMobileOpen={isMobileSidebarOpen}
+            onMobileToggle={() => setIsMobileSidebarOpen(false)}
+          />
+        </SuspenseBoundary>
 
         {/* Spacer for fixed sidebar on desktop */}
         <div
@@ -177,7 +200,14 @@ export default function DashboardLayout({
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
             >
-              {children}
+              <SuspenseBoundary
+                loadingVariant="pulse"
+                loadingText="Sayfa yükleniyor..."
+                onSuspend={() => console.log('📄 [Dashboard] Page suspended:', pathname)}
+                onResume={() => console.log('✅ [Dashboard] Page resumed:', pathname)}
+              >
+                {children}
+              </SuspenseBoundary>
             </motion.div>
           </AnimatePresence>
         </main>

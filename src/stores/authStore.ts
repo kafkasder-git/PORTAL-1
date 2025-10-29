@@ -24,6 +24,7 @@ interface AuthState {
   isLoading: boolean;
   isInitialized: boolean;
   error: string | null;
+  _hasHydrated: boolean;
 
   // UI state
   showLoginModal: boolean;
@@ -87,6 +88,7 @@ export const useAuthStore = create<AuthStore>()(
           isLoading: false,
           isInitialized: false,
           error: null,
+          _hasHydrated: false,
           showLoginModal: false,
           rememberMe: false,
 
@@ -300,6 +302,7 @@ export const useAuthStore = create<AuthStore>()(
         {
           name: 'auth-store',
           storage: createJSONStorage(() => localStorage),
+          skipHydration: true,
           partialize: (state) => ({
             user: state.user,
             session: state.session,
@@ -311,6 +314,7 @@ export const useAuthStore = create<AuthStore>()(
           onRehydrateStorage: () => (state) => {
             if (state) {
               state.isLoading = false;
+              state._hasHydrated = true;
             }
           },
         }
@@ -329,4 +333,5 @@ export const authSelectors = {
   permissions: (state: AuthStore) => state.user?.permissions ?? [],
   role: (state: AuthStore) => state.user?.role,
   session: (state: AuthStore) => state.session,
+  hasHydrated: (state: AuthStore) => state._hasHydrated,
 };

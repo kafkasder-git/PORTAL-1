@@ -2,16 +2,22 @@
  * Appwrite Server Client
  * Server-side Appwrite SDK instances with API key
  * IMPORTANT: Only use in server components, API routes, or server actions
+ *
+ * SDK Guard: This module includes SDK usage validation to prevent
+ * accidental use in browser context. Warnings will appear if used
+ * incorrectly. See sdk-guard.ts for details.
  */
 
 import { Client, Account, Databases, Storage, Users, Teams, Query } from 'node-appwrite';
 import { appwriteConfig, validateServerConfig, validateServerConfigSafe } from './config';
+import { validateServerSDKUsage } from './sdk-guard';
 
 // Validation moved to lazy initialization - see initializeServerClient()
 // validateServerConfig(); // ❌ Removed to prevent import-time crash
 
 // Safe validation at module load - warns but doesn't throw
 validateServerConfigSafe();
+validateServerSDKUsage();
 
 /**
  * Server-side Appwrite client
@@ -89,6 +95,11 @@ export async function handleServerError<T>(
  */
 export function isServerInitialized(): boolean {
   try {
+    const isServer = typeof window === 'undefined';
+    if (!isServer) {
+      console.warn('⚠️ isServerInitialized called from browser context. Server SDK should only be used on server.');
+      return false;
+    }
     const hasConfig = !!(serverClient && appwriteConfig.endpoint && appwriteConfig.projectId && appwriteConfig.apiKey);
     if (!hasConfig) {
       console.warn('⚠️ Appwrite server client is not properly configured');

@@ -5,8 +5,8 @@ test.describe('Authentication Flow', () => {
     await page.goto('/login')
 
     // Fill login form
-    await page.fill('input[type="email"]', 'admin@test.com')
-    await page.fill('input[type="password"]', 'admin123')
+    await page.fill('#email', 'admin@test.com')
+    await page.fill('#password', 'admin123')
 
     // Submit form
     await page.click('button[type="submit"]')
@@ -22,8 +22,8 @@ test.describe('Authentication Flow', () => {
     await page.goto('/login')
 
     // Fill with invalid credentials
-    await page.fill('input[type="email"]', 'invalid@test.com')
-    await page.fill('input[type="password"]', 'wrongpassword')
+    await page.fill('#email', 'invalid@test.com')
+    await page.fill('#password', 'wrongpassword')
 
     // Submit form
     await page.click('button[type="submit"]')
@@ -35,8 +35,8 @@ test.describe('Authentication Flow', () => {
   test('should redirect authenticated users away from login', async ({ page }) => {
     // First login
     await page.goto('/login')
-    await page.fill('input[type="email"]', 'admin@test.com')
-    await page.fill('input[type="password"]', 'admin123')
+    await page.fill('#email', 'admin@test.com')
+    await page.fill('#password', 'admin123')
     await page.click('button[type="submit"]')
 
     // Wait for redirect
@@ -61,8 +61,8 @@ test.describe('Protected Routes', () => {
   test('should allow authenticated users to access dashboard', async ({ page }) => {
     // Login first
     await page.goto('/login')
-    await page.fill('input[type="email"]', 'admin@test.com')
-    await page.fill('input[type="password"]', 'admin123')
+    await page.fill('#email', 'admin@test.com')
+    await page.fill('#password', 'admin123')
     await page.click('button[type="submit"]')
 
     // Access dashboard
@@ -77,8 +77,8 @@ test.describe('Navigation', () => {
   test.beforeEach(async ({ page }) => {
     // Login before each test
     await page.goto('/login')
-    await page.fill('input[type="email"]', 'admin@test.com')
-    await page.fill('input[type="password"]', 'admin123')
+    await page.fill('#email', 'admin@test.com')
+    await page.fill('#password', 'admin123')
     await page.click('button[type="submit"]')
   })
 

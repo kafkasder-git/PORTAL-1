@@ -6,9 +6,12 @@ import { useAuthStore } from '@/stores/authStore';
 
 export default function HomePage() {
   const router = useRouter();
-  const { isAuthenticated, isInitialized } = useAuthStore();
+  const { isAuthenticated, isInitialized, _hasHydrated } = useAuthStore();
 
   useEffect(() => {
+    // Wait for hydration to complete before redirecting
+    if (!_hasHydrated) return;
+
     if (isInitialized) {
       if (isAuthenticated) {
         router.push('/genel');
@@ -16,7 +19,7 @@ export default function HomePage() {
         router.push('/login');
       }
     }
-  }, [isAuthenticated, isInitialized, router]);
+  }, [isAuthenticated, isInitialized, _hasHydrated, router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center">

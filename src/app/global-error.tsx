@@ -14,12 +14,70 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Log critical error
+    // Log critical error with context
     console.error('CRITICAL ERROR:', error);
+    console.error('Error Digest:', error.digest);
+    console.error('User Agent:', navigator.userAgent);
+    console.error('Current URL:', window.location.href);
 
-    // TODO: Send to monitoring service with high priority
-    // Example: Sentry.captureException(error, { level: 'fatal', tags: { digest: error.digest } });
+    // Check for unsupported browsers
+    const isUnsupportedBrowser = /MSIE|Trident/.test(navigator.userAgent);
+    if (isUnsupportedBrowser) {
+      console.error('🚨 Unsupported browser detected');
+    }
+
+    // Check if it's a hydration error
+    const isHydrationError =
+      error.message?.toLowerCase().includes('hydration') ||
+      error.message?.toLowerCase().includes('mismatch');
+
+    if (isHydrationError) {
+      console.error('🚨 This is a hydration error - consider clearing storage');
+    }
+
+    // Send to Sentry with high priority
+    if (typeof window !== 'undefined' && (window as any).Sentry) {
+      (window as any).Sentry.captureException(error, {
+        level: 'fatal',
+        tags: { digest: error.digest, type: 'global-error' },
+        contexts: {
+          browser: {
+            userAgent: navigator.userAgent,
+            screen: `${window.screen.width}x${window.screen.height}`,
+          },
+          memory: {
+            used: (performance as any).memory?.usedJSHeapSize,
+            total: (performance as any).memory?.totalJSHeapSize,
+          },
+        },
+        user: {
+          ip_address: '{{auto}}',
+        },
+      });
+
+      // Add user feedback mechanism if Sentry feedback widget available
+      if ((window as any).Sentry.showReportDialog) {
+        (window as any).Sentry.showReportDialog();
+      }
+    }
   }, [error]);
+
+  // Add error tracking to window (development only)
+  if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+    (window as any).__GLOBAL_ERROR__ = { error, digest: error.digest, timestamp: new Date() };
+  }
+
+  const isHydrationError =
+    error.message?.toLowerCase().includes('hydration') ||
+    error.message?.toLowerCase().includes('mismatch');
+
+  // Add error type specific recovery
+  const isNetworkError = error.message?.toLowerCase().includes('fetch') ||
+                         error.message?.toLowerCase().includes('network') ||
+                         error.message?.toLowerCase().includes('connection');
+  const isStoreError = error.message?.toLowerCase().includes('store') ||
+                       error.message?.toLowerCase().includes('zustand') ||
+                       error.message?.toLowerCase().includes('state');
 
   return (
     <html>
@@ -77,6 +135,23 @@ export default function GlobalError({
               }}>
                 Uygulama beklenmedik bir hatayla karşılaştı. Lütfen sayfayı yenileyin.
               </p>
+              {isUnsupportedBrowser && (
+                <div style={{
+                  backgroundColor: '#fef3c7',
+                  border: '1px solid #f59e0b',
+                  borderRadius: '0.375rem',
+                  padding: '0.75rem',
+                  marginBottom: '1.5rem',
+                }}>
+                  <p style={{
+                    fontSize: '0.875rem',
+                    color: '#92400e',
+                    margin: 0,
+                  }}>
+                    ⚠️ Bu tarayıcı desteklenmiyor. Lütfen Chrome, Firefox, Safari veya Edge kullanın.
+                  </p>
+                </div>
+              )}
             </div>
 
             {process.env.NODE_ENV === 'development' && (
@@ -157,7 +232,124 @@ export default function GlobalError({
               >
                 Ana Sayfaya Dön
               </button>
+              {process.env.NODE_ENV === 'development' && (
+                <button
+                  onClick={() => {
+                    const errorReport = {
+                      message: error.message,
+                      stack: error.stack,
+                      digest: error.digest,
+                      userAgent: navigator.userAgent,
+                      url: window.location.href,
+                      timestamp: new Date().toISOString(),
+                      localStorage: { ...localStorage },
+                    };
+                    const blob = new Blob([JSON.stringify(errorReport, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `error-report-${Date.now()}.json`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '0.5rem 1rem',
+                    backgroundColor: '#f59e0b',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '0.375rem',
+                    fontSize: '0.875rem',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#d97706'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#f59e0b'}
+                >
+                  📥 Download Error Report
+                </button>
+              )}
+              {isHydrationError && (
+                <button
+                  onClick={() => {
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    window.location.href = '/';
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '0.5rem 1rem',
+                    backgroundColor: '#dc2626',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '0.375rem',
+                    fontSize: '0.875rem',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#b91c1c'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
+                >
+                  🗑️ Clear Storage & Reload
+                </button>
+              )}
+              {isNetworkError && (
+                <button
+                  onClick={() => window.location.reload()}
+                  style={{
+                    width: '100%',
+                    padding: '0.5rem 1rem',
+                    backgroundColor: '#0891b2',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '0.375rem',
+                    fontSize: '0.875rem',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#0e7490'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#0891b2'}
+                >
+                  🔄 Check Connection & Retry
+                </button>
+              )}
+              {isStoreError && (
+                <button
+                  onClick={() => {
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    window.location.reload();
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '0.5rem 1rem',
+                    backgroundColor: '#7c3aed',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '0.375rem',
+                    fontSize: '0.875rem',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#6d28d9'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#7c3aed'}
+                >
+                  🔧 Reset Application State
+                </button>
+              )}
             </div>
+
+            {(isHydrationError || isStoreError) && (
+              <p style={{
+                textAlign: 'center',
+                fontSize: '0.75rem',
+                color: '#dc2626',
+                marginTop: '1rem',
+                fontWeight: '600',
+              }}>
+                ⚠️ Bu işlem tüm yerel verileri silecek
+              </p>
+            )}
 
             <p style={{
               textAlign: 'center',

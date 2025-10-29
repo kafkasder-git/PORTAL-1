@@ -7,13 +7,16 @@ import { AlertCircle, RefreshCw, Home } from 'lucide-react';
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
-  onError?: (error: Error, errorInfo: ErrorInfo) => void;
+  onError?: (error: Error, errorInfo: ErrorInfo, boundaryName?: string, retryCount?: number) => void;
+  name?: string;
+  maxRetries?: number;
 }
 
 interface State {
   hasError: boolean;
   error: Error | null;
   errorInfo: ErrorInfo | null;
+  retryCount: number;
 }
 
 /**
@@ -21,12 +24,15 @@ interface State {
  * Catches React errors and displays fallback UI
  */
 export class ErrorBoundary extends Component<Props, State> {
+  private static errors: Error[] = [];
+
   constructor(props: Props) {
     super(props);
     this.state = {
       hasError: false,
       error: null,
       errorInfo: null,
+      retryCount: 0,
     };
   }
 
@@ -40,26 +46,56 @@ export class ErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     // Log error to console in development
     if (process.env.NODE_ENV === 'development') {
-      console.error('ErrorBoundary caught an error:', error, errorInfo);
+      console.error(`[ErrorBoundary:${this.props.name || 'unnamed'}] caught error`, error, errorInfo);
     }
 
     // Call custom error handler if provided
-    this.props.onError?.(error, errorInfo);
+    this.props.onError?.(error, errorInfo, this.props.name, this.state.retryCount);
 
     // Update state with error info
     this.setState({
       errorInfo,
     });
 
-    // TODO: Send error to monitoring service (Sentry, LogRocket, etc.)
-    // Example: Sentry.captureException(error, { contexts: { react: errorInfo } });
+    // Track error
+    ErrorBoundary.errors.push(error);
+
+    // Send error to Sentry if available
+    if (typeof window !== 'undefined' && (window as any).Sentry) {
+      (window as any).Sentry.captureException(error, {
+        contexts: { react: errorInfo },
+        tags: { boundaryName: this.props.name || 'unnamed' },
+        extra: { retryCount: this.state.retryCount }
+      });
+    }
+  }
+
+  static getErrors() {
+    return [...ErrorBoundary.errors];
+  }
+
+  static clearErrors() {
+    ErrorBoundary.errors = [];
+  }
+
+  static simulateError(error: Error) {
+    throw error;
   }
 
   handleReset = () => {
+    const newRetryCount = this.state.retryCount + 1;
+    const maxRetries = this.props.maxRetries ?? 3;
+
+    if (newRetryCount > maxRetries) {
+      // Max retries reached, don't reset
+      return;
+    }
+
     this.setState({
       hasError: false,
       error: null,
       errorInfo: null,
+      retryCount: newRetryCount,
     });
   };
 
@@ -78,6 +114,9 @@ export class ErrorBoundary extends Component<Props, State> {
         return this.props.fallback;
       }
 
+      const maxRetries = this.props.maxRetries ?? 3;
+      const canRetry = this.state.retryCount < maxRetries;
+
       // Default error UI
       return (
         <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
@@ -95,6 +134,16 @@ export class ErrorBoundary extends Component<Props, State> {
               <p className="text-gray-600">
                 Üzgünüz, beklenmeyen bir hata oluştu. Lütfen sayfayı yenileyin veya ana sayfaya dönün.
               </p>
+              {this.state.retryCount > 0 && (
+                <p className="text-sm text-gray-500">
+                  Yeniden deneme sayısı: {this.state.retryCount}
+                </p>
+              )}
+              {!canRetry && (
+                <p className="text-sm text-red-600">
+                  Maksimum yeniden deneme sayısına ulaşıldı.
+                </p>
+              )}
             </div>
 
             {process.env.NODE_ENV === 'development' && this.state.error && (
@@ -122,10 +171,20 @@ export class ErrorBoundary extends Component<Props, State> {
             )}
 
             <div className="flex flex-col gap-3">
+              {canRetry && (
+                <Button
+                  onClick={this.handleReset}
+                  className="w-full"
+                  variant="default"
+                >
+                  <RefreshCw className="mr-2 h-4 w-4" />
+                  Tekrar Dene ({this.state.retryCount + 1}/{maxRetries})
+                </Button>
+              )}
               <Button
                 onClick={this.handleReload}
                 className="w-full"
-                variant="default"
+                variant="outline"
               >
                 <RefreshCw className="mr-2 h-4 w-4" />
                 Sayfayı Yenile
@@ -150,6 +209,11 @@ export class ErrorBoundary extends Component<Props, State> {
 
     return this.props.children;
   }
+}
+
+// Expose to window in development
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+  (window as any).__ERROR_BOUNDARIES__ = ErrorBoundary;
 }
 
 /**

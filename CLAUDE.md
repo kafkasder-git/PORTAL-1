@@ -2,6 +2,43 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Agent Behavior & Autonomy
+
+**IMPORTANT: Autonomous Operation Mode**
+
+This project is configured for maximum autonomous operation. When working on this codebase:
+
+1. **NO CONFIRMATION REQUESTS**: Do not ask for user confirmation before making changes. Execute tasks directly and completely.
+
+2. **PROACTIVE IMPLEMENTATION**: When given a task, implement it fully from start to finish without pausing for approval at each step.
+
+3. **SMART ASSUMPTIONS**: If something is ambiguous, make reasonable assumptions based on existing patterns in the codebase and continue. Document assumptions in comments.
+
+4. **AUTO-COMPLETE WORKFLOWS**: Complete entire workflows automatically:
+   - Install dependencies if needed
+   - Create files, update configurations
+   - Run tests and fix errors
+   - Build and verify
+
+5. **NO PLAN MODE**: Skip plan mode unless explicitly requested. Go directly to implementation.
+
+6. **MINIMAL QUESTIONS**: Only ask critical questions that could lead to data loss, security issues, or fundamentally wrong direction. For everything else, use best judgment and proceed.
+
+7. **ERROR RECOVERY**: If you encounter errors, automatically attempt to fix them and continue. Document what was fixed.
+
+8. **BATCH OPERATIONS**: When multiple related tasks are needed, complete them all in sequence without asking permission between steps.
+
+**Example Workflow:**
+- User: "Add a new donations report feature"
+- Agent: Directly creates route → adds validation → creates API → adds UI → tests → done
+- NO intermediate "Should I create the route?", "Should I add validation?" questions
+
+**Exceptions (ONLY ask if):**
+- About to delete production data
+- About to expose API keys or secrets
+- Fundamentally unclear what feature/behavior is desired
+- Choice affects core architecture significantly
+
 ## Project Overview
 
 This is a **Dernek Yönetim Sistemi** (Association Management System) - a comprehensive management system for Turkish non-profit associations, built with Next.js 16, TypeScript, and Appwrite backend.
@@ -17,6 +54,7 @@ npm run dev        # Start development server (http://localhost:3000)
 npm run build      # Production build
 npm start          # Start production server
 npm run lint       # Run ESLint
+npm run typecheck  # Run TypeScript compiler check (no emit)
 npm run analyze    # Analyze bundle size
 ```
 
@@ -28,9 +66,17 @@ npm run test:ui       # Run tests with UI
 npm run test:run      # Run tests once
 npm run test:coverage # Run tests with coverage report
 
+# Run specific test file
+npx vitest src/__tests__/lib/sanitization.test.ts
+
 # E2E tests (Playwright)
-npm run e2e          # Run E2E tests
+npm run e2e          # Run E2E tests (builds & starts server first)
 npm run e2e:ui       # Run E2E tests with UI
+
+# Run specific E2E test
+npx playwright test e2e/beneficiaries.spec.ts
+npx playwright test --headed  # Run with visible browser
+npx playwright test --debug   # Run in debug mode
 ```
 
 ### Environment Setup
@@ -47,6 +93,10 @@ NEXT_PUBLIC_STORAGE_DOCUMENTS=documents
 NEXT_PUBLIC_STORAGE_RECEIPTS=receipts
 NEXT_PUBLIC_STORAGE_PHOTOS=photos
 NEXT_PUBLIC_STORAGE_REPORTS=reports
+
+# Security (Generate random 32+ character strings)
+CSRF_SECRET=your-csrf-secret
+SESSION_SECRET=your-session-secret
 ```
 
 ### Appwrite Test Users
@@ -74,6 +124,7 @@ Default test credentials (if created):
 - **UI Components:** Radix UI primitives via shadcn/ui
 - **Icons:** Lucide React
 - **Notifications:** Sonner (toast library)
+- **Error Monitoring:** Sentry
 - **Testing:** Vitest (unit/integration) + Playwright (E2E)
 
 ### Project Structure
@@ -87,6 +138,7 @@ src/
 │   └── layout.tsx            # Root layout
 ├── components/
 │   ├── layouts/              # Layout components (Sidebar)
+│   ├── forms/                # Form components
 │   └── ui/                   # shadcn/ui components
 ├── lib/
 │   ├── api/
@@ -100,6 +152,7 @@ src/
 │   ├── validations/         # Zod schemas (beneficiary, task, etc.)
 │   ├── csrf.ts              # CSRF protection
 │   ├── security.ts          # Security utilities
+│   ├── sanitization.ts      # Input sanitization (XSS, SQL injection)
 │   ├── performance.ts       # Performance monitoring
 │   └── utils.ts             # Utility functions (cn, etc.)
 ├── stores/
@@ -111,6 +164,9 @@ src/
 │   └── appwrite.ts           # Appwrite-specific types
 ├── scripts/                  # Database setup & migration scripts
 ├── __tests__/                # Vitest unit tests
+│   ├── lib/                  # Library tests
+│   ├── integration/          # Integration tests
+│   └── mocks/                # Test mocks
 └── middleware.ts             # Auth middleware (Appwrite session checking)
 ```
 
@@ -281,6 +337,7 @@ npx shadcn@latest add <component-name>
 - `/yardim/ihtiyac-sahipleri` - Beneficiaries list
 - `/yardim/ihtiyac-sahipleri/[id]` - Beneficiary detail
 - `/bagis/liste` - Donations list
+- `/kullanici` - User management
 - Many placeholder pages for future features
 
 ### Path Aliases
@@ -329,9 +386,6 @@ Configured in `tsconfig.json`:
 # Test Appwrite connection
 npx tsx src/scripts/test-appwrite-connection.ts
 
-# Setup database and collections
-npx tsx src/lib/appwrite/setup-database.ts
-
 # Create test users
 npx tsx src/scripts/create-test-users.ts
 
@@ -364,36 +418,209 @@ The application is organized into modules, each with subpages:
 6. **Environment Variables:** Never commit `.env.local` - keep API keys secure
 7. **CSRF Protection:** All mutations require CSRF tokens from `/api/csrf`
 8. **File Uploads:** Use Appwrite Storage buckets with proper permissions
+9. **Input Sanitization:** All user inputs must be sanitized using functions from `src/lib/sanitization.ts`
+10. **Validation:** Use Zod schemas from `src/lib/validations/` for all form validations
+11. **Error Monitoring:** Sentry is configured for both client and server - errors are automatically tracked
 
-## Code Verification (Kluster Rules)
+## Security & Validation
 
-This project uses automated code verification via Kluster. Important rules:
+### Input Sanitization
+Location: `src/lib/sanitization.ts`
 
-### Automatic Code Review
-- **Trigger:** Runs automatically after ANY file creation or modification
-- **Applies to:** All file types (not just code)
-- **Required:** Follow field descriptions strictly in review responses
+Functions available:
+- `sanitizeTcNo()` - Turkish ID validation with algorithm check
+- `sanitizePhone()` - Turkish phone format (+90 5XX XXX XX XX)
+- `sanitizeEmail()` - Email format validation and lowercase
+- `sanitizeHtml()` - XSS prevention using DOMPurify
+- Many more specialized sanitizers
 
-### Manual Code Review
-- **Trigger:** Only when explicitly requested by user
-- **Commands:** "verify with kluster", "verify this file", "check for bugs", "check security"
+### Form Validation
+Location: `src/lib/validations/`
 
-### Dependency Validation
-- **Trigger:** Before adding packages or updating package.json
-- **Purpose:** Validate security and compatibility
+All forms use Zod schemas with:
+- Turkish-specific validations (TC Kimlik, phone format)
+- Conditional validation (age vs marital status)
+- Comprehensive field validation (100+ fields for beneficiary)
 
-### Chat ID Management
-- **First call:** Do not include `chat_id` field
-- **Subsequent calls:** Always include `chat_id` from previous response
-- **Critical:** Missing `chat_id` breaks verification chain
+**Example:**
+```typescript
+import { beneficiarySchema } from '@/lib/validations/beneficiary';
+import { zodResolver } from '@hookform/resolvers/zod';
 
-### Todo List Management
-- **Execute:** Always follow `agent_todo_list` from kluster responses
-- **Complete:** Do not stop until all items are finished
-- **Workflow:** Complete all fixes before running next verification
+const form = useForm({
+  resolver: zodResolver(beneficiarySchema),
+  defaultValues: { /* ... */ }
+});
+```
 
-### End-of-Session Summary
-When kluster tools are used, always provide summary before final response:
-- **Kluster feedback:** All issues found (grouped by severity)
-- **Issues found and fixed:** Changes applied to resolve issues
-- **Impact Assessment:** What would have happened without fixes
+## Common Development Workflows
+
+### Adding a New Feature Module
+1. Create route in `src/app/(dashboard)/[module-name]/`
+2. Add Zod validation schema in `src/lib/validations/[module].ts`
+3. Add API methods in `src/lib/api/appwrite-api.ts`
+4. Create Zustand store if needed in `src/stores/[module]Store.ts`
+5. Add navigation link in `src/components/layouts/Sidebar.tsx`
+6. Add permission checks using `hasPermission()` helper
+
+### Adding a New API Endpoint
+1. Create API route in `src/app/api/[endpoint]/route.ts`
+2. Use server SDK: `import { serverDatabases } from '@/lib/appwrite/server'`
+3. Add CSRF protection for mutations
+4. Add rate limiting if needed
+5. Return standardized `ApiResponse<T>` format
+6. Add error handling with Sentry
+
+### Adding a New Form
+1. Create Zod schema in `src/lib/validations/`
+2. Create form component with React Hook Form
+3. Add sanitization for all inputs
+4. Add CSRF token to submission
+5. Use TanStack Query for submission mutations
+6. Add loading states and error handling
+
+### Running Tests for a Feature
+```bash
+# Test specific component/utility
+npx vitest src/__tests__/lib/[feature].test.ts
+
+# Test with coverage
+npm run test:coverage
+
+# E2E test for specific feature
+npx playwright test e2e/[feature].spec.ts --headed
+```
+
+## Agent Operation Guidelines (CRITICAL)
+
+### Decision Making Framework
+
+**ALWAYS DO (No Permission Needed):**
+- Create new files, components, routes
+- Update existing code (bug fixes, features, refactoring)
+- Install npm packages (ensure security best practices)
+- Run tests and fix failing tests
+- Update documentation
+- Add TypeScript types
+- Create/update Zod schemas
+- Add API endpoints
+- Create database collections/fields
+- Update UI components
+- Fix linting/type errors
+- Add comments and improve code quality
+- Create migration scripts
+- Update configurations (tsconfig, tailwind, etc.)
+
+**ASSUME & DOCUMENT (Use Best Judgment):**
+- API response formats → Use existing patterns
+- Component structure → Follow shadcn/ui patterns
+- State management → Use Zustand with immer pattern
+- Validation → Use Zod schemas with Turkish-specific rules
+- Styling → Use Tailwind CSS with existing color scheme
+- Naming conventions → Use Turkish for UI, English for code
+- Error handling → Use Sentry + toast notifications
+- File organization → Follow existing src/ structure
+
+**ONLY ASK IF:**
+- Deleting user data or collections
+- Changing authentication flow significantly
+- Exposing sensitive information
+- Breaking API backward compatibility
+- Fundamentally changing architecture (e.g., switching from Appwrite)
+- User's intent is genuinely ambiguous after reading context
+
+### Execution Patterns
+
+**Single Task → Full Implementation:**
+```
+User: "Add export to Excel feature for beneficiaries"
+
+Agent executes automatically:
+1. Install xlsx library
+2. Create export utility in src/lib/export/
+3. Add export button to beneficiaries page
+4. Implement download functionality
+5. Add loading states
+6. Test the feature
+7. Report completion
+```
+
+**Multiple Tasks → Batch Execute:**
+```
+User: "Fix the donations page"
+
+Agent executes automatically:
+1. Read donations page code
+2. Identify issues
+3. Fix all issues
+4. Run tests
+5. Verify in build
+6. Report all fixes made
+```
+
+**Error Encountered → Auto Fix:**
+```
+- TypeScript error → Fix types automatically
+- Test failure → Debug and fix automatically
+- Build error → Resolve dependencies/config automatically
+- Lint error → Apply fixes automatically
+```
+
+### Communication Style
+
+**DO:**
+- ✅ Report what you're doing briefly
+- ✅ Show final results
+- ✅ Mention important decisions made
+- ✅ Report completion status
+
+**DON'T:**
+- ❌ Ask "Should I create...?"
+- ❌ Ask "Would you like me to...?"
+- ❌ Ask "Do you want...?"
+- ❌ Pause for approval between steps
+- ❌ Present plans and wait for confirmation
+
+**Example - GOOD:**
+```
+"Adding export feature for beneficiaries. Installing dependencies, creating export utility, updating UI... Done. Users can now export beneficiaries to Excel format."
+```
+
+**Example - BAD:**
+```
+"I can add an export feature. Should I install the xlsx library first? Would you like me to create a new utility file? Where should I place the export button?"
+```
+
+### Turkish Context Awareness
+
+When implementing features, automatically apply Turkish-specific rules:
+- Phone numbers: +90 5XX XXX XX XX format
+- TC Kimlik No: 11 digits with checksum validation
+- Currency: Turkish Lira (₺) with proper formatting
+- Dates: DD.MM.YYYY format preferred in UI
+- UI text: Always in Turkish
+- Error messages: Turkish, user-friendly
+- Form labels: Turkish with proper capitalization
+
+### Package Installation Policy
+
+When packages are needed:
+1. Check package security and reputation automatically
+2. Install with `npm install <package>`
+3. Update TypeScript types if needed
+4. Document usage in code
+5. Continue with implementation
+
+No need to ask "Should I install X package?" - just do it if it's a reputable, commonly used package.
+
+### Testing Philosophy
+
+After implementing features:
+1. Run relevant tests automatically
+2. If tests fail, fix automatically
+3. If no tests exist, note it but continue
+4. Don't wait for permission to fix test failures
+
+### Summary
+
+**Key Principle:** Trust the agent to make good decisions. The agent knows the codebase patterns, security requirements, and Turkish context. Execute fully and autonomously unless there's a critical risk.

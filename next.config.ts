@@ -28,6 +28,8 @@ optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
 
   // Security headers
   async headers() {
+    const isDevelopment = process.env.NODE_ENV !== 'production';
+
     return [
       {
         source: '/(.*)',
@@ -55,7 +57,8 @@ optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
           {
             key: 'Content-Security-Policy',
             // Basic CSP suitable for Next.js dev/prod with inline styles and eval in dev
-            // Adjust as needed for external resources (images/fonts/api endpoints)
+            // In development: allow WebSocket (ws:) and HTTP for HMR
+            // In production: stricter connect-src limited to 'self' https:
             value: [
               "default-src 'self'",
               "base-uri 'self'",
@@ -66,7 +69,9 @@ optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
               "frame-ancestors 'none'",
               "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
               "style-src 'self' 'unsafe-inline'",
-              "connect-src 'self' https:"
+              isDevelopment
+                ? "connect-src 'self' ws: wss: http: https:"  // Allow WebSocket & HTTP in dev for HMR
+                : "connect-src 'self' https:"  // Strict in production
             ].join('; '),
           },
         ],
