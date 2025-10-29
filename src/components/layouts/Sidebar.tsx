@@ -212,6 +212,7 @@ export function Sidebar({ isMobileOpen = false, onMobileToggle }: SidebarProps) 
                 size="sm"
                 onClick={handleNotifications}
                 className="relative hover:bg-accent hover:text-accent-foreground transition-colors"
+                aria-label="Bildirimler (3)"
                 data-testid="notification-button"
               >
                 <Bell className="w-4 h-4" />
@@ -249,6 +250,7 @@ export function Sidebar({ isMobileOpen = false, onMobileToggle }: SidebarProps) 
                     size="sm"
                     onClick={handleNotifications}
                     className="relative hover:bg-primary/10 hover:text-primary transition-colors"
+                    aria-label="Bildirimler (3)"
                     data-testid="notification-button"
                   >
                     <Bell className="w-4 h-4" />
