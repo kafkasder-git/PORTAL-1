@@ -1,6 +1,7 @@
 // KafkasDer İhtiyaç Sahipleri Mock API
 // Mock backend servisi - gerçek API entegrasyonu için değiştirilecek
 
+// Legacy mock types (used by some pages)
 import { 
   Beneficiary, 
   BeneficiaryQuickAdd, 
@@ -10,9 +11,17 @@ import {
   PhotoUploadResponse,
   MernisCheckResponse
 } from '@/types/beneficiary';
-// import { ApiResponse } from '@/types/collections';
 
-// Define ApiResponse type locally
+// Appwrite-aligned types
+import type { 
+  BeneficiaryDocument, 
+  AppwriteResponse, 
+  QueryParams, 
+  CreateDocumentData, 
+  UpdateDocumentData 
+} from '@/types/collections';
+
+// Define ApiResponse type locally (legacy)
 interface ApiResponse<T> {
   success?: boolean;
   data?: T | null;
@@ -23,7 +32,7 @@ interface ApiResponse<T> {
 // Simulated network delay
 const delay = (ms: number = 300) => new Promise(resolve => setTimeout(resolve, ms));
 
-// Mock beneficiaries storage (in-memory) - Static data
+// === LEGACY MOCK STORAGE (kept for backward compatibility) ===
 let mockBeneficiaries: Beneficiary[] = [
   {
     id: "beneficiary-001",
@@ -129,15 +138,75 @@ let mockBeneficiaries: Beneficiary[] = [
   }
 ];
 
-// Generate unique ID
+// === APPWRITE-ALIGNED MOCK STORAGE ===
+let mockAppwriteBeneficiaries: BeneficiaryDocument[] = mockBeneficiaries.map((b, idx) => ({
+  $id: b.id,
+  $createdAt: b.createdAt,
+  $updatedAt: b.updatedAt,
+  $permissions: [],
+  $collectionId: "beneficiaries",
+  $databaseId: "mock-db",
+  name: `${b.firstName} ${b.lastName}`,
+  tc_no: b.identityNumber || "",
+  phone: b.mobilePhone || "",
+  email: b.email || "",
+  birth_date: undefined,
+  gender: undefined,
+  nationality: b.nationality,
+  religion: undefined,
+  marital_status: undefined,
+  address: b.address || "",
+  city: b.city || "",
+  district: b.district || "",
+  neighborhood: b.neighborhood || "",
+  family_size: b.familyMemberCount || 1,
+  children_count: undefined,
+  orphan_children_count: undefined,
+  elderly_count: undefined,
+  disabled_count: undefined,
+  income_level: undefined,
+  income_source: undefined,
+  has_debt: false,
+  housing_type: undefined,
+  has_vehicle: false,
+  health_status: undefined,
+  has_chronic_illness: undefined,
+  chronic_illness_detail: undefined,
+  has_disability: undefined,
+  disability_detail: undefined,
+  has_health_insurance: undefined,
+  regular_medication: undefined,
+  education_level: undefined,
+  occupation: undefined,
+  employment_status: undefined,
+  aid_type: undefined,
+  totalAidAmount: undefined,
+  aid_duration: undefined,
+  priority: undefined,
+  reference_name: undefined,
+  reference_phone: undefined,
+  reference_relation: undefined,
+  application_source: undefined,
+  notes: undefined,
+  previous_aid: false,
+  other_organization_aid: false,
+  emergency: false,
+  contact_preference: undefined,
+  status: (b.status as any) || 'TASLAK',
+  approval_status: 'pending',
+  approved_by: undefined,
+  approved_at: undefined
+}));
+
+// Generate unique IDs
 const generateId = (): string => {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
 };
 
-// === BENEFICIARY API FUNCTIONS ===
+// === BENEFICIARY API FUNCTIONS (LEGACY) ===
 
 /**
- * Hızlı kayıt için beneficiary oluşturma
+ * Hızlı kayıt için beneficiary oluşturma (legacy)
  */
 export const createBeneficiary = async (data: BeneficiaryQuickAdd): Promise<ApiResponse<Beneficiary>> => {
   await delay();
@@ -154,6 +223,31 @@ export const createBeneficiary = async (data: BeneficiaryQuickAdd): Promise<ApiR
     };
     
     mockBeneficiaries.push(newBeneficiary);
+    // sync to appwrite-style store
+    mockAppwriteBeneficiaries.push({
+      $id: newBeneficiary.id,
+      $createdAt: newBeneficiary.createdAt!,
+      $updatedAt: newBeneficiary.updatedAt!,
+      $permissions: [],
+      $collectionId: "beneficiaries",
+      $databaseId: "mock-db",
+      name: `${newBeneficiary.firstName} ${newBeneficiary.lastName}`,
+      tc_no: newBeneficiary.identityNumber || "",
+      phone: newBeneficiary.mobilePhone || "",
+      email: newBeneficiary.email || "",
+      birth_date: undefined,
+      gender: undefined,
+      nationality: newBeneficiary.nationality,
+      religion: undefined,
+      marital_status: undefined,
+      address: newBeneficiary.address || "",
+      city: newBeneficiary.city || "",
+      district: newBeneficiary.district || "",
+      neighborhood: newBeneficiary.neighborhood || "",
+      family_size: newBeneficiary.familyMemberCount || 1,
+      status: 'TASLAK',
+      approval_status: 'pending'
+    } as BeneficiaryDocument);
     
     return {
       success: true,
@@ -171,7 +265,7 @@ export const createBeneficiary = async (data: BeneficiaryQuickAdd): Promise<ApiR
 };
 
 /**
- * Beneficiary güncelleme
+ * Beneficiary güncelleme (legacy)
  */
 export const updateBeneficiary = async (id: string, data: Partial<Beneficiary>): Promise<ApiResponse<Beneficiary>> => {
   await delay();
@@ -194,6 +288,27 @@ export const updateBeneficiary = async (id: string, data: Partial<Beneficiary>):
     };
     
     mockBeneficiaries[index] = updatedBeneficiary;
+
+    // sync to appwrite-style store
+    const idx2 = mockAppwriteBeneficiaries.findIndex(b => b.$id === id);
+    if (idx2 !== -1) {
+      const legacy = updatedBeneficiary;
+      mockAppwriteBeneficiaries[idx2] = {
+        ...mockAppwriteBeneficiaries[idx2],
+        $updatedAt: legacy.updatedAt!,
+        name: `${legacy.firstName} ${legacy.lastName}`,
+        tc_no: legacy.identityNumber || mockAppwriteBeneficiaries[idx2].tc_no,
+        phone: legacy.mobilePhone || mockAppwriteBeneficiaries[idx2].phone,
+        email: legacy.email || mockAppwriteBeneficiaries[idx2].email,
+        nationality: legacy.nationality,
+        address: legacy.address || mockAppwriteBeneficiaries[idx2].address,
+        city: legacy.city || mockAppwriteBeneficiaries[idx2].city,
+        district: legacy.district || mockAppwriteBeneficiaries[idx2].district,
+        neighborhood: legacy.neighborhood || mockAppwriteBeneficiaries[idx2].neighborhood,
+        family_size: legacy.familyMemberCount || mockAppwriteBeneficiaries[idx2].family_size,
+        status: (legacy.status as any) || mockAppwriteBeneficiaries[idx2].status
+      };
+    }
     
     return {
       success: true,
@@ -209,7 +324,7 @@ export const updateBeneficiary = async (id: string, data: Partial<Beneficiary>):
 };
 
 /**
- * Tek beneficiary getirme
+ * Tek beneficiary getirme (legacy)
  */
 export const getBeneficiary = async (id: string): Promise<ApiResponse<Beneficiary>> => {
   await delay();
@@ -237,7 +352,7 @@ export const getBeneficiary = async (id: string): Promise<ApiResponse<Beneficiar
 };
 
 /**
- * Beneficiary listesi getirme (sayfalama ve filtreleme ile)
+ * Beneficiary listesi getirme (sayfalama ve filtreleme ile) - legacy
  */
 export const getBeneficiaries = async (params: BeneficiarySearchParams = {}): Promise<ApiResponse<BeneficiaryListResponse>> => {
   await delay();
@@ -263,7 +378,8 @@ export const getBeneficiaries = async (params: BeneficiarySearchParams = {}): Pr
         b.firstName.toLowerCase().includes(searchLower) ||
         b.lastName.toLowerCase().includes(searchLower) ||
         b.identityNumber?.includes(search) ||
-        b.fileNumber.toLowerCase().includes(searchLower)
+        b.fileNumber.toLowerCase().includes(searchLower) ||
+        b.id.toLowerCase().includes(searchLower)
       );
     }
     
@@ -316,7 +432,7 @@ export const getBeneficiaries = async (params: BeneficiarySearchParams = {}): Pr
 };
 
 /**
- * Beneficiary silme
+ * Beneficiary silme (legacy)
  */
 export const deleteBeneficiary = async (id: string): Promise<ApiResponse<void>> => {
   await delay();
@@ -332,6 +448,7 @@ export const deleteBeneficiary = async (id: string): Promise<ApiResponse<void>> 
     }
     
     mockBeneficiaries.splice(index, 1);
+    mockAppwriteBeneficiaries = mockAppwriteBeneficiaries.filter(b => b.$id !== id);
     
     return {
       success: true,
@@ -346,7 +463,7 @@ export const deleteBeneficiary = async (id: string): Promise<ApiResponse<void>> 
 };
 
 /**
- * Fotoğraf yükleme
+ * Fotoğraf yükleme (legacy)
  */
 export const uploadBeneficiaryPhoto = async (id: string, file: File): Promise<ApiResponse<PhotoUploadResponse>> => {
   await delay(1000); // Fotoğraf yükleme daha uzun sürer
@@ -494,7 +611,7 @@ export const getBeneficiaryStats = async (): Promise<ApiResponse<{
 };
 
 /**
- * Export beneficiaries to CSV
+ * Export beneficiaries to CSV (legacy)
  */
 export const exportBeneficiaries = async (params: BeneficiarySearchParams = {}): Promise<ApiResponse<string>> => {
   await delay(2000); // Export işlemi uzun sürer
@@ -547,3 +664,177 @@ export const exportBeneficiaries = async (params: BeneficiarySearchParams = {}):
     };
   }
 };
+
+// === APPWRITE-ALIGNED MOCK API (NEW) ===
+
+function toAppwriteResponse<T>(data: T | null, total?: number): AppwriteResponse<T> {
+  return {
+    data,
+    error: null,
+    total
+  };
+}
+
+export async function appwriteCreateBeneficiary(data: CreateDocumentData<BeneficiaryDocument>): Promise<AppwriteResponse<BeneficiaryDocument>> {
+  await delay();
+
+  const now = new Date().toISOString();
+  const $id = generateId();
+  const doc: BeneficiaryDocument = {
+    $id,
+    $createdAt: now,
+    $updatedAt: now,
+    $permissions: [],
+    $collectionId: "beneficiaries",
+    $databaseId: "mock-db",
+    // Map required core fields with safe fallbacks
+    name: data.name || `${data.firstName ?? ''} ${data.lastName ?? ''}`.trim() || 'Ad Soyad',
+    tc_no: data.tc_no || '',
+    phone: data.phone || '',
+    email: data.email,
+    birth_date: data.birth_date,
+    gender: data.gender,
+    nationality: data.nationality,
+    religion: data.religion,
+    marital_status: data.marital_status,
+    address: data.address || '',
+    city: data.city || '',
+    district: data.district || '',
+    neighborhood: data.neighborhood || '',
+    family_size: data.family_size ?? 1,
+    children_count: data.children_count,
+    orphan_children_count: data.orphan_children_count,
+    elderly_count: data.elderly_count,
+    disabled_count: data.disabled_count,
+    income_level: data.income_level,
+    income_source: data.income_source,
+    has_debt: !!data.has_debt,
+    housing_type: data.housing_type,
+    has_vehicle: !!data.has_vehicle,
+    health_status: data.health_status,
+    has_chronic_illness: data.has_chronic_illness,
+    chronic_illness_detail: data.chronic_illness_detail,
+    has_disability: data.has_disability,
+    disability_detail: data.disability_detail,
+    has_health_insurance: data.has_health_insurance,
+    regular_medication: data.regular_medication,
+    education_level: data.education_level,
+    occupation: data.occupation,
+    employment_status: data.employment_status,
+    aid_type: data.aid_type,
+    totalAidAmount: data.totalAidAmount,
+    aid_duration: data.aid_duration,
+    priority: data.priority,
+    reference_name: data.reference_name,
+    reference_phone: data.reference_phone,
+    reference_relation: data.reference_relation,
+    application_source: data.application_source,
+    notes: data.notes,
+    previous_aid: !!data.previous_aid,
+    other_organization_aid: !!data.other_organization_aid,
+    emergency: !!data.emergency,
+    contact_preference: data.contact_preference,
+    status: data.status || 'TASLAK',
+    approval_status: data.approval_status || 'pending',
+    approved_by: data.approved_by,
+    approved_at: data.approved_at
+  };
+
+  mockAppwriteBeneficiaries.push(doc);
+  return toAppwriteResponse(doc);
+}
+
+export async function appwriteUpdateBeneficiary(id: string, data: UpdateDocumentData<BeneficiaryDocument>): Promise<AppwriteResponse<BeneficiaryDocument>> {
+  await delay();
+
+  const idx = mockAppwriteBeneficiaries.findIndex(b => b.$id === id);
+  if (idx === -1) {
+    return { data: null, error: 'İhtiyaç sahibi bulunamadı' };
+  }
+
+  const now = new Date().toISOString();
+  const prev = mockAppwriteBeneficiaries[idx];
+  const updated: BeneficiaryDocument = {
+    ...prev,
+    ...data,
+    $updatedAt: now
+  };
+
+  mockAppwriteBeneficiaries[idx] = updated;
+  return toAppwriteResponse(updated);
+}
+
+export async function appwriteGetBeneficiary(id: string): Promise<AppwriteResponse<BeneficiaryDocument>> {
+  await delay();
+
+  const b = mockAppwriteBeneficiaries.find(x => x.$id === id) || null;
+  if (!b) {
+    return { data: null, error: 'İhtiyaç sahibi bulunamadı' };
+  }
+  return toAppwriteResponse(b);
+}
+
+export async function appwriteGetBeneficiaries(params: QueryParams = {}): Promise<AppwriteResponse<BeneficiaryDocument[]>> {
+  await delay();
+
+  const {
+    search = '',
+    page = 1,
+    limit = 20,
+    orderBy,
+    orderType = 'desc',
+    filters = {}
+  } = params;
+
+  let list = [...mockAppwriteBeneficiaries];
+
+  if (search) {
+    const s = search.toLowerCase();
+    list = list.filter(b => 
+      b.name.toLowerCase().includes(s) ||
+      b.tc_no?.includes(search) ||
+      b.$id.toLowerCase().includes(s)
+    );
+  }
+
+  // Simple filters support
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value === undefined || value === null) return;
+    list = list.filter((b: any) => b[key] === value);
+  });
+
+  // Order
+  if (orderBy) {
+    list.sort((a: any, b: any) => {
+      const av = a[orderBy];
+      const bv = b[orderBy];
+      if (av === bv) return 0;
+      const res = av > bv ? 1 : -1;
+      return orderType === 'desc' ? -res : res;
+    });
+  }
+
+  const total = list.length;
+  const start = (page - 1) * limit;
+  const end = start + limit;
+  const documents = list.slice(start, end);
+
+  return {
+    data: documents,
+    error: null,
+    total
+  };
+}
+
+export async function appwriteDeleteBeneficiary(id: string): Promise<AppwriteResponse<null>> {
+  await delay();
+
+  const before = mockAppwriteBeneficiaries.length;
+  mockAppwriteBeneficiaries = mockAppwriteBeneficiaries.filter(b => b.$id !== id);
+  const after = mockAppwriteBeneficiaries.length;
+
+  return {
+    data: null,
+    error: before === after ? 'İhtiyaç sahibi bulunamadı' : null
+  };
+}

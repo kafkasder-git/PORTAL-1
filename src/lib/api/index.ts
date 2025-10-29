@@ -41,13 +41,13 @@ const mockApi = {
     deleteUser: async (_id: string) => ({ data: null, error: null }),
   },
 
-  // Beneficiaries (match appwriteApi surface where possible)
+  // Beneficiaries (Appwrite-aligned mock surface)
   beneficiaries: {
-    getBeneficiaries: (params?: any) => mock.getBeneficiaries(params),
-    getBeneficiary: (id: string) => mock.getBeneficiary(id),
-    createBeneficiary: (data: any) => mock.createBeneficiary(data as any),
-    updateBeneficiary: (id: string, data: any) => mock.updateBeneficiary(id, data as any),
-    deleteBeneficiary: (id: string) => mock.deleteBeneficiary(id),
+    getBeneficiaries: (params?: any) => mock.appwriteGetBeneficiaries(params),
+    getBeneficiary: (id: string) => mock.appwriteGetBeneficiary(id),
+    createBeneficiary: (data: any) => mock.appwriteCreateBeneficiary(data as any),
+    updateBeneficiary: (id: string, data: any) => mock.appwriteUpdateBeneficiary(id, data as any),
+    deleteBeneficiary: (id: string) => mock.appwriteDeleteBeneficiary(id),
   },
 
   donations: {

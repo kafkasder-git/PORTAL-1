@@ -8,28 +8,53 @@ import { Button } from '@/components/ui/button';
 import { Search, Plus, Download } from 'lucide-react';
 import Link from 'next/link';
 import { BeneficiaryQuickAddModal } from '@/components/forms/BeneficiaryQuickAddModal';
-import { appwriteApi } from '@/lib/api/appwrite-api';
+import api from '@/lib/api';
+import { exportBeneficiaries } from '@/lib/api/mock-api';
 import type { BeneficiaryDocument } from '@/types/collections';
 
 export default function BeneficiariesPage() {
   const [search, setSearch] = useState('');
+  const [idSearch, setIdSearch] = useState('');
+  const [tcSearch, setTcSearch] = useState('');
+  const [fileSearch, setFileSearch] = useState('');
   const [page, setPage] = useState(1);
   const [showQuickAddModal, setShowQuickAddModal] = useState(false);
   const limit = 20;
 
+  const effectiveSearch = idSearch || tcSearch || fileSearch || search;
+
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['beneficiaries', page, search],
-    queryFn: () => appwriteApi.beneficiaries.getBeneficiaries({ page, limit, search }),
+    queryKey: ['beneficiaries', page, effectiveSearch],
+    queryFn: () => api.beneficiaries.getBeneficiaries({ page, limit, search: effectiveSearch }),
   });
 
   const beneficiaries = data?.data || [];
   const total = data?.total || 0;
-  const totalPages = Math.ceil(total / limit);
+  const totalPages = Math.max(1, Math.ceil(total / limit));
 
   // Modal kapandığında listeyi yenile
   const handleModalClose = () => {
     setShowQuickAddModal(false);
     refetch();
+  };
+
+  const handleSearch = () => {
+    // Sayfayı başa al ve refetch tetikle
+    setPage(1);
+    refetch();
+  };
+
+  const handleExport = async () => {
+    const result = await exportBeneficiaries({ search: effectiveSearch });
+    if (result.success && result.data) {
+      const blob = new Blob([result.data], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'ihtiyac_sahipleri.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
   };
 
   return (
@@ -58,6 +83,11 @@ export default function BeneficiariesPage() {
               <Input
                 placeholder="ID ↵"
                 className="h-9"
+                value={idSearch}
+                onChange={(e) => {
+                  setIdSearch(e.target.value);
+                  setPage(1);
+                }}
               />
             </div>
             <div className="flex-1 min-w-[150px]">
@@ -75,12 +105,22 @@ export default function BeneficiariesPage() {
               <Input
                 placeholder="Kimlik No"
                 className="h-9"
+                value={tcSearch}
+                onChange={(e) => {
+                  setTcSearch(e.target.value);
+                  setPage(1);
+                }}
               />
             </div>
             <div className="flex-1 min-w-[120px]">
               <Input
                 placeholder="Dosya No"
                 className="h-9"
+                value={fileSearch}
+                onChange={(e) => {
+                  setFileSearch(e.target.value);
+                  setPage(1);
+                }}
               />
             </div>
             <select className="h-9 px-3 border rounded-md text-sm">
@@ -89,7 +129,12 @@ export default function BeneficiariesPage() {
               <option>{'<'}</option>
               <option>~</option>
             </select>
-            <Button variant="default" size="sm" className="h-9 gap-1 bg-green-600 hover:bg-green-700">
+            <Button 
+              variant="default" 
+              size="sm" 
+              className="h-9 gap-1 bg-green-600 hover:bg-green-700"
+              onClick={handleSearch}
+            >
               <Search className="h-4 w-4" />
               Ara
             </Button>
@@ -105,7 +150,12 @@ export default function BeneficiariesPage() {
               <Plus className="h-4 w-4" />
               Ekle
             </Button>
-            <Button variant="default" size="sm" className="h-9 gap-1 bg-cyan-600 hover:bg-cyan-700">
+            <Button 
+              variant="default" 
+              size="sm" 
+              className="h-9 gap-1 bg-cyan-600 hover:bg-cyan-700"
+              onClick={handleExport}
+            >
               <Download className="h-4 w-4" />
               İndir
             </Button>
@@ -131,7 +181,10 @@ export default function BeneficiariesPage() {
               <Input 
                 type="number" 
                 value={page} 
-                onChange={(e) => setPage(Number(e.target.value))}
+                onChange={(e) => {
+                  const next = Number(e.target.value);
+                  setPage(Number.isNaN(next) ? 1 : Math.min(Math.max(1, next), totalPages));
+                }}
                 className="h-7 w-12 text-center p-0"
               />
               <span>/ {totalPages}</span>
@@ -158,7 +211,7 @@ export default function BeneficiariesPage() {
             <div className="text-center text-gray-500 py-12">
               <p className="text-lg font-medium">Kayıt bulunamadı</p>
               <p className="text-sm mt-2">
-                {search ? 'Arama kriterlerinize uygun kayıt yok' : 'Henüz kayıt eklenmemiş'}
+                {effectiveSearch ? 'Arama kriterlerinize uygun kayıt yok' : 'Henüz kayıt eklenmemiş'}
               </p>
             </div>
           ) : (
@@ -169,21 +222,13 @@ export default function BeneficiariesPage() {
                     <th className="p-3 text-left text-sm font-medium text-gray-700 w-8"></th>
                     <th className="p-3 text-left text-sm font-medium text-gray-700">Tür</th>
                     <th className="p-3 text-left text-sm font-medium text-gray-700">İsim</th>
-                    <th className="p-3 text-left text-sm font-medium text-gray-700">Kategori</th>
-                    <th className="p-3 text-left text-sm font-medium text-gray-700">Yaş</th>
                     <th className="p-3 text-left text-sm font-medium text-gray-700">Uyruk</th>
                     <th className="p-3 text-left text-sm font-medium text-gray-700">Kimlik No</th>
                     <th className="p-3 text-left text-sm font-medium text-gray-700">Cep Telefonu</th>
-                    <th className="p-3 text-left text-sm font-medium text-gray-700">Ülke</th>
                     <th className="p-3 text-left text-sm font-medium text-gray-700">Şehir</th>
                     <th className="p-3 text-left text-sm font-medium text-gray-700">Yerleşim</th>
                     <th className="p-3 text-left text-sm font-medium text-gray-700">Adres</th>
                     <th className="p-3 text-left text-sm font-medium text-gray-700">Kişi</th>
-                    <th className="p-3 text-left text-sm font-medium text-gray-700">Yetim</th>
-                    <th className="p-3 text-left text-sm font-medium text-gray-700">Başvuru</th>
-                    <th className="p-3 text-left text-sm font-medium text-gray-700">Yardım</th>
-                    <th className="p-3 text-left text-sm font-medium text-gray-700">Dosya No</th>
-                    <th className="p-3 text-left text-sm font-medium text-gray-700">Son Atama</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -200,27 +245,14 @@ export default function BeneficiariesPage() {
                         </Link>
                       </td>
                       <td className="p-3 text-sm">İhtiyaç Sahibi Kişi</td>
-                      <td className="p-3 text-sm font-medium">{beneficiary.name}</td>
-                      <td className="p-3 text-sm">-</td>
-                      <td className="p-3 text-sm">
-                        {beneficiary.birth_date 
-                          ? Math.floor((new Date().getTime() - new Date(beneficiary.birth_date).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
-                          : '-'
-                        }
-                      </td>
+                      <td className="p-3 text-sm font-medium">{beneficiary.name || '-'}</td>
                       <td className="p-3 text-sm">{beneficiary.nationality || '-'}</td>
                       <td className="p-3 text-sm">{beneficiary.tc_no || '-'}</td>
                       <td className="p-3 text-sm">{beneficiary.phone || '-'}</td>
-                      <td className="p-3 text-sm">-</td>
                       <td className="p-3 text-sm">{beneficiary.city || '-'}</td>
                       <td className="p-3 text-sm">{beneficiary.district || '-'}</td>
                       <td className="p-3 text-sm max-w-xs truncate">{beneficiary.address || '-'}</td>
-                      <td className="p-3 text-sm">{beneficiary.family_size || '-'}</td>
-                      <td className="p-3 text-sm">-</td>
-                      <td className="p-3 text-sm">-</td>
-                      <td className="p-3 text-sm">-</td>
-                      <td className="p-3 text-sm text-blue-600">-</td>
-                      <td className="p-3 text-sm">-</td>
+                      <td className="p-3 text-sm">{beneficiary.family_size ?? '-'}</td>
                     </tr>
                   ))}
                 </tbody>

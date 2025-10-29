@@ -116,7 +116,7 @@ export interface BeneficiaryDocument extends AppwriteDocument {
   
   // Yardım Talebi
   aid_type?: string;
-  aid_amount?: number;
+  totalAidAmount?: number;
   aid_duration?: string;
   priority?: string;
   

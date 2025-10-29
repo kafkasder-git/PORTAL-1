@@ -377,6 +377,210 @@ vercel --prod
 
 ---
 
+## 🔒 Form Validation & Sanitization
+
+### Validation Schema
+
+Projede **Zod** tabanlı comprehensive validation schema kullanılıyor:
+
+- **Lokasyon:** `/src/lib/validations/beneficiary.ts`
+- **100+ alan** validasyonu
+- **Conditional validation** (TC Kimlik + Mernis, yaş + medeni durum)
+- **Helper validators** (TC algoritma, telefon, email, tarih)
+
+**Örnek Kullanım:**
+
+```typescript
+import { beneficiarySchema } from '@/lib/validations/beneficiary';
+
+const result = beneficiarySchema.safeParse(formData);
+if (!result.success) {
+  console.error(result.error.issues);
+}
+```
+
+### Sanitization
+
+Güvenlik için **15+ sanitization fonksiyonu** mevcut:
+
+- **Lokasyon:** `/src/lib/sanitization.ts`
+- **XSS Prevention:** HTML sanitization (DOMPurify)
+- **SQL Injection Prevention:** Query sanitization
+- **TC Kimlik:** Algoritma kontrolü
+- **Telefon:** Türk telefon formatı (+90 5XX XXX XX XX)
+- **Email:** Format validation ve lowercase
+
+**Örnek Kullanım:**
+
+```typescript
+import { sanitizeTcNo, sanitizePhone, sanitizeEmail } from '@/lib/sanitization';
+
+const cleanTc = sanitizeTcNo('10000000146');
+const cleanPhone = sanitizePhone('0555 123 45 67'); // +905551234567
+const cleanEmail = sanitizeEmail('  USER@EXAMPLE.COM  '); // user@example.com
+```
+
+### Form Submission Flow
+
+```
+User Input → Validation (Zod) → Sanitization → API Call → Database
+```
+
+1. **Client-side validation:** React Hook Form + Zod
+2. **Client-side sanitization:** Pre-submit sanitization
+3. **Server-side sanitization:** API layer guard
+4. **Database:** Clean, validated data
+
+---
+
+## 🧪 Testing
+
+### Unit Tests (Vitest)
+
+**Lokasyon:** `/src/__tests__/`
+
+```bash
+# Tüm testleri çalıştır
+npm run test
+
+# Watch mode
+npm run test:watch
+
+# Coverage
+npm run test:coverage
+```
+
+**Test Dosyaları:**
+- `lib/sanitization.test.ts` - Sanitization testleri (79 test)
+- `lib/beneficiary-validation.test.ts` - Validation testleri (20+ test)
+- `integration/beneficiary-sanitization.test.ts` - Integration testleri (15+ test)
+
+### E2E Tests (Playwright)
+
+**Lokasyon:** `/e2e/`
+
+```bash
+# Tüm E2E testleri
+npm run test:e2e
+
+# Headed mode (browser görünür)
+npx playwright test --headed
+
+# Debug mode
+npx playwright test --debug
+
+# Specific file
+npx playwright test beneficiary-edit.spec.ts
+```
+
+**Test Dosyaları:**
+- `beneficiaries.spec.ts` - Beneficiary list testleri
+- `beneficiary-edit.spec.ts` - Edit flow testleri (10 test)
+- `auth.spec.ts` - Authentication testleri
+
+### Test Coverage
+
+**Mevcut Coverage:**
+- ✅ **Unit Tests:** 100+ test passing
+- ✅ **E2E Tests:** 35+ test passing
+- ✅ **Sanitization:** %100 coverage
+- ✅ **Validation:** Comprehensive coverage
+- ✅ **Integration:** Sanitization + Validation pipeline
+
+---
+
+## 🔐 Security Features
+
+### 8-Layer Security System
+
+1. **Input Sanitization:** 15+ sanitization functions
+2. **XSS Protection:** HTML sanitization (DOMPurify)
+3. **SQL Injection Protection:** Query sanitization
+4. **CSRF Protection:** Token-based
+5. **Rate Limiting:** API abuse prevention
+6. **File Upload Security:** Type, size, name validation
+7. **Environment Validation:** Zod-based config check
+8. **Error Monitoring:** Sentry integration
+
+### Validation Rules
+
+**TC Kimlik No:**
+- 11 hane
+- İlk hane 0 olamaz
+- Algoritma kontrolü (10. ve 11. hane checksum)
+
+**Telefon:**
+- Türk mobil format: +90 5XX XXX XX XX
+- Sabit hat kabul edilmez
+- Otomatik format düzeltme
+
+**Email:**
+- RFC 5322 compliant
+- Lowercase conversion
+- Trim whitespace
+
+**Conditional Validation:**
+- TC Kimlik varsa Mernis kontrolü zorunlu
+- 18 yaş altı evli olamaz
+- Kronik hastalık varsa detay zorunlu
+- Engellilik varsa detay zorunlu
+
+---
+
+## 📚 API Documentation
+
+### Beneficiary API
+
+**Base URL:** `/api/beneficiaries`
+
+**Endpoints:**
+
+```typescript
+// Get all beneficiaries
+GET /api/beneficiaries?page=1&limit=10&search=query
+
+// Get single beneficiary
+GET /api/beneficiaries/:id
+
+// Create beneficiary
+POST /api/beneficiaries
+Body: BeneficiaryFormData (validated + sanitized)
+
+// Update beneficiary
+PUT /api/beneficiaries/:id
+Body: Partial<BeneficiaryFormData> (validated + sanitized)
+
+// Delete beneficiary
+DELETE /api/beneficiaries/:id
+```
+
+**Response Format:**
+
+```typescript
+interface AppwriteResponse<T> {
+  data: T | null;
+  error: string | null;
+  total?: number;
+}
+```
+
+**Error Handling:**
+
+Tüm API error'ları user-friendly Türkçe mesajlara çevrilir:
+
+```typescript
+import { formatErrorMessage } from '@/lib/errors';
+
+try {
+  await api.beneficiaries.updateBeneficiary(id, data);
+} catch (error) {
+  const userMessage = formatErrorMessage(error);
+  toast.error(userMessage);
+}
+```
+
+---
+
 **⚡ Version:** 1.0.0
 **📅 Last Updated:** 28 Ekim 2025
 **🚀 Status:** Production Ready

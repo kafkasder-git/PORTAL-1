@@ -26,6 +26,22 @@ import type {
   UploadedFile
 } from '@/types/collections';
 import { UserRole } from '@/types/auth';
+import {
+  sanitizeTcNo,
+  sanitizePhone,
+  sanitizeEmail,
+  sanitizeNumber,
+  sanitizeObject
+} from '@/lib/sanitization';
+
+import {
+  ValidationError,
+  DatabaseError,
+  formatErrorMessage
+} from '@/lib/errors';
+
+import { beneficiarySchema } from '@/lib/validations/beneficiary';
+import { z } from 'zod';
 
 /**
  * Authentication API
@@ -171,6 +187,94 @@ export const usersApi = {
 };
 
 /**
+ * Sanitize beneficiary data before database operations
+ * Server-side sanitization guard with Zod validation
+ */
+function sanitizeBeneficiaryData(data: any): any {
+  const sanitized = { ...data };
+  
+  // Handle legacy field mapping: aid_amount -> totalAidAmount
+  if (sanitized.aid_amount !== undefined && sanitized.totalAidAmount === undefined) {
+    sanitized.totalAidAmount = sanitized.aid_amount;
+    delete sanitized.aid_amount;
+  }
+  
+  // TC Kimlik No
+  if (sanitized.identityNumber) {
+    const cleanTc = sanitizeTcNo(sanitized.identityNumber);
+    if (!cleanTc) {
+      throw new ValidationError('Geçersiz TC Kimlik No');
+    }
+    sanitized.identityNumber = cleanTc;
+  }
+  
+  // Phone numbers
+  if (sanitized.mobilePhone) {
+    const cleanPhone = sanitizePhone(sanitized.mobilePhone);
+    if (!cleanPhone) {
+      throw new ValidationError('Geçersiz telefon numarası');
+    }
+    sanitized.mobilePhone = cleanPhone;
+  }
+  
+  if (sanitized.landlinePhone) {
+    const cleanLandline = sanitizePhone(sanitized.landlinePhone);
+    sanitized.landlinePhone = cleanLandline || undefined;
+  }
+  
+  // Email
+  if (sanitized.email) {
+    const cleanEmail = sanitizeEmail(sanitized.email);
+    if (sanitized.email && !cleanEmail) {
+      throw new ValidationError('Geçersiz email adresi');
+    }
+    sanitized.email = cleanEmail || undefined;
+  }
+  
+  // Numbers
+  const numberFields = ['monthlyIncome', 'monthlyExpense', 'totalAidAmount', 'familyMemberCount'];
+  numberFields.forEach(field => {
+    if (sanitized[field] !== undefined) {
+      const cleanNumber = sanitizeNumber(sanitized[field]);
+      if (cleanNumber === null && sanitized[field] !== null) {
+        throw new ValidationError(`Geçersiz sayı değeri: ${field}`);
+      }
+      sanitized[field] = cleanNumber;
+    }
+  });
+  
+  // Text fields - sanitize object
+  const textFields = [
+    'notes',
+    'address',
+    'healthProblem',
+    'chronicIllnessDetail',
+    'disabilityDetail'
+  ];
+  
+  textFields.forEach(field => {
+    if (sanitized[field] && typeof sanitized[field] === 'string') {
+      sanitized[field] = sanitizeObject(
+        { [field]: sanitized[field] },
+        { allowHtml: false }
+      )[field];
+    }
+  });
+  
+  // Validate against Zod schema to ensure only known fields are passed to database
+  try {
+    const validatedData = beneficiarySchema.partial().parse(sanitized);
+    return validatedData;
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      const errorMessages = error.issues.map(err => `${err.path.join('.')}: ${err.message}`).join(', ');
+      throw new ValidationError(`Veri doğrulama hatası: ${errorMessages}`);
+    }
+    throw error;
+  }
+}
+
+/**
 * Beneficiaries API
 */
 export const beneficiariesApi = {
@@ -211,11 +315,14 @@ return await handleAppwriteError(async () => {
 
   async createBeneficiary(data: CreateDocumentData<BeneficiaryDocument>): Promise<AppwriteResponse<BeneficiaryDocument>> {
     return await handleAppwriteError(async () => {
+      // ✅ Sanitize data before creating
+      const sanitizedData = sanitizeBeneficiaryData(data);
+      
       const beneficiary = await databases.createDocument(
         DATABASE_ID,
         COLLECTIONS.BENEFICIARIES,
         ID.unique(),
-        data
+        sanitizedData
       );
       return {
         data: beneficiary as unknown as BeneficiaryDocument,
@@ -226,7 +333,15 @@ return await handleAppwriteError(async () => {
 
   async updateBeneficiary(id: string, data: UpdateDocumentData<BeneficiaryDocument>): Promise<AppwriteResponse<BeneficiaryDocument>> {
     return await handleAppwriteError(async () => {
-      const beneficiary = await databases.updateDocument(DATABASE_ID, COLLECTIONS.BENEFICIARIES, id, data);
+      // ✅ Sanitize data before updating
+      const sanitizedData = sanitizeBeneficiaryData(data);
+      
+      const beneficiary = await databases.updateDocument(
+        DATABASE_ID,
+        COLLECTIONS.BENEFICIARIES,
+        id,
+        sanitizedData
+      );
       return {
         data: beneficiary as unknown as BeneficiaryDocument,
         error: null

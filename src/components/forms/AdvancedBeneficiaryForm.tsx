@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -18,82 +17,40 @@ import { toast } from 'sonner';
 import { Loader2, User, MapPin, Users, Wallet, Heart, GraduationCap, HandHeart, UserCheck } from 'lucide-react';
 import { ParameterSelect } from './ParameterSelect';
 
-// Comprehensive validation schema (Portal Plus style)
-const advancedBeneficiarySchema = z.object({
-  // Kişisel Bilgiler
-  name: z.string().min(2, 'İsim en az 2 karakter olmalıdır'),
-  tc_no: z.string().length(11, 'TC Kimlik numarası 11 haneli olmalıdır'),
-  phone: z.string().min(10, 'Geçerli bir telefon numarası girin'),
-  email: z.string().email('Geçerli bir e-posta adresi girin').optional().or(z.literal('')),
-  birth_date: z.string().optional(),
-  gender: z.string().optional(),
-  nationality: z.string().optional(),
-  religion: z.string().optional(),
-  marital_status: z.string().optional(),
+// Central validation schema
+import { beneficiarySchema } from '@/lib/validations/beneficiary'
 
-  // Adres Bilgileri
-  address: z.string().min(10, 'Adres en az 10 karakter olmalıdır'),
-  city: z.string().min(2, 'Şehir adı girin'),
-  district: z.string().min(2, 'İlçe adı girin'),
-  neighborhood: z.string().min(2, 'Mahalle adı girin'),
+// Sanitization functions
+import {
+  sanitizeTcNo,
+  sanitizePhone,
+  sanitizeEmail,
+  sanitizeObject,
+  sanitizeNumber,
+  sanitizeDate
+} from '@/lib/sanitization'
 
-  // Aile Bilgileri
-  family_size: z.number().min(1, 'Aile büyüklüğü en az 1 olmalıdır'),
-  children_count: z.number().min(0).optional(),
-  orphan_children_count: z.number().min(0).optional(),
-  elderly_count: z.number().min(0).optional(),
-  disabled_count: z.number().min(0).optional(),
+// Error handling
+import { formatErrorMessage } from '@/lib/errors'
 
-  // Ekonomik Durum
-  income_level: z.string().optional(),
-  income_source: z.string().optional(),
-  has_debt: z.boolean().optional(),
-  housing_type: z.string().optional(),
-  has_vehicle: z.boolean().optional(),
+// Use central validation schema
+const advancedBeneficiarySchema = beneficiarySchema;
 
-  // Sağlık Bilgileri
-  health_status: z.string().optional(),
-  has_chronic_illness: z.boolean().optional(),
-  chronic_illness_detail: z.string().optional(),
-  has_disability: z.boolean().optional(),
-  disability_detail: z.string().optional(),
-  has_health_insurance: z.boolean().optional(),
-  regular_medication: z.string().optional(),
+// Use central type
+import type { BeneficiaryFormData } from '@/lib/validations/beneficiary';
+type AdvancedBeneficiaryFormData = BeneficiaryFormData;
 
-  // Eğitim ve İstihdam
-  education_level: z.string().optional(),
-  occupation: z.string().optional(),
-  employment_status: z.string().optional(),
-
-  // Yardım Talebi
-  aid_type: z.string().optional(),
-  aid_amount: z.number().min(0).optional(),
-  aid_duration: z.string().optional(),
-  priority: z.string().optional(),
-
-  // Referans Bilgileri
-  reference_name: z.string().optional(),
-  reference_phone: z.string().optional(),
-  reference_relation: z.string().optional(),
-  application_source: z.string().optional(),
-
-  // Ek Bilgiler
-  notes: z.string().optional(),
-  previous_aid: z.boolean().optional(),
-  other_organization_aid: z.boolean().optional(),
-  emergency: z.boolean().optional(),
-  contact_preference: z.string().optional(),
-});
-
-type AdvancedBeneficiaryFormData = z.infer<typeof advancedBeneficiarySchema>;
 
 interface AdvancedBeneficiaryFormProps {
   onSuccess?: () => void;
   onCancel?: () => void;
   initialData?: Partial<AdvancedBeneficiaryFormData>;
+  isUpdateMode?: boolean;
+  updateMutation?: { mutateAsync: Function };
+  beneficiaryId?: string;
 }
 
-export function AdvancedBeneficiaryForm({ onSuccess, onCancel, initialData }: AdvancedBeneficiaryFormProps) {
+export function AdvancedBeneficiaryForm({ onSuccess, onCancel, initialData, isUpdateMode = false, updateMutation, beneficiaryId }: AdvancedBeneficiaryFormProps) {
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState('personal');
@@ -107,15 +64,15 @@ export function AdvancedBeneficiaryForm({ onSuccess, onCancel, initialData }: Ad
   } = useForm<AdvancedBeneficiaryFormData>({
     resolver: zodResolver(advancedBeneficiarySchema),
     defaultValues: {
-      family_size: 1,
+      familyMemberCount: 1,
       children_count: 0,
       orphan_children_count: 0,
       elderly_count: 0,
       disabled_count: 0,
       has_debt: false,
       has_vehicle: false,
-      has_chronic_illness: false,
-      has_disability: false,
+      hasChronicIllness: false,
+      hasDisability: false,
       has_health_insurance: false,
       previous_aid: false,
       other_organization_aid: false,
@@ -137,14 +94,162 @@ export function AdvancedBeneficiaryForm({ onSuccess, onCancel, initialData }: Ad
       onSuccess?.();
     },
     onError: (error: any) => {
-      toast.error('İhtiyaç sahibi eklenirken hata oluştu: ' + error.message);
+      // ✅ Enhanced error handling
+      const userMessage = formatErrorMessage(error);
+      toast.error(`İhtiyaç sahibi eklenirken hata oluştu: ${userMessage}`);
+      console.error('Create beneficiary error:', error);
     },
   });
 
+  // UPDATE MUTATION (yeni - internal)
+  const internalUpdateMutation = useMutation({
+    mutationFn: (data: any) => {
+      if (!beneficiaryId) throw new Error('Beneficiary ID bulunamadı');
+      return api.beneficiaries.updateBeneficiary(beneficiaryId, data) as Promise<any>;
+    },
+    onSuccess: () => {
+      toast.success('İhtiyaç sahibi başarıyla güncellendi');
+      queryClient.invalidateQueries({ queryKey: ['beneficiary', beneficiaryId] });
+      queryClient.invalidateQueries({ queryKey: ['beneficiaries'] });
+      onSuccess?.();
+    },
+    onError: (error: any) => {
+      // ✅ Enhanced error handling
+      const userMessage = formatErrorMessage(error);
+      toast.error(`İhtiyaç sahibi güncellenirken hata oluştu: ${userMessage}`);
+      console.error('Update beneficiary error:', error);
+    },
+  });
+
+  // Hangi mutation kullanılacak?
+  const activeMutation = isUpdateMode 
+    ? (updateMutation || internalUpdateMutation) 
+    : createBeneficiaryMutation;
+
+  // Sanitization helper function
+  const sanitizeFormData = (data: AdvancedBeneficiaryFormData): AdvancedBeneficiaryFormData => {
+    const sanitized = { ...data };
+
+    // TC Kimlik No
+    if (sanitized.identityNumber) {
+      const cleanTc = sanitizeTcNo(sanitized.identityNumber);
+      if (cleanTc) {
+        sanitized.identityNumber = cleanTc;
+      } else {
+        // Invalid TC - validation should catch this, but double-check
+        delete sanitized.identityNumber;
+      }
+    }
+
+    // Phone numbers
+    if (sanitized.mobilePhone) {
+      const cleanPhone = sanitizePhone(sanitized.mobilePhone);
+      sanitized.mobilePhone = cleanPhone || undefined;
+    }
+
+    if (sanitized.landlinePhone) {
+      const cleanLandline = sanitizePhone(sanitized.landlinePhone);
+      sanitized.landlinePhone = cleanLandline || undefined;
+    }
+
+    // Email
+    if (sanitized.email) {
+      const cleanEmail = sanitizeEmail(sanitized.email);
+      sanitized.email = cleanEmail || undefined;
+    }
+
+    // Numbers (income, expense, amounts)
+    if (sanitized.monthlyIncome !== undefined) {
+      const cleanIncome = sanitizeNumber(sanitized.monthlyIncome);
+      sanitized.monthlyIncome = cleanIncome !== null ? cleanIncome : undefined;
+    }
+
+    if (sanitized.monthlyExpense !== undefined) {
+      const cleanExpense = sanitizeNumber(sanitized.monthlyExpense);
+      sanitized.monthlyExpense = cleanExpense !== null ? cleanExpense : undefined;
+    }
+
+    if (sanitized.totalAidAmount !== undefined) {
+      const cleanAmount = sanitizeNumber(sanitized.totalAidAmount);
+      sanitized.totalAidAmount = cleanAmount !== null ? cleanAmount : undefined;
+    }
+
+    // Dates (convert to ISO strings if Date objects)
+    const dateFields = [
+      'birthDate',
+      'identityIssueDate',
+      'identityExpiryDate',
+      'passportExpiryDate',
+      'visaExpiryDate'
+    ] as const;
+
+    dateFields.forEach(field => {
+      if (sanitized[field]) {
+        const dateValue = sanitized[field];
+        if (dateValue instanceof Date) {
+          sanitized[field] = dateValue.toISOString().split('T')[0]; // YYYY-MM-DD
+        } else if (typeof dateValue === 'string') {
+          const cleanDate = sanitizeDate(dateValue);
+          sanitized[field] = cleanDate ? cleanDate.toISOString().split('T')[0] : undefined;
+        }
+      }
+    });
+
+    // Emergency contacts - sanitize phone numbers
+    if (sanitized.emergencyContacts && Array.isArray(sanitized.emergencyContacts)) {
+      sanitized.emergencyContacts = sanitized.emergencyContacts.map(contact => ({
+        ...contact,
+        phone: sanitizePhone(contact.phone) || contact.phone
+      }));
+    }
+
+    // Text fields - sanitize object (recursive)
+    const textFields = [
+      'notes',
+      'additionalNotesTurkish',
+      'additionalNotesEnglish',
+      'additionalNotesArabic',
+      'consentStatement',
+      'healthProblem',
+      'chronicIllnessDetail',
+      'disabilityDetail',
+      'jobDescription',
+      'prosthetics',
+      'surgeries',
+      'healthNotes'
+    ] as const;
+
+    textFields.forEach(field => {
+      if (sanitized[field] && typeof sanitized[field] === 'string') {
+        sanitized[field] = sanitizeObject({ [field]: sanitized[field] }, { allowHtml: false })[field];
+      }
+    });
+
+    return sanitized;
+  };
+
   const onSubmit = async (data: AdvancedBeneficiaryFormData) => {
     setIsSubmitting(true);
+
     try {
-      await createBeneficiaryMutation.mutateAsync(data);
+      // 1. Sanitize form data
+      const sanitizedData = sanitizeFormData(data);
+
+      // 2. Call mutation directly with sanitized data (no mapping needed since we use camelCase)
+      if (isUpdateMode && updateMutation) {
+        await updateMutation.mutateAsync(sanitizedData);
+      } else if (isUpdateMode && beneficiaryId) {
+        await internalUpdateMutation.mutateAsync(sanitizedData);
+      } else {
+        await createBeneficiaryMutation.mutateAsync(sanitizedData);
+      }
+
+      // Success handled by mutation onSuccess callback
+    } catch (error: any) {
+      // Enhanced error handling
+      const userMessage = formatErrorMessage(error);
+      toast.error(userMessage);
+      console.error('Form submission error:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -203,41 +308,59 @@ export function AdvancedBeneficiaryForm({ onSuccess, onCancel, initialData }: Ad
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Ad Soyad *</Label>
+                  <Label htmlFor="firstName">Ad *</Label>
                   <Input
-                    id="name"
-                    {...register('name')}
-                    placeholder="Ahmet Yılmaz"
+                    id="firstName"
+                    data-testid="firstName"
+                    {...register('firstName')}
+                    placeholder="Ahmet"
                   />
-                  {errors.name && (
-                    <p className="text-sm text-red-600">{errors.name.message}</p>
+                  {errors.firstName && (
+                    <p className="text-sm text-red-600">{errors.firstName.message}</p>
                   )}
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="tc_no">TC Kimlik No *</Label>
+                  <Label htmlFor="lastName">Soyad *</Label>
                   <Input
-                    id="tc_no"
-                    {...register('tc_no')}
-                    placeholder="12345678901"
-                    maxLength={11}
+                    id="lastName"
+                    data-testid="lastName"
+                    {...register('lastName')}
+                    placeholder="Yılmaz"
                   />
-                  {errors.tc_no && (
-                    <p className="text-sm text-red-600">{errors.tc_no.message}</p>
+                  {errors.lastName && (
+                    <p className="text-sm text-red-600">{errors.lastName.message}</p>
                   )}
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Telefon *</Label>
+                  <Label htmlFor="identityNumber">TC Kimlik No *</Label>
                   <Input
-                    id="phone"
-                    {...register('phone')}
+                    id="identityNumber"
+                    data-testid="identityNumber"
+                    {...register('identityNumber')}
+                    placeholder="12345678901"
+                    maxLength={11}
+                  />
+                  {errors.identityNumber && (
+                    <p className="text-sm text-red-600">{errors.identityNumber.message}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="mobilePhone">Telefon *</Label>
+                  <Input
+                    id="mobilePhone"
+                    data-testid="mobilePhone"
+                    {...register('mobilePhone')}
                     placeholder="0555 123 45 67"
                   />
-                  {errors.phone && (
-                    <p className="text-sm text-red-600">{errors.phone.message}</p>
+                  {errors.mobilePhone && (
+                    <p className="text-sm text-red-600">{errors.mobilePhone.message}</p>
                   )}
                 </div>
 
@@ -257,11 +380,12 @@ export function AdvancedBeneficiaryForm({ onSuccess, onCancel, initialData }: Ad
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="birth_date">Doğum Tarihi</Label>
+                  <Label htmlFor="birthDate">Doğum Tarihi</Label>
                   <Input
-                    id="birth_date"
+                    id="birthDate"
+                    data-testid="birthDate"
                     type="date"
-                    {...register('birth_date')}
+                    {...register('birthDate')}
                   />
                 </div>
 
@@ -294,10 +418,10 @@ export function AdvancedBeneficiaryForm({ onSuccess, onCancel, initialData }: Ad
 
                 <ParameterSelect
                   category="marital_status"
-                  value={watch('marital_status')}
-                  onChange={(value) => setValue('marital_status', value)}
+                  value={watch('maritalStatus')}
+                  onChange={(value) => setValue('maritalStatus', value)}
                   label="Medeni Durum"
-                  error={errors.marital_status?.message}
+                  error={errors.maritalStatus?.message}
                 />
               </div>
             </TabsContent>
@@ -366,15 +490,16 @@ export function AdvancedBeneficiaryForm({ onSuccess, onCancel, initialData }: Ad
 
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="family_size">Toplam Aile Büyüklüğü *</Label>
+                  <Label htmlFor="familyMemberCount">Toplam Aile Büyüklüğü *</Label>
                   <Input
-                    id="family_size"
+                    id="familyMemberCount"
+                    data-testid="familyMemberCount"
                     type="number"
                     min={1}
-                    {...register('family_size', { valueAsNumber: true })}
+                    {...register('familyMemberCount', { valueAsNumber: true })}
                   />
-                  {errors.family_size && (
-                    <p className="text-sm text-red-600">{errors.family_size.message}</p>
+                  {errors.familyMemberCount && (
+                    <p className="text-sm text-red-600">{errors.familyMemberCount.message}</p>
                   )}
                 </div>
 
@@ -435,10 +560,10 @@ export function AdvancedBeneficiaryForm({ onSuccess, onCancel, initialData }: Ad
                 />
 
                 <div className="space-y-2">
-                  <Label htmlFor="income_source">Gelir Kaynağı</Label>
+                  <Label htmlFor="incomeSources">Gelir Kaynağı</Label>
                   <Input
-                    id="income_source"
-                    {...register('income_source')}
+                    id="incomeSources"
+                    {...register('incomeSources')}
                     placeholder="Maaş, Emekli Maaşı, Yardım..."
                   />
                 </div>
@@ -447,10 +572,10 @@ export function AdvancedBeneficiaryForm({ onSuccess, onCancel, initialData }: Ad
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <ParameterSelect
                   category="housing_type"
-                  value={watch('housing_type')}
-                  onChange={(value) => setValue('housing_type', value)}
+                  value={watch('livingPlace')}
+                  onChange={(value) => setValue('livingPlace', value)}
                   label="Konut Durumu"
-                  error={errors.housing_type?.message}
+                  error={errors.livingPlace?.message}
                 />
 
                 <div className="space-y-4">
@@ -481,88 +606,42 @@ export function AdvancedBeneficiaryForm({ onSuccess, onCancel, initialData }: Ad
               <Separator />
 
               <div className="space-y-2">
-                <Label htmlFor="health_status">Genel Sağlık Durumu</Label>
+                <Label htmlFor="healthProblem">Genel Sağlık Durumu</Label>
                 <Textarea
-                  id="health_status"
-                  {...register('health_status')}
+                  id="healthProblem"
+                  {...register('healthProblem')}
                   placeholder="Sağlık durumu hakkında genel bilgi..."
                   rows={3}
                 />
               </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="has_chronic_illness"
-                      checked={watch('has_chronic_illness')}
-                      onCheckedChange={(checked) => setValue('has_chronic_illness', checked as boolean)}
-                    />
-                    <Label htmlFor="has_chronic_illness" className="cursor-pointer">
-                      Kronik hastalığı var
-                    </Label>
-                  </div>
-
-                  {watch('has_chronic_illness') && (
-                    <div className="space-y-2 ml-6">
-                      <Label htmlFor="chronic_illness_detail">Hastalık Detayı</Label>
-                      <Textarea
-                        id="chronic_illness_detail"
-                        {...register('chronic_illness_detail')}
-                        placeholder="Hastalık detayları..."
-                        rows={2}
-                      />
-                    </div>
-                  )}
-                </div>
-
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="has_disability"
-                      checked={watch('has_disability')}
-                      onCheckedChange={(checked) => setValue('has_disability', checked as boolean)}
-                    />
-                    <Label htmlFor="has_disability" className="cursor-pointer">
-                      Engellilik durumu var
-                    </Label>
-                  </div>
-
-                  {watch('has_disability') && (
-                    <div className="space-y-2 ml-6">
-                      <Label htmlFor="disability_detail">Engellilik Detayı</Label>
-                      <Textarea
-                        id="disability_detail"
-                        {...register('disability_detail')}
-                        placeholder="Engellilik detayları..."
-                        rows={2}
-                      />
-                    </div>
-                  )}
-                </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="hasChronicIllness"
+                  checked={watch('hasChronicIllness')}
+                  onCheckedChange={(checked) => setValue('hasChronicIllness', checked as boolean)}
+                />
+                <Label htmlFor="hasChronicIllness" className="cursor-pointer">Kronik hastalığı var</Label>
               </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="has_health_insurance"
-                    checked={watch('has_health_insurance')}
-                    onCheckedChange={(checked) => setValue('has_health_insurance', checked as boolean)}
-                  />
-                  <Label htmlFor="has_health_insurance" className="cursor-pointer">
-                    Sağlık sigortası var
-                  </Label>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="regular_medication">Düzenli İlaç Kullanımı</Label>
-                  <Input
-                    id="regular_medication"
-                    {...register('regular_medication')}
-                    placeholder="Kullandığı ilaçlar..."
-                  />
-                </div>
-              </div>
+              {/* Kronik Hastalık Detayı - Conditional */}
+              {watch('hasChronicIllness') && (
+                <>
+                  <div className="col-span-full">
+                    <Label>
+                      Kronik Hastalık Detayı <span className="text-red-600">*</span>
+                    </Label>
+                    <Textarea
+                      {...register('chronicIllnessDetail')}
+                      placeholder="Kronik hastalık detaylarını girin"
+                      rows={3}
+                    />
+                    {errors.chronicIllnessDetail && (
+                      <p className="text-sm text-red-600 mt-1">
+                        {errors.chronicIllnessDetail.message}
+                      </p>
+                    )}
+                  </div>
+                </>
+              )}
             </TabsContent>
 
             {/* TAB 6: Eğitim ve İstihdam */}
@@ -573,10 +652,10 @@ export function AdvancedBeneficiaryForm({ onSuccess, onCancel, initialData }: Ad
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <ParameterSelect
                   category="education_level"
-                  value={watch('education_level')}
-                  onChange={(value) => setValue('education_level', value)}
+                  value={watch('educationLevel')}
+                  onChange={(value) => setValue('educationLevel', value)}
                   label="Eğitim Düzeyi"
-                  error={errors.education_level?.message}
+                  error={errors.educationLevel?.message}
                 />
 
                 <ParameterSelect
@@ -604,24 +683,27 @@ export function AdvancedBeneficiaryForm({ onSuccess, onCancel, initialData }: Ad
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="aid_type">Yardım Türü</Label>
+                  <Label htmlFor="aidType">Yardım Türü</Label>
                   <Input
-                    id="aid_type"
-                    {...register('aid_type')}
+                    id="aidType"
+                    {...register('aidType')}
                     placeholder="Nakdi, Gıda, Eğitim..."
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="aid_amount">Talep Edilen Miktar (₺)</Label>
+                  <Label htmlFor="totalAidAmount">Talep Edilen Miktar (₺)</Label>
                   <Input
-                    id="aid_amount"
+                    id="totalAidAmount"
                     type="number"
                     min={0}
                     step={0.01}
-                    {...register('aid_amount', { valueAsNumber: true })}
+                    {...register('totalAidAmount', { valueAsNumber: true })}
                     placeholder="0.00"
                   />
+                  {errors.totalAidAmount && (
+                    <p className="text-sm text-red-600">{errors.totalAidAmount.message}</p>
+                  )}
                 </div>
               </div>
 
@@ -688,19 +770,19 @@ export function AdvancedBeneficiaryForm({ onSuccess, onCancel, initialData }: Ad
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="reference_name">Referans Kişi</Label>
+                  <Label htmlFor="referenceName">Referans Kişi</Label>
                   <Input
-                    id="reference_name"
-                    {...register('reference_name')}
+                    id="referenceName"
+                    {...register('referenceName')}
                     placeholder="Referans adı soyadı"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="reference_phone">Referans Telefon</Label>
+                  <Label htmlFor="referencePhone">Referans Telefon</Label>
                   <Input
-                    id="reference_phone"
-                    {...register('reference_phone')}
+                    id="referencePhone"
+                    {...register('referencePhone')}
                     placeholder="0555 123 45 67"
                   />
                 </div>
@@ -708,29 +790,29 @@ export function AdvancedBeneficiaryForm({ onSuccess, onCancel, initialData }: Ad
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="reference_relation">Referans İlişkisi</Label>
+                  <Label htmlFor="referenceRelation">Referans İlişkisi</Label>
                   <Input
-                    id="reference_relation"
-                    {...register('reference_relation')}
+                    id="referenceRelation"
+                    {...register('referenceRelation')}
                     placeholder="Akraba, Komşu, Dost..."
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="application_source">Başvuru Kaynağı</Label>
+                  <Label htmlFor="applicationSource">Başvuru Kaynağı</Label>
                   <Input
-                    id="application_source"
-                    {...register('application_source')}
+                    id="applicationSource"
+                    {...register('applicationSource')}
                     placeholder="Nasıl duydu?"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="contact_preference">İletişim Tercihi</Label>
+                <Label htmlFor="contactPreference">İletişim Tercihi</Label>
                 <Input
-                  id="contact_preference"
-                  {...register('contact_preference')}
+                  id="contactPreference"
+                  {...register('contactPreference')}
                   placeholder="SMS, E-posta, Telefon..."
                 />
               </div>
@@ -752,6 +834,7 @@ export function AdvancedBeneficiaryForm({ onSuccess, onCancel, initialData }: Ad
           <div className="flex flex-col sm:flex-row gap-4 pt-6">
             <Button
               type="submit"
+              data-testid="saveButton"
               disabled={isSubmitting}
               className="flex-1 sm:flex-none"
               size="lg"
@@ -784,4 +867,3 @@ export function AdvancedBeneficiaryForm({ onSuccess, onCancel, initialData }: Ad
     </Card>
   );
 }
-

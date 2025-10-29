@@ -60,9 +60,9 @@ const tcKimlikNoSchema = z.string()
     return digits[9] === check10 && digits[10] === check11;
   }, 'Geçersiz TC Kimlik No');
 
-// Telefon numarası validasyonu
+// Telefon numarası validasyonu (E.164 format)
 const phoneSchema = z.string()
-  .regex(/^\d{10}$/, 'Telefon numarası 10 haneli olmalıdır')
+  .regex(/^(\+905\d{8}|5\d{9})$/, 'Telefon numarası geçerli Türk cep telefonu formatında olmalıdır')
   .optional();
 
 // Email validasyonu
@@ -253,6 +253,12 @@ export const beneficiarySchema = z.object({
   healthNotes: z.string().max(500).optional(),
   diseases: z.array(z.nativeEnum(Disease)).optional(),
   
+  // Conditional health fields
+  hasChronicIllness: z.boolean().default(false),
+  chronicIllnessDetail: z.string().min(3).optional(),
+  hasDisability: z.boolean().default(false),
+  disabilityDetail: z.string().min(3).optional(),
+  
   // Acil Durum İletişimi
   emergencyContacts: z.array(z.object({
     name: z.string()
@@ -302,6 +308,24 @@ export const beneficiarySchema = z.object({
 }, {
   message: 'TC Kimlik No girildiğinde Mernis kontrolü yapılmalıdır',
   path: ['mernisCheck']
+}).refine((data) => {
+  // Kronik hastalık detayı kontrolü
+  if (data.hasChronicIllness && (!data.chronicIllnessDetail || data.chronicIllnessDetail.length < 3)) {
+    return false;
+  }
+  return true;
+}, {
+  message: 'Kronik hastalık seçildiğinde detay girilmelidir',
+  path: ['chronicIllnessDetail']
+}).refine((data) => {
+  // Engellilik detayı kontrolü
+  if (data.hasDisability && (!data.disabilityDetail || data.disabilityDetail.length < 3)) {
+    return false;
+  }
+  return true;
+}, {
+  message: 'Engellilik durumu seçildiğinde detay girilmelidir',
+  path: ['disabilityDetail']
 });
 
 // === FORM SECTION SCHEMAS ===
