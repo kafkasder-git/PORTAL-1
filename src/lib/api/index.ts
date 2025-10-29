@@ -69,6 +69,7 @@ const mockApi = {
 
   meetings: {
     getMeetings: async (_params?: any) => ({ data: [], error: null, total: 0 }),
+    getMeeting: async (_id: string) => ({ data: null, error: 'Not implemented in mock' }),
     createMeeting: async (_data: any) => ({ data: null, error: 'Not implemented in mock' }),
     updateMeeting: async (_id: string, _data: any) => ({ data: null, error: 'Not implemented in mock' }),
     updateMeetingStatus: async (_id: string, _status: string) => ({ data: null, error: 'Not implemented in mock' }),
