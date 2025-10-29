@@ -14,17 +14,17 @@ const inter = Inter({
 const poppins = Poppins({
   subsets: ['latin', 'latin-ext'],
   weight: ['400', '500', '600', '700', '800'],
-  variable: '--font-heading',
+  variable: '--font-heading-alt',
   display: 'swap',
-  preload: true,
+  preload: false,
 });
 
 const montserrat = Montserrat({
   subsets: ['latin', 'latin-ext'],
   weight: ['500', '600', '700', '800', '900'],
-  variable: '--font-heading-alt',
+  variable: '--font-heading',
   display: 'swap',
-  preload: false, // Montserrat daha az kullanıldığı için preload'u kapatıyoruz
+  preload: true,
 });
 
 export const metadata: Metadata = {

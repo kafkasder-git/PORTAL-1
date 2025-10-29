@@ -29,9 +29,8 @@ async function loginHandler(req: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // Validate password strength (basic check)
-    const passwordValidation = PasswordSecurity.validateStrength(sanitizedPassword);
-    if (!passwordValidation.valid) {
+    // Basic password presence check (do not enforce strength on login)
+    if (!sanitizedPassword) {
       AuditLogger.log({
         userId: 'unknown',
         action: 'LOGIN_ATTEMPT',
@@ -40,7 +39,7 @@ async function loginHandler(req: NextRequest): Promise<NextResponse> {
         ipAddress: req.headers.get('x-forwarded-for') || 'unknown',
         userAgent: req.headers.get('user-agent') || 'unknown',
         status: 'failure',
-        error: 'Weak password',
+        error: 'Empty password',
       });
 
       return NextResponse.json(
@@ -89,11 +88,13 @@ async function loginHandler(req: NextRequest): Promise<NextResponse> {
     // Create response with secure HTTP-only cookie
     const response = NextResponse.json({
       success: true,
-      user: {
-        id: user.$id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
+      data: {
+        user: {
+          id: user.$id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        },
       },
     });
 
