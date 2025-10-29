@@ -62,7 +62,7 @@ export function DonationForm({ onSuccess, onCancel }: DonationFormProps) {
       donor_email: '',
       donation_type: '',
       donation_purpose: '',
-      receipt_number: '',
+      receipt_number: `MB${Date.now()}`, // Auto-generate receipt number
       notes: '',
     },
   });
@@ -77,7 +77,8 @@ export function DonationForm({ onSuccess, onCancel }: DonationFormProps) {
       onSuccess?.();
     },
     onError: (error: any) => {
-      toast.error('Bağış kaydedilirken hata oluştu: ' + error.message);
+      console.error('Donation creation error:', error);
+      toast.error('Bağış kaydedilirken hata oluştu: ' + (error?.message || 'Bilinmeyen hata'));
     },
   });
 
@@ -88,12 +89,20 @@ export function DonationForm({ onSuccess, onCancel }: DonationFormProps) {
 
       // Upload receipt file if provided
       if (receiptFile) {
-        const uploadResult = await api.storage.uploadFile({
-          file: receiptFile,
-          bucketId: 'receipts',
-          permissions: []
-        });
-        uploadedFileId = (uploadResult as any).data?.$id;
+        try {
+          const uploadResult = await api.storage.uploadFile({
+            file: receiptFile,
+            bucketId: 'receipts',
+            permissions: []
+          });
+          if (uploadResult.data?.$id) {
+            uploadedFileId = uploadResult.data.$id;
+          }
+        } catch (uploadError) {
+          console.error('File upload error:', uploadError);
+          // Continue with donation creation even if file upload fails
+          toast.warning('Makbuz dosyası yüklenemedi, bağış dosya olmadan kaydediliyor');
+        }
       }
 
       // Create donation with file reference
@@ -103,6 +112,9 @@ export function DonationForm({ onSuccess, onCancel }: DonationFormProps) {
       };
 
       await createDonationMutation.mutateAsync(donationData);
+    } catch (error: any) {
+      console.error('Form submission error:', error);
+      toast.error('Bağış kaydedilirken hata oluştu: ' + (error.message || 'Bilinmeyen hata'));
     } finally {
       setIsSubmitting(false);
     }

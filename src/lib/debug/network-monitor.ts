@@ -28,8 +28,21 @@ class NetworkMonitorClass {
   private originalFetch: typeof fetch;
   private requestIdCounter = 0;
 
+  // URLs to ignore in logging (internal/debug tools)
+  private readonly ignoredUrls = [
+    'localhost:54278', // MCP Browser extension
+    '__nextjs_original-stack-frames', // Next.js internal
+    '/_next/webpack-hmr', // Next.js HMR
+  ];
+
   constructor() {
-    this.originalFetch = fetch.bind(window);
+    // Safe initialization for SSR - fetch is available on both server and client
+    if (typeof window !== 'undefined') {
+      this.originalFetch = fetch.bind(window);
+    } else {
+      // Fallback for server-side
+      this.originalFetch = fetch;
+    }
   }
 
   /**
@@ -68,6 +81,9 @@ class NetworkMonitorClass {
       const method = init?.method || 'GET';
       const startTime = performance.now();
 
+      // Check if URL should be ignored
+      const shouldIgnore = this.ignoredUrls.some((ignoredUrl) => url.includes(ignoredUrl));
+
       // Create request log
       const log: RequestLog = {
         id: requestId,
@@ -91,7 +107,10 @@ class NetworkMonitorClass {
         }
       }
 
-      console.log(`📤 [${requestId}] ${method} ${url}`);
+      // Only log if not ignored
+      if (!shouldIgnore) {
+        console.log(`📤 [${requestId}] ${method} ${url}`);
+      }
 
       try {
         // Make the actual request
@@ -122,17 +141,24 @@ class NetworkMonitorClass {
         // Log request
         this.requests.push(log);
 
-        // Log failed requests
+        // Log failed requests (always log failures even if otherwise ignored)
         if (!response.ok) {
-          this.logFailedRequest(log);
+          if (!shouldIgnore) {
+            this.logFailedRequest(log);
+          }
         } else {
-          console.log(
-            `✅ [${requestId}] ${method} ${url} - ${response.status} (${log.duration.toFixed(2)}ms)`
-          );
+          // Only log success if not ignored
+          if (!shouldIgnore) {
+            console.log(
+              `✅ [${requestId}] ${method} ${url} - ${response.status} (${log.duration.toFixed(2)}ms)`
+            );
+          }
         }
 
-        // Track specific endpoints
-        this.trackSpecialEndpoints(url, log);
+        // Track specific endpoints (only if not ignored)
+        if (!shouldIgnore) {
+          this.trackSpecialEndpoints(url, log);
+        }
 
         return response;
       } catch (error: any) {
@@ -143,7 +169,10 @@ class NetworkMonitorClass {
         log.error = error.message || 'Network request failed';
 
         this.requests.push(log);
-        this.logFailedRequest(log);
+        // Always log failed requests even if URL is ignored
+        if (!shouldIgnore) {
+          this.logFailedRequest(log);
+        }
 
         throw error;
       }
@@ -313,13 +342,25 @@ class NetworkMonitorClass {
     const endpointStats = new Map<string, { total: number; failed: number }>();
 
     this.requests.forEach((req) => {
-      const endpoint = new URL(req.url, window.location.origin).pathname;
-      const stats = endpointStats.get(endpoint) || { total: 0, failed: 0 };
-      stats.total++;
-      if (!req.success) {
-        stats.failed++;
+      try {
+        const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'http://localhost';
+        const endpoint = new URL(req.url, baseUrl).pathname;
+        const stats = endpointStats.get(endpoint) || { total: 0, failed: 0 };
+        stats.total++;
+        if (!req.success) {
+          stats.failed++;
+        }
+        endpointStats.set(endpoint, stats);
+      } catch (error) {
+        // Fallback if URL parsing fails
+        const endpoint = req.url.split('?')[0];
+        const stats = endpointStats.get(endpoint) || { total: 0, failed: 0 };
+        stats.total++;
+        if (!req.success) {
+          stats.failed++;
+        }
+        endpointStats.set(endpoint, stats);
       }
-      endpointStats.set(endpoint, stats);
     });
 
     const slowestRequests = [...this.requests]

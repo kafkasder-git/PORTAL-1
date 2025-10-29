@@ -21,6 +21,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -683,6 +684,9 @@ export default function MeetingsPage() {
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Yeni Toplantı Oluştur</DialogTitle>
+            <DialogDescription>
+              Toplantı bilgilerini girin ve katılımcıları belirleyin
+            </DialogDescription>
           </DialogHeader>
           <MeetingForm
             onSuccess={handleCreateSuccess}
@@ -703,6 +707,9 @@ export default function MeetingsPage() {
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Toplantıyı Düzenle</DialogTitle>
+            <DialogDescription>
+              Toplantı bilgilerini güncelleyin
+            </DialogDescription>
           </DialogHeader>
           {selectedMeeting && (
             <MeetingForm
