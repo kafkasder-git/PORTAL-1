@@ -1,6 +1,6 @@
 "use client"
 
-import { use } from "react"
+import { use, useEffect } from "react"
 import { useQuery, useMutation } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
@@ -105,25 +105,31 @@ export default function BeneficiaryDetailPage({ params }: { params: Promise<{ id
     onError: () => toast.error("Mernis kontrolü sırasında hata oluştu")
   })
 
-  const { register, control, handleSubmit, formState: { isSubmitting, errors }, getValues } = useForm<FormValues>({
-    resolver: zodResolver(docSchema),
-    defaultValues: beneficiary ? {
-      name: beneficiary.name || "",
-      tc_no: beneficiary.tc_no || "",
-      phone: beneficiary.phone || "",
-      email: beneficiary.email || "",
-      nationality: beneficiary.nationality || "",
-      religion: beneficiary.religion || "",
-      marital_status: beneficiary.marital_status || "",
-      address: beneficiary.address || "",
-      city: beneficiary.city || "",
-      district: beneficiary.district || "",
-      neighborhood: beneficiary.neighborhood || "",
-      family_size: beneficiary.family_size ?? 1,
-      status: beneficiary.status,
-      approval_status: beneficiary.approval_status || "pending"
-    } : undefined
+  const { register, control, handleSubmit, formState: { isSubmitting, errors }, getValues, reset } = useForm<FormValues>({
+    resolver: zodResolver(docSchema)
   })
+
+  // Reset form values when beneficiary data loads to ensure form is always in sync
+  useEffect(() => {
+    if (beneficiary) {
+      reset({
+        name: beneficiary.name || "",
+        tc_no: beneficiary.tc_no || "",
+        phone: beneficiary.phone || "",
+        email: beneficiary.email || "",
+        nationality: beneficiary.nationality || "",
+        religion: beneficiary.religion || "",
+        marital_status: beneficiary.marital_status || "",
+        address: beneficiary.address || "",
+        city: beneficiary.city || "",
+        district: beneficiary.district || "",
+        neighborhood: beneficiary.neighborhood || "",
+        family_size: beneficiary.family_size ?? 1,
+        status: beneficiary.status,
+        approval_status: beneficiary.approval_status || "pending"
+      })
+    }
+  }, [beneficiary, reset])
 
   const onSubmit = (values: FormValues) => {
     updateMutation.mutate(values)
@@ -243,16 +249,18 @@ export default function BeneficiaryDetailPage({ params }: { params: Promise<{ id
 
                   <div className="col-span-10 grid grid-cols-3 gap-4">
                     <div className="space-y-1.5 col-span-2">
-                      <Label className="text-xs">İsim</Label>
+                      <Label className="text-sm">İsim <span className="text-red-600">*</span></Label>
                       <Input 
                         {...register("name")}
+                        aria-invalid={!!errors.name}
+                        aria-describedby={errors.name ? "name-error" : undefined}
                         className="h-9"
                       />
-                      {errors.name && <p className="text-xs text-red-600">{errors.name.message}</p>}
+                      {errors.name && <p id="name-error" className="text-xs text-red-600">{errors.name.message}</p>}
                     </div>
 
                     <div className="space-y-1.5">
-                      <Label className="text-xs">Uyruk</Label>
+                      <Label className="text-sm">Uyruk</Label>
                       <Input 
                         {...register("nationality")}
                         className="h-9"
@@ -271,10 +279,12 @@ export default function BeneficiaryDetailPage({ params }: { params: Promise<{ id
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-4 gap-4">
                   <div className="space-y-1.5">
-                    <Label className="text-xs">TC Kimlik No</Label>
+                    <Label className="text-sm">TC Kimlik No</Label>
                     <div className="flex gap-2">
                       <Input 
                         {...register("tc_no")}
+                        aria-invalid={!!errors.tc_no}
+                        aria-describedby={errors.tc_no ? "tc-error" : undefined}
                         className="h-9"
                       />
                       <Button 
@@ -295,11 +305,11 @@ export default function BeneficiaryDetailPage({ params }: { params: Promise<{ id
                         {mernisMutation.isPending ? "Kontrol..." : "Mernis"}
                       </Button>
                     </div>
-                    {errors.tc_no && <p className="text-xs text-red-600">{errors.tc_no.message}</p>}
+                    {errors.tc_no && <p id="tc-error" className="text-xs text-red-600">{errors.tc_no.message}</p>}
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label className="text-xs">Telefon</Label>
+                    <Label className="text-sm">Telefon</Label>
                     <Input 
                       {...register("phone")}
                       className="h-9"
@@ -307,17 +317,19 @@ export default function BeneficiaryDetailPage({ params }: { params: Promise<{ id
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label className="text-xs">E-posta</Label>
+                    <Label className="text-sm">E-posta</Label>
                     <Input 
                       type="email"
                       {...register("email")}
+                      aria-invalid={!!errors.email}
+                      aria-describedby={errors.email ? "email-error" : undefined}
                       className="h-9"
                     />
-                    {errors.email && <p className="text-xs text-red-600">{errors.email.message}</p>}
+                    {errors.email && <p id="email-error" className="text-xs text-red-600">{errors.email.message}</p>}
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label className="text-xs">Medeni Durum</Label>
+                    <Label className="text-sm">Medeni Durum</Label>
                     <Input 
                       {...register("marital_status")}
                       className="h-9"
@@ -335,28 +347,28 @@ export default function BeneficiaryDetailPage({ params }: { params: Promise<{ id
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-4 gap-4">
                   <div className="space-y-1.5">
-                    <Label className="text-xs">Şehir/Bölge</Label>
+                    <Label className="text-sm">Şehir/Bölge</Label>
                     <Input 
                       {...register("city")}
                       className="h-9"
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="text-xs">Yerleşim</Label>
+                    <Label className="text-sm">Yerleşim</Label>
                     <Input 
                       {...register("district")}
                       className="h-9"
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="text-xs">Mahalle/Köy</Label>
+                    <Label className="text-sm">Mahalle/Köy</Label>
                     <Input 
                       {...register("neighborhood")}
                       className="h-9"
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="text-xs">Ailedeki Kişi Sayısı</Label>
+                    <Label className="text-sm">Ailedeki Kişi Sayısı</Label>
                     <Controller
                       control={control}
                       name="family_size"
@@ -378,7 +390,7 @@ export default function BeneficiaryDetailPage({ params }: { params: Promise<{ id
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs">Adres</Label>
+                  <Label className="text-sm">Adres</Label>
                   <Textarea 
                     {...register("address")}
                     rows={3}
@@ -424,7 +436,7 @@ export default function BeneficiaryDetailPage({ params }: { params: Promise<{ id
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label className="text-xs">Onay Durumu</Label>
+                    <Label className="text-sm">Onay Durumu</Label>
                     <Controller
                       control={control}
                       name="approval_status"

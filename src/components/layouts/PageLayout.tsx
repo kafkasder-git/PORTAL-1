@@ -7,11 +7,28 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 
+// Icon mapping
+const iconMap: Record<string, LucideIcon> = {
+  FileText: require('lucide-react').FileText,
+  DollarSign: require('lucide-react').DollarSign,
+  GraduationCap: require('lucide-react').GraduationCap,
+  Users: require('lucide-react').Users,
+  Heart: require('lucide-react').Heart,
+  Briefcase: require('lucide-react').Briefcase,
+  Calendar: require('lucide-react').Calendar,
+  Mail: require('lucide-react').Mail,
+  Settings: require('lucide-react').Settings,
+  BarChart3: require('lucide-react').BarChart3,
+  ClipboardList: require('lucide-react').ClipboardList,
+  Wallet: require('lucide-react').Wallet,
+  PiggyBank: require('lucide-react').PiggyBank,
+};
+
 interface PageLayoutProps {
   children: React.ReactNode;
   title: string;
   description?: string;
-  icon?: LucideIcon;
+  icon?: string; // Changed from LucideIcon to string
   badge?: {
     text: string;
     variant?: 'default' | 'secondary' | 'destructive' | 'outline';
@@ -25,13 +42,16 @@ export function PageLayout({
   children,
   title,
   description,
-  icon: Icon,
+  icon: iconName,
   badge,
   actions,
   showBackButton = false,
   className,
 }: PageLayoutProps) {
   const router = useRouter();
+
+  // Map icon name to LucideIcon component
+  const IconComponent = iconName ? iconMap[iconName] : null;
 
   return (
     <div className={cn('space-y-6', className)}>
@@ -56,9 +76,9 @@ export function PageLayout({
           )}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-3 flex-wrap">
-              {Icon && (
+              {IconComponent && (
                 <div className="p-2.5 rounded-xl bg-primary/10 text-primary">
-                  <Icon className="h-6 w-6" />
+                  <IconComponent className="h-6 w-6" />
                 </div>
               )}
               <h1 className="text-3xl font-heading font-bold tracking-tight text-foreground">

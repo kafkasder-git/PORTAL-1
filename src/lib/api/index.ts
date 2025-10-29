@@ -35,10 +35,49 @@ const mockApi = {
 
   // Users API
   users: {
-    getUsers: async (_params?: any) => ({ data: [], error: null, total: 0 }),
-    getUser: async (_id: string) => ({ data: null, error: 'Not implemented in mock' }),
-    createUser: async (_data: any) => ({ data: null, error: 'Not implemented in mock' }),
-    updateUser: async (_id: string, _data: any) => ({ data: null, error: 'Not implemented in mock' }),
+    getUsers: async (params?: any) => {
+      const delay = (ms: number = 300) => new Promise(resolve => setTimeout(resolve, ms));
+      await delay();
+      // Return mock users list
+      const mockUsers = [
+        { $id: 'user-1', name: 'Admin User', email: 'admin@test.com', role: 'ADMIN' },
+        { $id: 'user-2', name: 'Manager User', email: 'manager@test.com', role: 'MANAGER' },
+        { $id: 'user-3', name: 'Member User', email: 'member@test.com', role: 'MEMBER' },
+      ];
+      return { data: mockUsers, error: null, total: mockUsers.length };
+    },
+    getUser: async (id: string) => {
+      const delay = (ms: number = 300) => new Promise(resolve => setTimeout(resolve, ms));
+      await delay();
+      const mockUsers: any = {
+        'user-1': { $id: 'user-1', name: 'Admin User', email: 'admin@test.com', role: 'ADMIN' },
+        'user-2': { $id: 'user-2', name: 'Manager User', email: 'manager@test.com', role: 'MANAGER' },
+        'user-3': { $id: 'user-3', name: 'Member User', email: 'member@test.com', role: 'MEMBER' },
+      };
+      return { data: mockUsers[id] || null, error: null };
+    },
+    createUser: async (data: any) => {
+      const delay = (ms: number = 300) => new Promise(resolve => setTimeout(resolve, ms));
+      await delay();
+      const newUser = {
+        $id: `user-${Date.now()}`,
+        $createdAt: new Date().toISOString(),
+        $updatedAt: new Date().toISOString(),
+        ...data,
+      };
+      return { data: newUser, error: null };
+    },
+    updateUser: async (id: string, data: any) => {
+      const delay = (ms: number = 300) => new Promise(resolve => setTimeout(resolve, ms));
+      await delay();
+      const updatedUser = {
+        $id: id,
+        $createdAt: new Date().toISOString(),
+        $updatedAt: new Date().toISOString(),
+        ...data,
+      };
+      return { data: updatedUser, error: null };
+    },
     deleteUser: async (_id: string) => ({ data: null, error: null }),
   },
 
@@ -52,10 +91,38 @@ const mockApi = {
   },
 
   donations: {
-    getDonations: (params?: any) => ({ data: [], error: null, total: 0 }),
-    getDonation: async (_id: string) => ({ data: null, error: 'Not implemented in mock' }),
-    createDonation: async (_data: any) => ({ data: null, error: 'Not implemented in mock' }),
-    updateDonation: async (_id: string, _data: any) => ({ data: null, error: 'Not implemented in mock' }),
+    getDonations: async (params?: any) => {
+      const delay = (ms: number = 300) => new Promise(resolve => setTimeout(resolve, ms));
+      await delay();
+      return { data: [], error: null, total: 0 };
+    },
+    getDonation: async (id: string) => {
+      const delay = (ms: number = 300) => new Promise(resolve => setTimeout(resolve, ms));
+      await delay();
+      return { data: null, error: 'Donation not found' };
+    },
+    createDonation: async (data: any) => {
+      const delay = (ms: number = 300) => new Promise(resolve => setTimeout(resolve, ms));
+      await delay();
+      const newDonation = {
+        $id: `donation-${Date.now()}`,
+        $createdAt: new Date().toISOString(),
+        $updatedAt: new Date().toISOString(),
+        ...data,
+      };
+      return { data: newDonation, error: null };
+    },
+    updateDonation: async (id: string, data: any) => {
+      const delay = (ms: number = 300) => new Promise(resolve => setTimeout(resolve, ms));
+      await delay();
+      const updatedDonation = {
+        $id: id,
+        $createdAt: new Date().toISOString(),
+        $updatedAt: new Date().toISOString(),
+        ...data,
+      };
+      return { data: updatedDonation, error: null };
+    },
     deleteDonation: async (_id: string) => ({ data: null, error: null }),
   },
 
@@ -86,8 +153,24 @@ const mockApi = {
   },
 
   storage: {
-    uploadFile: async (_args: any) => ({ data: null, error: 'Not implemented in mock' }),
-    getFile: async (_bucketId: string, _fileId: string) => ({ data: null, error: 'Not implemented in mock' }),
+    uploadFile: async (args: any) => {
+      const delay = (ms: number = 300) => new Promise(resolve => setTimeout(resolve, ms));
+      await delay();
+      const uploadedFile = {
+        $id: `file-${Date.now()}`,
+        bucketId: args.bucketId || 'documents',
+        name: args.file?.name || 'uploaded-file',
+        size: args.file?.size || 0,
+        mimeType: args.file?.type || 'application/octet-stream',
+        $createdAt: new Date().toISOString(),
+      };
+      return { data: uploadedFile, error: null };
+    },
+    getFile: async (_bucketId: string, _fileId: string) => {
+      const delay = (ms: number = 300) => new Promise(resolve => setTimeout(resolve, ms));
+      await delay();
+      return { data: null, error: 'File not found in mock' };
+    },
     deleteFile: async (_bucketId: string, _fileId: string) => ({ data: null, error: null }),
     getFileDownload: async (_bucketId: string, _fileId: string) => '',
     getFilePreview: async (_bucketId: string, _fileId: string) => '',

@@ -1,14 +1,14 @@
 [
   {
     "id": "TC001",
-    "title": "Authentication: Successful Login with Valid Credentials",
-    "description": "Verify that a user can log in successfully with valid credentials, receiving a session cookie and access to the dashboard.",
+    "title": "User Authentication Success",
+    "description": "Verify that a user can successfully log in with valid credentials and receives a session cookie with CSRF token.",
     "category": "functional",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to the login page"
+        "description": "Navigate to login page"
       },
       {
         "type": "action",
@@ -16,26 +16,18 @@
       },
       {
         "type": "action",
-        "description": "Submit the login form"
+        "description": "Submit login form"
       },
       {
         "type": "assertion",
-        "description": "Verify login success, user is redirected to dashboard"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify HttpOnly session cookie is set"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify CSRF token is provided and valid"
+        "description": "Verify login is successful and session cookie with CSRF token is set"
       }
     ]
   },
   {
     "id": "TC002",
-    "title": "Authentication: Failed Login with Invalid Credentials",
-    "description": "Verify that login fails with invalid credentials and appropriate error message is shown.",
+    "title": "User Authentication Failure with Invalid Credentials",
+    "description": "Verify that login fails with invalid credentials and appropriate error message is shown without a session cookie being set.",
     "category": "error handling",
     "priority": "High",
     "steps": [
@@ -45,7 +37,7 @@
       },
       {
         "type": "action",
-        "description": "Enter invalid username/email and/or password"
+        "description": "Enter invalid username/email and password"
       },
       {
         "type": "action",
@@ -53,693 +45,495 @@
       },
       {
         "type": "assertion",
-        "description": "Verify login failure notification is displayed"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify no session cookie is set"
+        "description": "Verify login fails and error message is displayed without session cookie"
       }
     ]
   },
   {
     "id": "TC003",
-    "title": "Authentication: Session Management and Logout",
-    "description": "Verify that session persists across navigation and logout properly clears the session.",
-    "category": "functional",
+    "title": "Role-Based Access Control Enforcement",
+    "description": "Verify that users cannot access modules or pages outside of their assigned roles and permissions.",
+    "category": "security",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Log in with valid credentials"
+        "description": "Log in as a user with limited role permissions"
       },
       {
         "type": "action",
-        "description": "Navigate between multiple protected pages"
+        "description": "Attempt to navigate to restricted modules or perform unauthorized actions"
       },
       {
         "type": "assertion",
-        "description": "Verify user remains authenticated and pages load successfully"
-      },
-      {
-        "type": "action",
-        "description": "Perform logout action"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify user is logged out and redirected to login page"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify session cookies and CSRF tokens are cleared"
+        "description": "Verify access is denied and user sees appropriate error or redirect"
       }
     ]
   },
   {
     "id": "TC004",
-    "title": "User Management: Role-Based Access Control Enforcement",
-    "description": "Verify that user roles properly restrict access to features and pages according to assigned permissions.",
-    "category": "security",
+    "title": "User Management CRUD Operations",
+    "description": "Verify that users with permissions can create, read, update, and delete user accounts properly with role assignments.",
+    "category": "functional",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Log in as admin user"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify full access to user management CRUD operations"
+        "description": "Log in as an admin user"
       },
       {
         "type": "action",
-        "description": "Log in as manager user"
+        "description": "Create a new user with valid data including role assignment"
       },
       {
         "type": "assertion",
-        "description": "Verify restricted access as per role (e.g., cannot delete users)"
+        "description": "Verify user is created and visible in user list with proper role"
       },
       {
         "type": "action",
-        "description": "Log in as volunteer or member user"
+        "description": "Edit the newly created user's profile and role"
       },
       {
         "type": "assertion",
-        "description": "Verify access only to allowed features, e.g., no user management access"
+        "description": "Verify updates are saved and reflected correctly"
       },
       {
         "type": "action",
-        "description": "Attempt unauthorized access via URL manipulation"
+        "description": "Delete the user"
       },
       {
         "type": "assertion",
-        "description": "Verify access is denied and user is redirected or shown error"
+        "description": "Verify user is removed and no longer accessible"
       }
     ]
   },
   {
     "id": "TC005",
-    "title": "Beneficiary Management: CRUD Operations",
-    "description": "Test full CRUD workflow for beneficiary records including create, view, edit, delete, search, filter, and export.",
+    "title": "Beneficiary Management Complete CRUD",
+    "description": "Verify beneficiary list view, detail view, quick add modal, and full CRUD operations work with proper validations and role access.",
     "category": "functional",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to beneficiary list view"
+        "description": "Log in as user with beneficiary management access"
       },
       {
         "type": "action",
-        "description": "Use quick-add modal to add new beneficiary with valid data"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify beneficiary appears in list and details are correct"
+        "description": "Open beneficiary list and verify data loading, search, filter, and pagination"
       },
       {
         "type": "action",
-        "description": "Filter and search beneficiaries by multiple criteria"
+        "description": "Add a new beneficiary using the quick add modal with valid data"
       },
       {
         "type": "assertion",
-        "description": "Verify filtered and searched results are accurate"
+        "description": "Verify the beneficiary is added to the list"
       },
       {
         "type": "action",
-        "description": "Open beneficiary detail page and edit data with valid inputs"
+        "description": "Open a beneficiary detail page and edit beneficiary information"
       },
       {
         "type": "assertion",
-        "description": "Verify changes are saved and reflected correctly"
+        "description": "Verify beneficiary data updates successfully and validations function"
       },
       {
         "type": "action",
-        "description": "Delete beneficiary record"
+        "description": "Delete a beneficiary"
       },
       {
         "type": "assertion",
-        "description": "Verify record is removed from the list"
-      },
-      {
-        "type": "action",
-        "description": "Export beneficiary list to CSV, Excel, and PDF formats"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify exported files are correctly formatted and complete"
+        "description": "Verify beneficiary is deleted from the system"
       }
     ]
   },
   {
     "id": "TC006",
-    "title": "Beneficiary Management: Input Validation and Sanitization",
-    "description": "Verify that beneficiary forms validate inputs correctly using Zod schema and protect against XSS/SQL injection.",
-    "category": "security",
+    "title": "Donation Management with Receipt and Reporting",
+    "description": "Test donation entry, receipt upload, tracking, and financial dashboard reporting functionalities including export options.",
+    "category": "functional",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Open beneficiary creation form"
+        "description": "Log in as user with donation management rights"
       },
       {
         "type": "action",
-        "description": "Input invalid or malicious data (e.g., script tags, SQL commands) in fields"
+        "description": "Create a new donation record including valid donor details and amount"
       },
       {
         "type": "action",
-        "description": "Submit the form"
+        "description": "Upload receipt document for donation"
       },
       {
         "type": "assertion",
-        "description": "Verify validation errors are shown for invalid inputs"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify submission is rejected or sanitized"
+        "description": "Verify donation is recorded and receipt is attached"
       },
       {
         "type": "action",
-        "description": "Repeat above with edge case data (max length strings, unicode characters)"
+        "description": "Navigate to financial dashboard and view income and expense metrics"
       },
       {
         "type": "assertion",
-        "description": "Verify form validation and sanitization behave correctly"
+        "description": "Verify donation data is reflected accurately and reports are downloadable"
       }
     ]
   },
   {
     "id": "TC007",
-    "title": "Donations Management: Tracking, Receipt, and Reporting",
-    "description": "Verify that donation entries can be made, receipts generated, and reports reflecting data are accurate.",
+    "title": "Aid Application Workflow Management",
+    "description": "Verify that aid applications can be created, updated with status changes, approved or rejected with proper role permissions.",
     "category": "functional",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to donation list view"
+        "description": "Log in as user with aid application privileges"
       },
       {
         "type": "action",
-        "description": "Submit a new donation via the donation form with valid data"
+        "description": "Create a new aid application with all mandatory fields and valid data"
       },
       {
         "type": "assertion",
-        "description": "Verify new donation appears in the list"
+        "description": "Verify application is saved and appears in application list"
       },
       {
         "type": "action",
-        "description": "Generate and view receipt for a donation"
+        "description": "Update application status through various stages (e.g. pending, approved, rejected)"
       },
       {
         "type": "assertion",
-        "description": "Verify receipt contains correct details and is downloadable"
-      },
-      {
-        "type": "action",
-        "description": "Navigate to donations report page"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify reports reflect donation data accurately"
-      },
-      {
-        "type": "action",
-        "description": "Test piggy bank feature for collection tracking"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify piggy bank updates correctly with donations"
+        "description": "Verify status updates are saved and visible to authorized users only"
       }
     ]
   },
   {
     "id": "TC008",
-    "title": "Aid Application Processing and Approval Workflow",
-    "description": "Test complete aid application workflow including submission, status tracking, and approval/rejection processes.",
+    "title": "Kanban Task Management Functionality",
+    "description": "Validate task creation, assignment, editing, status updates, and drag-and-drop movement across Kanban columns.",
     "category": "functional",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Open aid application form and submit with valid data"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify application entry is created and visible in list"
+        "description": "Log in as a user with task management permissions"
       },
       {
         "type": "action",
-        "description": "Update application status through approval workflow"
+        "description": "Create a new task with detailed information and assign to a user"
       },
       {
         "type": "assertion",
-        "description": "Verify status updates are recorded and displayed correctly"
+        "description": "Verify task appears in Kanban board under appropriate status column"
       },
       {
         "type": "action",
-        "description": "Test rejection and other status transitions"
+        "description": "Drag and drop task to another column to update status"
       },
       {
         "type": "assertion",
-        "description": "Verify workflows enforce allowed transitions and unauthorized edits are prevented"
+        "description": "Verify task status updates correctly and persists after reload"
+      },
+      {
+        "type": "action",
+        "description": "Edit task details and save changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify updated details are saved and visible"
       }
     ]
   },
   {
     "id": "TC009",
-    "title": "Tasks Management: Kanban Board Operations and Drag-and-Drop",
-    "description": "Verify task creation, editing, assignment, status updates, and drag-and-drop reordering work as expected on Kanban board.",
+    "title": "Meeting Scheduling and Calendar View",
+    "description": "Validate meeting creation, editing, and display on calendar view including edge cases like overlapping meetings.",
     "category": "functional",
-    "priority": "High",
+    "priority": "Medium",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to tasks Kanban board"
+        "description": "Log in as a user with meeting management rights"
       },
       {
         "type": "action",
-        "description": "Create a new task with valid data"
+        "description": "Schedule new meeting with required fields including date, time, participants"
       },
       {
         "type": "assertion",
-        "description": "Verify new task appears in backlog column"
+        "description": "Verify meeting appears on calendar correctly"
       },
       {
         "type": "action",
-        "description": "Assign the task to a user and update priority"
+        "description": "Attempt to schedule overlapping meeting"
       },
       {
         "type": "assertion",
-        "description": "Verify task assignment and details update correctly"
+        "description": "Verify system handles overlap with warning or error"
       },
       {
         "type": "action",
-        "description": "Drag task from backlog to in-progress column"
+        "description": "Edit existing meeting details"
       },
       {
         "type": "assertion",
-        "description": "Verify task status updates appropriately"
-      },
-      {
-        "type": "action",
-        "description": "Test invalid drag-and-drop operations to prohibited columns"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify invalid operations are prevented or reverted"
-      },
-      {
-        "type": "action",
-        "description": "Delete a task and verify removal"
-      },
-      {
-        "type": "assertion",
-        "description": "Task no longer appears on board"
+        "description": "Verify updates are saved and calendar reflects changes"
       }
     ]
   },
   {
     "id": "TC010",
-    "title": "Meetings Management: Scheduling and Calendar Visualization",
-    "description": "Verify meeting creation, editing, and calendar view rendering perform correctly with valid inputs.",
+    "title": "Internal Messaging with Template and Bulk Messaging",
+    "description": "Test sending internal messages using templates to single and multiple recipients including institution-wide messages.",
     "category": "functional",
-    "priority": "High",
+    "priority": "Medium",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to meetings management page"
+        "description": "Log in as user with messaging privileges"
       },
       {
         "type": "action",
-        "description": "Create a meeting via meeting form with valid data including date/time"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify meeting appears in meeting list and calendar view"
+        "description": "Select message template and compose a new internal message"
       },
       {
         "type": "action",
-        "description": "Edit meeting details and save"
+        "description": "Send message to single recipient"
       },
       {
         "type": "assertion",
-        "description": "Verify updates are reflected on calendar and meeting detail"
+        "description": "Verify message delivery and receipt on recipient side"
       },
       {
         "type": "action",
-        "description": "Change meeting status and confirm it updates on UI"
+        "description": "Send bulk message to multiple selected recipients"
       },
       {
         "type": "assertion",
-        "description": "Verify status change is correctly shown and persisted"
+        "description": "Verify all recipients receive the message"
       },
       {
         "type": "action",
-        "description": "Attempt to schedule meeting with invalid or overlapping time"
+        "description": "Send message to entire institution group"
       },
       {
         "type": "assertion",
-        "description": "Verify validation error is shown and meeting is not saved"
+        "description": "Verify institution-wide message is delivered appropriately"
       }
     ]
   },
   {
     "id": "TC011",
-    "title": "Internal Messaging: Template and Bulk Message Sending",
-    "description": "Verify users can select message templates, select recipients individually or in bulk, compose message, and send successfully.",
+    "title": "CRUD Operations with Data Table Features",
+    "description": "Verify that entities listed in data tables support CRUD operations with search, pagination, sorting, filtering, and export functionality working correctly.",
     "category": "functional",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to internal messaging page"
+        "description": "Open entity list in generic data table (e.g., users, donations)"
       },
       {
         "type": "action",
-        "description": "Select a pre-defined message template"
-      },
-      {
-        "type": "action",
-        "description": "Select multiple recipients from recipient selector"
-      },
-      {
-        "type": "action",
-        "description": "Compose additional message content if needed"
-      },
-      {
-        "type": "action",
-        "description": "Send the message"
+        "description": "Use search bar to find specific records"
       },
       {
         "type": "assertion",
-        "description": "Verify message is sent successfully with confirmation"
+        "description": "Verify search returns correct filtered results"
       },
       {
         "type": "action",
-        "description": "Verify messages are logged or visible in message history"
-      },
-      {
-        "type": "action",
-        "description": "Attempt to send message with no recipients"
+        "description": "Sort data by different columns ascending and descending"
       },
       {
         "type": "assertion",
-        "description": "Verify validation error prevents sending"
+        "description": "Verify data is sorted correctly"
+      },
+      {
+        "type": "action",
+        "description": "Apply column filters and verify filtered results"
+      },
+      {
+        "type": "action",
+        "description": "Navigate through paginated pages"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify pagination and data loads correctly"
+      },
+      {
+        "type": "action",
+        "description": "Export data to CSV, Excel, and PDF formats"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify exported files have correct data and formatting"
       }
     ]
   },
   {
     "id": "TC012",
-    "title": "Dashboard: Data Accuracy and Key Metrics Display",
-    "description": "Verify the dashboard provides accurate system overview including statistics cards, recent activities, and quick access links.",
-    "category": "functional",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Log in and navigate to main dashboard"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify key statistics cards show current and accurate data"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify recent activity logs match latest system events"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify quick access links navigate correctly to relevant modules"
-      }
-    ]
-  },
-  {
-    "id": "TC013",
-    "title": "Financial Dashboard: Income and Expense Tracking with Reporting",
-    "description": "Verify financial dashboard accurately displays income/expense data and generates detailed reports.",
-    "category": "functional",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Open financial dashboard and income/expense monitoring pages"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify data is accurate and up-to-date"
-      },
-      {
-        "type": "action",
-        "description": "Generate financial reports and download"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify reports reflect input data correctly and format is correct"
-      }
-    ]
-  },
-  {
-    "id": "TC014",
-    "title": "Scholarship Management: Student and Application Handling",
-    "description": "Verify managing student records, scholarship applications, and orphan sponsorships with full CRUD and status workflows.",
-    "category": "functional",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to scholarship management module"
-      },
-      {
-        "type": "action",
-        "description": "Create new student record and verify in list"
-      },
-      {
-        "type": "action",
-        "description": "Submit new scholarship application and verify status"
-      },
-      {
-        "type": "action",
-        "description": "Update orphan sponsorship records"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify correctness and persistence of all changes"
-      },
-      {
-        "type": "action",
-        "description": "Test invalid input and verify validation errors for scholarship forms"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify input validations and error feedback"
-      }
-    ]
-  },
-  {
-    "id": "TC015",
-    "title": "Settings Management: Configuration Update and Validation",
-    "description": "Verify system settings can be updated via the settings page with appropriate validation and persistence.",
-    "category": "functional",
-    "priority": "Medium",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Navigate to settings management page"
-      },
-      {
-        "type": "action",
-        "description": "Modify system parameters with valid values"
-      },
-      {
-        "type": "action",
-        "description": "Submit the changes"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify settings update is saved and effective"
-      },
-      {
-        "type": "action",
-        "description": "Attempt to enter invalid configuration values"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify validation errors prevent submission"
-      }
-    ]
-  },
-  {
-    "id": "TC016",
-    "title": "Data Table Component: Search, Filter, Pagination, Sorting, Export",
-    "description": "Verify the reusable data table features work correctly across modules including searching, filtering, pagination, sorting, and export.",
-    "category": "functional",
-    "priority": "High",
-    "steps": [
-      {
-        "type": "action",
-        "description": "Open a data table in beneficiary or donations list view"
-      },
-      {
-        "type": "action",
-        "description": "Perform text search on multiple fields"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify results match search criteria"
-      },
-      {
-        "type": "action",
-        "description": "Apply multiple filter criteria"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify filtered results are correct"
-      },
-      {
-        "type": "action",
-        "description": "Sort columns ascending and descending"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify sorting order is correct"
-      },
-      {
-        "type": "action",
-        "description": "Navigate between pages using pagination"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify correct page data is displayed"
-      },
-      {
-        "type": "action",
-        "description": "Export current view to CSV, Excel, and PDF"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify export files are properly formatted and complete"
-      }
-    ]
-  },
-  {
-    "id": "TC017",
-    "title": "Security: CSRF Token Validation and API Rate Limiting",
-    "description": "Verify that CSRF token validation is enforced on API endpoints and rate limiting restricts excessive API calls.",
+    "title": "Form Validation and Security Checks",
+    "description": "Verify the forms enforce Zod-based validation rules, sanitize inputs, prevent XSS and SQL injection, and provide real-time user feedback on errors.",
     "category": "security",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Perform API requests with valid CSRF token"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify requests succeed without CSRF errors"
+        "description": "Open various forms (e.g., beneficiary form, donation form, task form)"
       },
       {
         "type": "action",
-        "description": "Perform API requests with missing or invalid CSRF token"
+        "description": "Input invalid data (e.g., incorrect formats, script tags, SQL commands)"
       },
       {
         "type": "assertion",
-        "description": "Verify requests are rejected with CSRF error"
+        "description": "Verify validation errors are shown in real-time and submission is blocked"
       },
       {
         "type": "action",
-        "description": "Perform rapid repeated API requests exceeding limit"
+        "description": "Input valid but malicious payload attempts"
       },
       {
         "type": "assertion",
-        "description": "Verify requests are throttled or blocked according to rate limit policy"
+        "description": "Verify inputs are sanitized and no script or injection executes"
       }
     ]
   },
   {
-    "id": "TC018",
-    "title": "Error Handling: User-Friendly Error Messages and Sentry Logging",
-    "description": "Verify that errors are caught, user-friendly error boundaries are shown, and exceptions are logged to Sentry.",
+    "id": "TC013",
+    "title": "UI Responsiveness and Dark Mode Verification",
+    "description": "Verify that UI components and pages render correctly and remain usable across device screen sizes and also correctly switch and maintain dark mode styling.",
+    "category": "ui",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Open application on desktop, tablet, and mobile screen sizes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify UI elements adjust layout properly without overflow or clipping"
+      },
+      {
+        "type": "action",
+        "description": "Toggle dark mode setting"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify color schemes update correctly with no contrast or legibility issues"
+      }
+    ]
+  },
+  {
+    "id": "TC014",
+    "title": "CSRF Protection and Session Security",
+    "description": "Confirm that CSRF tokens are required on form submissions and that session cookies are HttpOnly and secure to prevent CSRF attacks.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Attempt to submit forms without valid CSRF token"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify requests are rejected with appropriate error"
+      },
+      {
+        "type": "action",
+        "description": "Inspect cookies for HttpOnly and Secure flags"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify session cookies have secure attributes set"
+      }
+    ]
+  },
+  {
+    "id": "TC015",
+    "title": "API Rate Limiting Enforcement",
+    "description": "Simulate rapid successive API requests to verify rate limiting prevents abuse and handles load gracefully with proper error responses.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Send rapid multiple API calls to user and data endpoints"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify requests are throttled and receive rate limit exceeded responses"
+      }
+    ]
+  },
+  {
+    "id": "TC016",
+    "title": "Error Handling and Sentry Logging",
+    "description": "Induce errors in UI and API layers to verify application handles them gracefully, shows user-friendly messages, and logs errors to Sentry.",
     "category": "error handling",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Induce an error by submitting malformed data or performing invalid operations"
+        "description": "Force API failure by submitting invalid payloads or simulating network failure"
       },
       {
         "type": "assertion",
-        "description": "Verify user sees friendly error message without technical details"
+        "description": "Verify user sees friendly error message without app crash"
+      },
+      {
+        "type": "action",
+        "description": "Check Sentry dashboard for logged error"
       },
       {
         "type": "assertion",
-        "description": "Verify error is logged to Sentry backend"
+        "description": "Verify error details are recorded in Sentry"
       }
     ]
   },
   {
-    "id": "TC019",
-    "title": "Performance: Verify Core Web Vitals and Bundle Size",
-    "description": "Verify that performance metrics meet targets: FCP <1.5s, LCP <2.5s, CLS <0.1, TTI <3s and bundle size is under 400KB.",
+    "id": "TC017",
+    "title": "Performance Benchmarks on Core Pages",
+    "description": "Measure First Contentful Paint (FCP) and bundle sizes on key pages to ensure performance targets (FCP <1.5s) are met.",
     "category": "performance",
     "priority": "Medium",
     "steps": [
       {
         "type": "action",
-        "description": "Load main application pages using performance monitoring tools"
+        "description": "Navigate to dashboard and major modules"
       },
       {
         "type": "assertion",
-        "description": "Verify that First Contentful Paint occurs under 1.5 seconds"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify Largest Contentful Paint occurs under 2.5 seconds"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify Cumulative Layout Shift stays below 0.1"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify Time to Interactive is under 3 seconds"
-      },
-      {
-        "type": "action",
-        "description": "Measure JavaScript bundle size"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify bundle size is under 400KB"
+        "description": "Measure and verify FCP is under 1.5 seconds and bundle sizes are within limits"
       }
     ]
   },
   {
-    "id": "TC020",
-    "title": "Accessibility: WCAG 2.1 AA Compliance Across UI Components and Pages",
-    "description": "Verify accessibility compliance including keyboard navigation, ARIA attributes, contrast ratios, and screen reader support.",
-    "category": "ui",
+    "id": "TC018",
+    "title": "Comprehensive Unit and E2E Test Coverage",
+    "description": "Ensure at least 95% code coverage across unit and end-to-end tests using Vitest and Playwright respectively.",
+    "category": "functional",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate through key UI components and pages using keyboard only"
+        "description": "Run unit tests with Vitest and generate coverage report"
       },
       {
         "type": "assertion",
-        "description": "Verify all interactive elements are accessible and focusable"
+        "description": "Verify code coverage is 95% or greater"
       },
       {
         "type": "action",
-        "description": "Use accessibility testing tools to scan pages"
+        "description": "Run Playwright E2E tests across main user flows"
       },
       {
         "type": "assertion",
-        "description": "Verify all ARIA roles and properties are implemented correctly"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify color contrast meets WCAG 2.1 AA standards"
-      },
-      {
-        "type": "action",
-        "description": "Test with screen reader to verify correct reading order and labeling"
+        "description": "Verify all E2E tests pass without failure"
       }
     ]
   }

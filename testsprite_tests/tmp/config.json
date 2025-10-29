@@ -6,13 +6,13 @@
   "loginUser": "admin@test.com",
   "loginPassword": "admin123",
   "executionArgs": {
-    "projectName": "PORTAL",
-    "projectPath": "/home/pc/Resimler/PORTAL",
+    "projectName": "PORTAL-3",
+    "projectPath": "/Users/mac/PORTAL-3",
     "testIds": [],
-    "additionalInstruction": "",
+    "additionalInstruction": "Please test all the functionality comprehensively, including authentication, dashboard, beneficiary management, donations, tasks, messages, and other modules. Focus on testing the core workflow and user interactions.",
     "envs": {
-      "API_KEY": "sk-user-5YbD2vHQp2McKv3zkjNSkHORnCrlWfLRX_tXe-9TXsQBKcfwqKI5MUKCqEJHHRp-U-JUSUHCHOFxnX6eQ-EgE0bKgx9NDBhe3eG0Iq1mGrbGDPCRG9nFbdVs2KoePtmb-rs"
+      "API_KEY": "sk-user-qVWKSlG-PSZnshMk-4EOfywmJmjE09dTGLyf5QS8h-UpIy5omRSOgjmhzmAmViOdxxlXR6Zzk7AaiDntCZ8L5oY2UAEpUmiQd-6LIx6luWvhgY5G49Z2YEpvHn6X95OeMYE"
     }
   },
-  "proxy": "http://e12be88f-0294-49e7-92db-2718c5fa503f:TQmenNVhAC3e9f5oVse7NaXnxF3Xxgup@tun.testsprite.com:8080"
+  "proxy": "http://5723cb33-c620-40a5-9178-5d38b06f0020:SJ0mEulyZSoyUP6zRnE3dg1wV7hr9vgL@tun.testsprite.com:8080"
 }

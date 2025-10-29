@@ -6,7 +6,7 @@ import { aidApplicationsApi } from '@/lib/api/appwrite-api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Search, Plus, Eye, Calendar, DollarSign, Utensils, Package, Stethoscope } from 'lucide-react';
@@ -71,6 +71,12 @@ export default function AidApplicationsPage() {
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Yeni Yardım Başvurusu</DialogTitle>
+              <DialogDescription>
+                Yardım başvurusu oluşturun ve detaylarını doldurun
+              </DialogDescription>
+            </DialogHeader>
             <AidApplicationForm
               onSuccess={() => setShowCreateForm(false)}
               onCancel={() => setShowCreateForm(false)}

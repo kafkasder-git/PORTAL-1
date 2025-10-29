@@ -1,0 +1,252 @@
+{
+  "timestamp": "2025-10-29T20:59:15.665Z",
+  "duration": 11.835625000000007,
+  "phases": [
+    {
+      "name": "Environment & Configuration",
+      "status": "pass",
+      "duration": 5.958750000000009,
+      "tests": [
+        {
+          "name": ".env.local exists",
+          "status": "pass",
+          "message": ".env.local file found"
+        },
+        {
+          "name": "NEXT_PUBLIC_BACKEND_PROVIDER",
+          "status": "pass",
+          "message": "NEXT_PUBLIC_BACKEND_PROVIDER set to mock"
+        },
+        {
+          "name": "validateAppwriteConfigSafe()",
+          "status": "pass",
+          "message": "Configuration valid"
+        },
+        {
+          "name": "getValidationReport()",
+          "status": "pass",
+          "message": "All environment variables valid"
+        }
+      ]
+    },
+    {
+      "name": "Hydration & Store",
+      "status": "pass",
+      "duration": 0.326666000000003,
+      "tests": [
+        {
+          "name": "skipHydration configured",
+          "status": "pass",
+          "message": "skipHydration: true found in persist config"
+        },
+        {
+          "name": "_hasHydrated field exists",
+          "status": "pass",
+          "message": "_hasHydrated field found in AuthState interface"
+        },
+        {
+          "name": "onRehydrateStorage callback",
+          "status": "pass",
+          "message": "onRehydrateStorage sets _hasHydrated = true"
+        },
+        {
+          "name": "Rehydration timing",
+          "status": "pass",
+          "message": "Rehydration timing check simulated (would be < 100ms in browser)",
+          "details": "Actual timing test requires browser environment"
+        }
+      ]
+    },
+    {
+      "name": "Error Boundaries",
+      "status": "pass",
+      "duration": 0.25166600000000017,
+      "tests": [
+        {
+          "name": "error.tsx default export",
+          "status": "pass",
+          "message": "error.tsx exports default error component"
+        },
+        {
+          "name": "Hydration error detection",
+          "status": "pass",
+          "message": "Hydration error detection logic found"
+        },
+        {
+          "name": "Sentry integration",
+          "status": "pass",
+          "message": "Sentry integration found"
+        },
+        {
+          "name": "Recovery mechanisms",
+          "status": "pass",
+          "message": "Recovery mechanisms (reset, clear storage) found"
+        },
+        {
+          "name": "src/app/global-error.tsx exists",
+          "status": "pass",
+          "message": "src/app/global-error.tsx found"
+        },
+        {
+          "name": "src/components/error-boundary.tsx exists",
+          "status": "pass",
+          "message": "src/components/error-boundary.tsx found"
+        }
+      ]
+    },
+    {
+      "name": "Loading States",
+      "status": "pass",
+      "duration": 0.5772089999999963,
+      "tests": [
+        {
+          "name": "All 5 variants implemented",
+          "status": "pass",
+          "message": "All 5 loading variants (spinner, dots, pulse, bars, ripple) found"
+        },
+        {
+          "name": "Accessibility attributes",
+          "status": "pass",
+          "message": "Accessibility attributes (role, aria-live) found"
+        },
+        {
+          "name": "Motion reduce support",
+          "status": "pass",
+          "message": "Motion reduce support found"
+        },
+        {
+          "name": "Auth loading in dashboard layout",
+          "status": "pass",
+          "message": "LoadingOverlay used in dashboard layout for auth"
+        },
+        {
+          "name": "Hydration loading in providers",
+          "status": "pass",
+          "message": "LoadingOverlay or SuspenseBoundary used in providers for hydration"
+        }
+      ]
+    },
+    {
+      "name": "Suspense Boundaries",
+      "status": "pass",
+      "duration": 0.27095799999999315,
+      "tests": [
+        {
+          "name": "React.Suspense wrapper",
+          "status": "pass",
+          "message": "React.Suspense wrapper implemented"
+        },
+        {
+          "name": "ErrorBoundary integration",
+          "status": "pass",
+          "message": "ErrorBoundary integration found"
+        },
+        {
+          "name": "LoadingOverlay fallback",
+          "status": "pass",
+          "message": "LoadingOverlay used as fallback"
+        },
+        {
+          "name": "SuspenseBoundary in providers (root)",
+          "status": "pass",
+          "message": "SuspenseBoundary used in providers at root level"
+        },
+        {
+          "name": "SuspenseBoundary in dashboard layout",
+          "status": "pass",
+          "message": "SuspenseBoundary used in dashboard layout"
+        }
+      ]
+    },
+    {
+      "name": "Appwrite Configuration",
+      "status": "pass",
+      "duration": 2.127625000000009,
+      "tests": [
+        {
+          "name": "Backend provider",
+          "status": "pass",
+          "message": "Using mock backend - Appwrite tests skipped"
+        },
+        {
+          "name": "Mock API initialization",
+          "status": "pass",
+          "message": "Mock API imports successfully"
+        }
+      ]
+    },
+    {
+      "name": "Debug Utilities",
+      "status": "pass",
+      "duration": 0.6008340000000061,
+      "tests": [
+        {
+          "name": "src/lib/debug/hydration-logger.ts",
+          "status": "pass",
+          "message": "HydrationLogger exists and exports correctly"
+        },
+        {
+          "name": "src/lib/debug/store-debugger.ts",
+          "status": "pass",
+          "message": "StoreDebugger exists and exports correctly"
+        },
+        {
+          "name": "src/lib/debug/network-monitor.ts",
+          "status": "pass",
+          "message": "NetworkMonitor exists and exports correctly"
+        },
+        {
+          "name": "Debug utilities in providers",
+          "status": "pass",
+          "message": "Debug utilities initialized in providers (development-only)"
+        }
+      ]
+    },
+    {
+      "name": "Test Scripts",
+      "status": "warning",
+      "duration": 1.2815000000000083,
+      "tests": [
+        {
+          "name": "scripts/test-error-boundaries.ts",
+          "status": "pass",
+          "message": "scripts/test-error-boundaries.ts exists and appears valid"
+        },
+        {
+          "name": "scripts/test-loading-states.ts",
+          "status": "pass",
+          "message": "scripts/test-loading-states.ts exists and appears valid"
+        },
+        {
+          "name": "scripts/test-suspense-boundaries.ts",
+          "status": "warning",
+          "message": "scripts/test-suspense-boundaries.ts exists but may have issues (missing shebang or imports)"
+        },
+        {
+          "name": "scripts/validate-config.ts",
+          "status": "pass",
+          "message": "scripts/validate-config.ts exists and appears valid"
+        },
+        {
+          "name": "scripts/test-connectivity.ts",
+          "status": "pass",
+          "message": "scripts/test-connectivity.ts exists and appears valid"
+        },
+        {
+          "name": "scripts/diagnose-appwrite.ts",
+          "status": "pass",
+          "message": "scripts/diagnose-appwrite.ts exists and appears valid"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total": 36,
+    "passed": 35,
+    "failed": 0,
+    "warnings": 1
+  },
+  "recommendations": [
+    "Review warning tests for potential issues"
+  ]
+}

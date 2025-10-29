@@ -15,6 +15,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
+import { FormFieldGroup } from '@/components/ui/form-field-group';
 
 // Validation schema
 const beneficiarySchema = z.object({
@@ -53,10 +54,10 @@ export function BeneficiaryForm({ onSuccess, onCancel }: BeneficiaryFormProps) {
   } = useForm<BeneficiaryFormData>({
     resolver: zodResolver(beneficiarySchema),
     defaultValues: {
-    family_size: 1,
-    income_level: '0-3000',
+      family_size: 1,
+      income_level: '0-3000',
       status: 'active',
-  },
+    },
   });
 
   const createBeneficiaryMutation = useMutation({
@@ -101,119 +102,143 @@ export function BeneficiaryForm({ onSuccess, onCancel }: BeneficiaryFormProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
           {/* Kişisel Bilgiler */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium">Kişisel Bilgiler</h3>
-
+          <FormFieldGroup title="Kişisel Bilgiler" description="Temel kimlik ve iletişim bilgileri">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Ad Soyad *</Label>
+                <Label htmlFor="name">
+                  Ad Soyad <span className="text-red-600">*</span>
+                </Label>
                 <Input
                   id="name"
+                  aria-invalid={!!errors.name}
+                  aria-describedby={errors.name ? 'name-error' : undefined}
                   {...register('name')}
                   placeholder="Ahmet Yılmaz"
                 />
                 {errors.name && (
-                  <p className="text-sm text-red-600">{errors.name.message}</p>
+                  <p id="name-error" className="text-sm text-red-600">{errors.name.message}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="tc_no">TC Kimlik No *</Label>
+                <Label htmlFor="tc_no">
+                  TC Kimlik No <span className="text-red-600">*</span>
+                </Label>
                 <Input
                   id="tc_no"
+                  aria-invalid={!!errors.tc_no}
+                  aria-describedby={errors.tc_no ? 'tc-error' : undefined}
                   {...register('tc_no')}
                   placeholder="12345678901"
                   maxLength={11}
                 />
                 {errors.tc_no && (
-                  <p className="text-sm text-red-600">{errors.tc_no.message}</p>
+                  <p id="tc-error" className="text-sm text-red-600">{errors.tc_no.message}</p>
                 )}
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="phone">Telefon *</Label>
+              <Label htmlFor="phone">
+                Telefon <span className="text-red-600">*</span>
+              </Label>
               <Input
                 id="phone"
+                aria-invalid={!!errors.phone}
+                aria-describedby={errors.phone ? 'phone-error' : undefined}
                 {...register('phone')}
                 placeholder="0555 123 45 67"
               />
               {errors.phone && (
-                <p className="text-sm text-red-600">{errors.phone.message}</p>
+                <p id="phone-error" className="text-sm text-red-600">{errors.phone.message}</p>
               )}
             </div>
-          </div>
+          </FormFieldGroup>
 
           {/* Adres Bilgileri */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium">Adres Bilgileri</h3>
-
+          <FormFieldGroup title="Adres Bilgileri" description="İkamet adresi detayları">
             <div className="space-y-2">
-              <Label htmlFor="address">Adres *</Label>
+              <Label htmlFor="address">
+                Adres <span className="text-red-600">*</span>
+              </Label>
               <Textarea
                 id="address"
+                aria-invalid={!!errors.address}
+                aria-describedby={errors.address ? 'address-error' : undefined}
                 {...register('address')}
                 placeholder="Mahalle, Cadde, Sokak, No"
                 rows={3}
               />
               {errors.address && (
-                <p className="text-sm text-red-600">{errors.address.message}</p>
+                <p id="address-error" className="text-sm text-red-600">{errors.address.message}</p>
               )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="city">Şehir *</Label>
+                <Label htmlFor="city">
+                  Şehir <span className="text-red-600">*</span>
+                </Label>
                 <Input
                   id="city"
+                  aria-invalid={!!errors.city}
+                  aria-describedby={errors.city ? 'city-error' : undefined}
                   {...register('city')}
                   placeholder="İstanbul"
                 />
                 {errors.city && (
-                  <p className="text-sm text-red-600">{errors.city.message}</p>
+                  <p id="city-error" className="text-sm text-red-600">{errors.city.message}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="district">İlçe *</Label>
+                <Label htmlFor="district">
+                  İlçe <span className="text-red-600">*</span>
+                </Label>
                 <Input
                   id="district"
+                  aria-invalid={!!errors.district}
+                  aria-describedby={errors.district ? 'district-error' : undefined}
                   {...register('district')}
                   placeholder="Kadıköy"
                 />
                 {errors.district && (
-                  <p className="text-sm text-red-600">{errors.district.message}</p>
+                  <p id="district-error" className="text-sm text-red-600">{errors.district.message}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="neighborhood">Mahalle *</Label>
+                <Label htmlFor="neighborhood">
+                  Mahalle <span className="text-red-600">*</span>
+                </Label>
                 <Input
                   id="neighborhood"
+                  aria-invalid={!!errors.neighborhood}
+                  aria-describedby={errors.neighborhood ? 'neighborhood-error' : undefined}
                   {...register('neighborhood')}
                   placeholder="Caferağa"
                 />
                 {errors.neighborhood && (
-                  <p className="text-sm text-red-600">{errors.neighborhood.message}</p>
+                  <p id="neighborhood-error" className="text-sm text-red-600">{errors.neighborhood.message}</p>
                 )}
               </div>
             </div>
-          </div>
+          </FormFieldGroup>
 
           {/* Ekonomik Bilgiler */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium">Ekonomik Bilgiler</h3>
-
+          <FormFieldGroup title="Ekonomik Bilgiler" description="Gelir ve istihdam durumuna ait bilgiler">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="income_level">Gelir Düzeyi *</Label>
+                <Label htmlFor="income_level">
+                  Gelir Düzeyi <span className="text-red-600">*</span>
+                </Label>
                 <Select
                   value={watch('income_level')}
                   onValueChange={(value) => setValue('income_level', value as any)}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger aria-invalid={!!errors.income_level}>
                     <SelectValue placeholder="Gelir düzeyi seçin" />
                   </SelectTrigger>
                   <SelectContent>
@@ -229,15 +254,19 @@ export function BeneficiaryForm({ onSuccess, onCancel }: BeneficiaryFormProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="family_size">Aile Büyüklüğü *</Label>
+                <Label htmlFor="family_size">
+                  Aile Büyüklüğü <span className="text-red-600">*</span>
+                </Label>
                 <Input
                   id="family_size"
                   type="number"
                   min={1}
+                  aria-invalid={!!errors.family_size}
+                  aria-describedby={errors.family_size ? 'family-size-error' : undefined}
                   {...register('family_size', { valueAsNumber: true })}
                 />
                 {errors.family_size && (
-                  <p className="text-sm text-red-600">{errors.family_size.message}</p>
+                  <p id="family-size-error" className="text-sm text-red-600">{errors.family_size.message}</p>
                 )}
               </div>
             </div>
@@ -246,29 +275,31 @@ export function BeneficiaryForm({ onSuccess, onCancel }: BeneficiaryFormProps) {
               <Label htmlFor="employment_status">İstihdam Durumu</Label>
               <Input
                 id="employment_status"
+                aria-invalid={!!errors.employment_status}
+                aria-describedby={errors.employment_status ? 'employment-error' : undefined}
                 {...register('employment_status')}
                 placeholder="Öğrenci, İşsiz, Çalışıyor..."
               />
               {errors.employment_status && (
-                <p className="text-sm text-red-600">{errors.employment_status.message}</p>
+                <p id="employment-error" className="text-sm text-red-600">{errors.employment_status.message}</p>
               )}
             </div>
-          </div>
+          </FormFieldGroup>
 
           {/* Sağlık Bilgileri */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium">Sağlık Bilgileri</h3>
-
+          <FormFieldGroup title="Sağlık Bilgileri" description="Genel sağlık durumu ve notlar">
             <div className="space-y-2">
               <Label htmlFor="health_status">Genel Sağlık Durumu</Label>
               <Textarea
                 id="health_status"
+                aria-invalid={!!errors.health_status}
+                aria-describedby={errors.health_status ? 'health-error' : undefined}
                 {...register('health_status')}
                 placeholder="Hastalıklar, engellilik durumu vb."
                 rows={3}
               />
               {errors.health_status && (
-                <p className="text-sm text-red-600">{errors.health_status.message}</p>
+                <p id="health-error" className="text-sm text-red-600">{errors.health_status.message}</p>
               )}
             </div>
 
@@ -276,12 +307,14 @@ export function BeneficiaryForm({ onSuccess, onCancel }: BeneficiaryFormProps) {
               <Label htmlFor="notes">Notlar</Label>
               <Textarea
                 id="notes"
+                aria-invalid={!!errors.notes}
+                aria-describedby={errors.notes ? 'notes-error' : undefined}
                 {...register('notes')}
                 placeholder="Ek bilgiler, özel durumlar..."
                 rows={3}
               />
               {errors.notes && (
-                <p className="text-sm text-red-600">{errors.notes.message}</p>
+                <p id="notes-error" className="text-sm text-red-600">{errors.notes.message}</p>
               )}
             </div>
 
@@ -309,10 +342,10 @@ export function BeneficiaryForm({ onSuccess, onCancel }: BeneficiaryFormProps) {
                 <p className="text-sm text-red-600">{errors.status.message}</p>
               )}
             </div>
-          </div>
+          </FormFieldGroup>
 
           {/* Form Actions */}
-          <div className="flex flex-col sm:flex-row gap-4 pt-6">
+          <div className="flex flex-col sm:flex-row gap-4 pt-2">
             <Button
               type="submit"
               disabled={isSubmitting}

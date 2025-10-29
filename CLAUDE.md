@@ -56,6 +56,10 @@ npm start          # Start production server
 npm run lint       # Run ESLint
 npm run typecheck  # Run TypeScript compiler check (no emit)
 npm run analyze    # Analyze bundle size
+
+# Cleanup commands
+npm run clean           # Clear Next.js cache (.next)
+npm run clean:all       # Full clean (cache + node_modules + reinstall)
 ```
 
 ### Testing
@@ -69,6 +73,13 @@ npm run test:coverage # Run tests with coverage report
 # Run specific test file
 npx vitest src/__tests__/lib/sanitization.test.ts
 
+# Boundary testing (Error/Loading/Suspense boundaries)
+npm run test:error-boundaries     # Test error boundaries
+npm run test:loading-states       # Test loading states
+npm run test:suspense            # Test suspense boundaries
+npm run test:all-boundaries      # Run all boundary tests
+npm run test:boundaries:watch    # Watch mode for boundary tests
+
 # E2E tests (Playwright)
 npm run e2e          # Run E2E tests (builds & starts server first)
 npm run e2e:ui       # Run E2E tests with UI
@@ -77,6 +88,10 @@ npm run e2e:ui       # Run E2E tests with UI
 npx playwright test e2e/beneficiaries.spec.ts
 npx playwright test --headed  # Run with visible browser
 npx playwright test --debug   # Run in debug mode
+
+# Comprehensive testing
+npm run test:integration        # Full system + browser tests
+npm run test:all               # All tests (unit + E2E + boundaries)
 ```
 
 ### Environment Setup
@@ -97,6 +112,40 @@ NEXT_PUBLIC_STORAGE_REPORTS=reports
 # Security (Generate random 32+ character strings)
 CSRF_SECRET=your-csrf-secret
 SESSION_SECRET=your-session-secret
+
+# Backend Provider (default: mock for development)
+NEXT_PUBLIC_BACKEND_PROVIDER=mock  # or 'appwrite'
+```
+
+### Diagnostic & Validation Tools
+These tools are essential for troubleshooting Appwrite setup and ensuring smooth development:
+
+```bash
+# Validate environment configuration
+npm run validate:config          # Check all env variables are correct
+
+# Test Appwrite connectivity
+npm run test:connectivity        # Test endpoint reachability and DNS
+
+# Test mock backend implementation
+npm run test:mock-api            # Verify schema and API functionality
+
+# Comprehensive diagnostics
+npm run diagnose                 # Full validation (config + connectivity + health)
+
+# Health check endpoint
+npm run health:check             # Check app health with detailed diagnostics
+
+# Additional diagnostics
+npm run test:full-system         # Complete system validation
+npm run test:browsers           # Browser compatibility testing
+npm run test:prod-enhanced      # Production build validation
+
+# Debug hydration issues
+npm run debug:hydration         # Analyze hydration mismatches
+
+# Test production build
+npm run test:prod              # Test production build locally
 ```
 
 ### Appwrite Test Users

@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import {
   Search,
@@ -208,6 +208,12 @@ export default function TasksPage() {
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Yeni Görev Oluştur</DialogTitle>
+                <DialogDescription>
+                  Görev bilgilerini girin ve atama yapın
+                </DialogDescription>
+              </DialogHeader>
               <TaskForm
                 onSuccess={() => {
                   setShowCreateModal(false);
@@ -541,6 +547,12 @@ export default function TasksPage() {
       {selectedTask && (
         <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Görevi Düzenle</DialogTitle>
+              <DialogDescription>
+                Görev bilgilerini güncelleyin
+              </DialogDescription>
+            </DialogHeader>
             <TaskForm
               taskId={selectedTask.$id}
               initialData={{

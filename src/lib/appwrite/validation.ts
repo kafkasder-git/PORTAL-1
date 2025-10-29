@@ -36,18 +36,31 @@ export interface ValidationReport {
 export function validateEnvironmentVariables(): ValidationResult[] {
   const results: ValidationResult[] = [];
 
-  // Required variables to check
-  const requiredVars = [
-    { key: 'NEXT_PUBLIC_APPWRITE_ENDPOINT', validator: validateAppwriteEndpoint },
-    { key: 'NEXT_PUBLIC_APPWRITE_PROJECT_ID', validator: validateProjectId },
-    { key: 'NEXT_PUBLIC_DATABASE_ID', validator: validateDatabaseId },
-    { key: 'APPWRITE_API_KEY', validator: validateApiKey },
-  ];
+  // Check backend provider first
+  const backendProvider = process.env.NEXT_PUBLIC_BACKEND_PROVIDER;
 
-  for (const { key, validator } of requiredVars) {
-    const value = process.env[key];
-    const result = validator(value, key);
-    results.push(result);
+  // Only validate Appwrite configuration if using appwrite backend
+  if (backendProvider === 'appwrite') {
+    const requiredVars = [
+      { key: 'NEXT_PUBLIC_APPWRITE_ENDPOINT', validator: validateAppwriteEndpoint },
+      { key: 'NEXT_PUBLIC_APPWRITE_PROJECT_ID', validator: validateProjectId },
+      { key: 'NEXT_PUBLIC_DATABASE_ID', validator: validateDatabaseId },
+      { key: 'APPWRITE_API_KEY', validator: validateApiKey },
+    ];
+
+    for (const { key, validator } of requiredVars) {
+      const value = process.env[key];
+      const result = validator(value, key);
+      results.push(result);
+    }
+  } else {
+    // Using mock backend - skip Appwrite validation
+    results.push({
+      variable: 'NEXT_PUBLIC_BACKEND_PROVIDER',
+      isValid: true,
+      severity: ValidationSeverity.INFO,
+      message: `Using ${backendProvider || 'mock'} backend - Appwrite validation skipped`,
+    });
   }
 
   return results;

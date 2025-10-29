@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useAuthStore } from '@/stores/authStore';
@@ -215,6 +215,12 @@ export default function InternalMessagingPage() {
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Yeni Mesaj Oluştur</DialogTitle>
+              <DialogDescription>
+                Ekip üyelerine mesaj gönderin
+              </DialogDescription>
+            </DialogHeader>
             <MessageForm
               defaultMessageType="internal"
               onSuccess={() => {
@@ -579,6 +585,12 @@ export default function InternalMessagingPage() {
       {selectedMessage && (
         <Dialog open={showMessageDetail} onOpenChange={setShowMessageDetail}>
           <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Mesaj Detayı</DialogTitle>
+              <DialogDescription>
+                Mesaj detaylarını görüntüleyin
+              </DialogDescription>
+            </DialogHeader>
             <div className="space-y-4">
               <div className="flex items-start justify-between">
                 <div>

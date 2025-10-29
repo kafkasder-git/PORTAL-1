@@ -56,6 +56,14 @@ export function DonationForm({ onSuccess, onCancel }: DonationFormProps) {
       currency: 'TRY',
       amount: 0,
       status: 'pending',
+      payment_method: '',
+      donor_name: '',
+      donor_phone: '',
+      donor_email: '',
+      donation_type: '',
+      donation_purpose: '',
+      receipt_number: '',
+      notes: '',
     },
   });
 
@@ -223,7 +231,7 @@ export function DonationForm({ onSuccess, onCancel }: DonationFormProps) {
               <div className="space-y-2">
                 <Label htmlFor="payment_method">Ödeme Yöntemi *</Label>
                 <Select
-                  value={watch('payment_method')}
+                  value={watch('payment_method') || ''}
                   onValueChange={(value) => setValue('payment_method', value)}
                 >
                   <SelectTrigger>

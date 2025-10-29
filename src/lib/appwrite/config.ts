@@ -133,7 +133,18 @@ export function validateAppwriteConfig() {
 export function validateAppwriteConfigSafe(): boolean {
   let isValid = true;
   configValidationWarnings = []; // Reset warnings
-  
+
+  // Check backend provider
+  const backendProvider = process.env.NEXT_PUBLIC_BACKEND_PROVIDER;
+
+  // Only validate Appwrite configuration if using appwrite backend
+  if (backendProvider !== 'appwrite') {
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`ℹ️ Using ${backendProvider || 'mock'} backend - Appwrite validation skipped`);
+    }
+    return true;
+  }
+
   if (!appwriteConfig.endpoint) {
     console.warn('⚠️ NEXT_PUBLIC_APPWRITE_ENDPOINT is not defined. Appwrite client may not work properly.');
     isValid = false;
@@ -149,7 +160,7 @@ export function validateAppwriteConfigSafe(): boolean {
       configValidationWarnings.push(endpointValidation.message);
     }
   }
-  
+
   if (!appwriteConfig.projectId) {
     console.warn('⚠️ NEXT_PUBLIC_APPWRITE_PROJECT_ID is not defined. Appwrite client may not work properly.');
     isValid = false;
@@ -165,7 +176,7 @@ export function validateAppwriteConfigSafe(): boolean {
       configValidationWarnings.push(projectIdValidation.message);
     }
   }
-  
+
   return isValid;
 }
 

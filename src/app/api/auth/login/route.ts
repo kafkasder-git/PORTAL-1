@@ -49,15 +49,28 @@ async function loginHandler(req: NextRequest): Promise<NextResponse> {
     }
 
     // Mock authentication (replace with real Appwrite auth)
+    // Test users credentials for different roles
+    const testUsers = [
+      { email: 'admin@test.com', password: 'admin123', name: 'Test Admin', role: 'ADMIN' },
+      { email: 'manager@test.com', password: 'manager123', name: 'Test Manager', role: 'MANAGER' },
+      { email: 'member@test.com', password: 'member123', name: 'Test Member', role: 'MEMBER' },
+      { email: 'volunteer@test.com', password: 'volunteer123', name: 'Test Volunteer', role: 'VOLUNTEER' },
+      { email: 'viewer@test.com', password: 'viewer123', name: 'Test Viewer', role: 'VIEWER' },
+    ];
+
     let user = null;
     let sessionData = null;
 
-    if (sanitizedEmail === 'admin@test.com' && sanitizedPassword === 'admin123') {
+    const matchedUser = testUsers.find(
+      u => u.email === sanitizedEmail && u.password === sanitizedPassword
+    );
+
+    if (matchedUser) {
       user = {
-        $id: 'user-123',
-        name: 'Test Admin',
+        $id: `user-${matchedUser.role.toLowerCase()}-${Date.now()}`,
+        name: matchedUser.name,
         email: sanitizedEmail,
-        role: 'ADMIN',
+        role: matchedUser.role,
       };
 
       sessionData = {

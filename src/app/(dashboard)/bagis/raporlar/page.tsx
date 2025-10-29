@@ -1,14 +1,13 @@
 'use client';
 
 import { PlaceholderPage } from '@/components/PlaceholderPage';
-import { FileBarChart } from 'lucide-react';
 
 export default function DonationReportsPage() {
   return (
     <PlaceholderPage
       title="Bağış Raporları"
       description="Bağış raporlarını görüntüleyin ve dışa aktarın"
-      icon={FileBarChart}
+      icon="BarChart3"
       estimatedDate="Şubat 2025"
       features={[
         'Dönemsel bağış raporları',

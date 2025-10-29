@@ -155,7 +155,7 @@
 
   /* Muted - Subtle backgrounds */
   --muted: #f1f5f9; /* slate-100 */
-  --muted-foreground: #64748b; /* slate-500 */
+  --muted-foreground: #475569; /* slate-600 - improved contrast for readability */
 
   /* Accent - Highlight color */
   --accent: #e2e8f0; /* slate-200 */
@@ -246,7 +246,7 @@
 
   /* Muted */
   --muted: #334155; /* slate-700 */
-  --muted-foreground: #94a3b8; /* slate-400 */
+  --muted-foreground: #cbd5e1; /* slate-300 - brighter for dark mode readability */
 
   /* Accent */
   --accent: #334155; /* slate-700 */
@@ -325,6 +325,21 @@
     @apply border-border outline-ring/50;
   }
 
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  img, canvas, video {
+    image-rendering: auto;
+    -ms-interpolation-mode: bicubic; /* legacy IE fallback */
+  }
+
+  svg {
+    shape-rendering: geometricPrecision;
+    text-rendering: optimizeLegibility;
+  }
+
   /* Font Smoothing */
   html {
     -webkit-font-smoothing: antialiased;
@@ -342,12 +357,24 @@
     font-family: var(--font-heading);
     font-weight: 700;
     letter-spacing: var(--letter-spacing-tight);
+    line-height: 1.25;
   }
+
+  /* Responsive type scale for headings */
+  h1 { font-size: clamp(1.75rem, 1.1rem + 2.2vw, 2.75rem); }
+  h2 { font-size: clamp(1.5rem, 1.05rem + 1.6vw, 2.25rem); }
+  h3 { font-size: clamp(1.25rem, 0.98rem + 1.0vw, 1.75rem); }
+  h4 { font-size: clamp(1.125rem, 0.95rem + 0.6vw, 1.5rem); }
+  h5 { font-size: clamp(1rem, 0.95rem + 0.2vw, 1.25rem); }
+  h6 { font-size: 1rem; }
 
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-body);
     letter-spacing: var(--letter-spacing-normal);
+    line-height: 1.7; /* Improved readability */
+    text-size-adjust: 100%;
+    font-feature-settings: "liga" 1, "calt" 1; /* Better typography ligatures */
   }
 
   /* Font Family Utilities */

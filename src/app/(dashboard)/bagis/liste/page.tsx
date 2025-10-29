@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Search, Plus, DollarSign, User, Calendar, FileText } from 'lucide-react';
 import { DonationForm } from '@/components/forms/DonationForm';
 import { GlassCard } from '@/components/ui/glass-card';
@@ -48,6 +48,12 @@ export default function DonationsPage() {
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Yeni Bağış Ekle</DialogTitle>
+              <DialogDescription>
+                Bağış bilgilerini girerek yeni kayıt oluşturun. Zorunlu alanlar işaretlenmiştir (*).
+              </DialogDescription>
+            </DialogHeader>
             <DonationForm
               onSuccess={() => setShowCreateForm(false)}
               onCancel={() => setShowCreateForm(false)}

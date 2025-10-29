@@ -8,7 +8,7 @@ import { toast } from "sonner"
 import { Loader2, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -19,8 +19,7 @@ import { Separator } from "@/components/ui/separator"
 import { 
   BeneficiaryCategory, 
   FundRegion, 
-  FileConnection,
-  BeneficiaryQuickAdd 
+  FileConnection
 } from "@/types/beneficiary"
 import { quickAddBeneficiarySchema, QuickAddBeneficiaryFormData } from "@/lib/validations/beneficiary"
 import { appwriteApi } from "@/lib/api/appwrite-api"
@@ -64,16 +63,17 @@ export function BeneficiaryQuickAddModal({
 
   const form = useForm({
     resolver: zodResolver(quickAddBeneficiarySchema),
+    mode: "onChange",
     defaultValues: {
-      category: undefined,
+      category: "",
       firstName: "",
       lastName: "",
       nationality: "",
       birthDate: undefined,
       identityNumber: "",
       mernisCheck: false,
-      fundRegion: undefined,
-      fileConnection: undefined,
+      fundRegion: "",
+      fileConnection: "",
       fileNumber: ""
     }
   })
@@ -94,9 +94,8 @@ export function BeneficiaryQuickAddModal({
       // Client-side file number generation
       // Format: [FundRegionPrefix][CategoryCode][Timestamp]
       const prefix = watchedFundRegion === 'AVRUPA' ? 'AV' : 'SR';
-      const categoryCode = watchedCategory.substring(0, 3).toUpperCase();
+      const categoryCode = String(watchedCategory).substring(0, 3).toUpperCase();
       const timestamp = Date.now().toString().slice(-6);
-      
       const fileNumber = `${prefix}${categoryCode}${timestamp}`;
       
       setValue('fileNumber', fileNumber);
@@ -161,6 +160,8 @@ export function BeneficiaryQuickAddModal({
     }
   }
 
+  const { errors, isValid } = form.formState
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -172,21 +173,25 @@ export function BeneficiaryQuickAddModal({
               size="sm"
               onClick={handleClose}
               disabled={isLoading}
+              aria-label="Kapat"
             >
               <X className="h-4 w-4" />
             </Button>
           </DialogTitle>
+          <DialogDescription>
+            Yeni ihtiyaç sahibi için temel bilgileri girin ve detay kaydı için yönlendirileceksiniz
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {/* Kategori */}
           <div className="space-y-2">
-            <Label htmlFor="category">Kategori *</Label>
+            <Label htmlFor="category">Kategori <span className="text-red-600">*</span></Label>
             <Select
               value={form.watch("category")}
               onValueChange={(value) => setValue("category", value as BeneficiaryCategory)}
             >
-              <SelectTrigger>
+              <SelectTrigger aria-invalid={!!errors.category} aria-describedby={errors.category ? "category-error" : undefined}>
                 <SelectValue placeholder="Kategori seçiniz" />
               </SelectTrigger>
               <SelectContent>
@@ -197,40 +202,44 @@ export function BeneficiaryQuickAddModal({
                 ))}
               </SelectContent>
             </Select>
-            {form.formState.errors.category && (
-              <p className="text-sm text-red-500">
-                {form.formState.errors.category.message}
+            {errors.category && (
+              <p id="category-error" className="text-sm text-red-600">
+                {errors.category.message as string}
               </p>
             )}
           </div>
 
           {/* Ad ve Soyad */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="firstName">Ad *</Label>
+              <Label htmlFor="firstName">Ad <span className="text-red-600">*</span></Label>
               <Input
                 id="firstName"
                 {...form.register("firstName")}
+                aria-invalid={!!errors.firstName}
+                aria-describedby={errors.firstName ? "firstName-error" : undefined}
                 placeholder="Ad"
                 disabled={isLoading}
               />
-              {form.formState.errors.firstName && (
-                <p className="text-sm text-red-500">
-                  {form.formState.errors.firstName.message}
+              {errors.firstName && (
+                <p id="firstName-error" className="text-sm text-red-600">
+                  {errors.firstName.message as string}
                 </p>
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="lastName">Soyad *</Label>
+              <Label htmlFor="lastName">Soyad <span className="text-red-600">*</span></Label>
               <Input
                 id="lastName"
                 {...form.register("lastName")}
+                aria-invalid={!!errors.lastName}
+                aria-describedby={errors.lastName ? "lastName-error" : undefined}
                 placeholder="Soyad"
                 disabled={isLoading}
               />
-              {form.formState.errors.lastName && (
-                <p className="text-sm text-red-500">
-                  {form.formState.errors.lastName.message}
+              {errors.lastName && (
+                <p id="lastName-error" className="text-sm text-red-600">
+                  {errors.lastName.message as string}
                 </p>
               )}
             </div>
@@ -238,16 +247,18 @@ export function BeneficiaryQuickAddModal({
 
           {/* Uyruk */}
           <div className="space-y-2">
-            <Label htmlFor="nationality">Uyruk *</Label>
+            <Label htmlFor="nationality">Uyruk <span className="text-red-600">*</span></Label>
             <Input
               id="nationality"
               {...form.register("nationality")}
+              aria-invalid={!!errors.nationality}
+              aria-describedby={errors.nationality ? "nationality-error" : undefined}
               placeholder="Uyruk"
               disabled={isLoading}
             />
-            {form.formState.errors.nationality && (
-              <p className="text-sm text-red-500">
-                {form.formState.errors.nationality.message}
+            {errors.nationality && (
+              <p id="nationality-error" className="text-sm text-red-600">
+                {errors.nationality.message as string}
               </p>
             )}
           </div>
@@ -261,9 +272,9 @@ export function BeneficiaryQuickAddModal({
               placeholder="Doğum tarihi seçiniz"
               disabled={isLoading}
             />
-            {form.formState.errors.birthDate && (
-              <p className="text-sm text-red-500">
-                {form.formState.errors.birthDate.message}
+            {errors.birthDate && (
+              <p className="text-sm text-red-600">
+                {errors.birthDate.message as string}
               </p>
             )}
           </div>
@@ -274,13 +285,15 @@ export function BeneficiaryQuickAddModal({
             <Input
               id="identityNumber"
               {...form.register("identityNumber")}
+              aria-invalid={!!errors.identityNumber}
+              aria-describedby={errors.identityNumber ? "identityNumber-error" : undefined}
               placeholder="TC Kimlik No"
               maxLength={11}
               disabled={isLoading}
             />
-            {form.formState.errors.identityNumber && (
-              <p className="text-sm text-red-500">
-                {form.formState.errors.identityNumber.message}
+            {errors.identityNumber && (
+              <p id="identityNumber-error" className="text-sm text-red-600">
+                {errors.identityNumber.message as string}
               </p>
             )}
           </div>
@@ -302,12 +315,12 @@ export function BeneficiaryQuickAddModal({
 
           {/* Fon Bölgesi */}
           <div className="space-y-2">
-            <Label htmlFor="fundRegion">Fon Bölgesi *</Label>
+            <Label htmlFor="fundRegion">Fon Bölgesi <span className="text-red-600">*</span></Label>
             <Select
               value={form.watch("fundRegion")}
               onValueChange={(value) => setValue("fundRegion", value as FundRegion)}
             >
-              <SelectTrigger>
+              <SelectTrigger aria-invalid={!!errors.fundRegion} aria-describedby={errors.fundRegion ? "fundRegion-error" : undefined}>
                 <SelectValue placeholder="Fon bölgesi seçiniz" />
               </SelectTrigger>
               <SelectContent>
@@ -318,21 +331,21 @@ export function BeneficiaryQuickAddModal({
                 ))}
               </SelectContent>
             </Select>
-            {form.formState.errors.fundRegion && (
-              <p className="text-sm text-red-500">
-                {form.formState.errors.fundRegion.message}
+            {errors.fundRegion && (
+              <p id="fundRegion-error" className="text-sm text-red-600">
+                {errors.fundRegion.message as string}
               </p>
             )}
           </div>
 
           {/* Dosya Bağlantısı */}
           <div className="space-y-2">
-            <Label htmlFor="fileConnection">Dosya Bağlantısı *</Label>
+            <Label htmlFor="fileConnection">Dosya Bağlantısı <span className="text-red-600">*</span></Label>
             <Select
               value={form.watch("fileConnection")}
               onValueChange={(value) => setValue("fileConnection", value as FileConnection)}
             >
-              <SelectTrigger>
+              <SelectTrigger aria-invalid={!!errors.fileConnection} aria-describedby={errors.fileConnection ? "fileConnection-error" : undefined}>
                 <SelectValue placeholder="Dosya bağlantısı seçiniz" />
               </SelectTrigger>
               <SelectContent>
@@ -343,9 +356,9 @@ export function BeneficiaryQuickAddModal({
                 ))}
               </SelectContent>
             </Select>
-            {form.formState.errors.fileConnection && (
-              <p className="text-sm text-red-500">
-                {form.formState.errors.fileConnection.message}
+            {errors.fileConnection && (
+              <p id="fileConnection-error" className="text-sm text-red-600">
+                {errors.fileConnection.message as string}
               </p>
             )}
           </div>
@@ -353,13 +366,14 @@ export function BeneficiaryQuickAddModal({
           {/* Dosya Numarası */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label htmlFor="fileNumber">Dosya Numarası *</Label>
+              <Label htmlFor="fileNumber">Dosya Numarası <span className="text-red-600">*</span></Label>
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
                 onClick={handleGenerateFileNumber}
                 disabled={isGeneratingFileNumber || !watchedCategory || !watchedFundRegion}
+                aria-live="polite"
               >
                 {isGeneratingFileNumber ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -371,12 +385,14 @@ export function BeneficiaryQuickAddModal({
             <Input
               id="fileNumber"
               {...form.register("fileNumber")}
+              aria-invalid={!!errors.fileNumber}
+              aria-describedby={errors.fileNumber ? "fileNumber-error" : undefined}
               placeholder="Dosya numarası"
               disabled={isLoading}
             />
-            {form.formState.errors.fileNumber && (
-              <p className="text-sm text-red-500">
-                {form.formState.errors.fileNumber.message}
+            {errors.fileNumber && (
+              <p id="fileNumber-error" className="text-sm text-red-600">
+                {errors.fileNumber.message as string}
               </p>
             )}
           </div>
@@ -395,7 +411,7 @@ export function BeneficiaryQuickAddModal({
             </Button>
             <Button
               type="submit"
-              disabled={isLoading || !form.formState.isValid}
+              disabled={isLoading || !isValid}
             >
               {isLoading ? (
                 <>
