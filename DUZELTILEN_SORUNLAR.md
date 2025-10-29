@@ -249,3 +249,4 @@ Artık:
 
 **Not:** TestSprite testlerini yeniden çalıştırarak sonuçları doğrula.
 
+

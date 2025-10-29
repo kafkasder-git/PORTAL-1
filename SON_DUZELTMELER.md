@@ -153,3 +153,4 @@ defaultValues: {
 
 **Durum:** Düzeltmeler uygulandı, testSprite testlerini yeniden çalıştırarak sonuçları doğrula ✅
 
+

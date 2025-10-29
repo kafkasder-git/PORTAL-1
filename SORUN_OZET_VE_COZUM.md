@@ -149,3 +149,4 @@ DialogContent'e DialogDescription eklemek accessibility için önemli:
 **Genel Değerlendirme:**
 Düzeltmeler kısmen başarılı. Accessibility ve form validation küçük sorunlar hala var. Bu sorunlar düzeltilirse başarı oranı %60-70'e çıkabilir.
 
+

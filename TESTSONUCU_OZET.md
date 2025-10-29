@@ -188,3 +188,4 @@ WARNING: Missing Description or aria-describedby
 **Genel Değerlendirme:**
 Mock API düzeltmeleri başarılı ama accessibility ve form validation sorunları hala devam ediyor. Bu sorunlar düzeltilirse başarı oranı %70-80'e çıkabilir.
 
+
