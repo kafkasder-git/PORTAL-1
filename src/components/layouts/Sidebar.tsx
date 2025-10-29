@@ -283,10 +283,10 @@ export function Sidebar({ isMobileOpen = false, onMobileToggle }: SidebarProps) 
                     <button
                       onClick={() => toggleModule(module.id)}
                       className={cn(
-                        'w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-heading font-semibold transition-all duration-200 ease-in-out hover:translate-x-1',
+                        'w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-heading font-medium transition-all duration-200 ease-in-out',
                         hasActiveSubpage
-                          ? 'bg-primary/10 text-primary border-l-4 border-primary'
-                          : 'text-foreground hover:bg-accent/50 hover:text-accent-foreground border-l-4 border-transparent'
+                          ? 'bg-sidebar-primary/10 text-sidebar-primary shadow-sm border-l-4 border-sidebar-primary'
+                          : 'text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent hover:shadow-sm border-l-4 border-transparent hover:border-sidebar-border'
                       )}
                     >
                       <div className="flex items-center gap-3">
@@ -310,17 +310,17 @@ export function Sidebar({ isMobileOpen = false, onMobileToggle }: SidebarProps) 
                     </button>
 
                     {isExpanded && (
-                      <div className="mt-1 ml-4 space-y-1">
+                      <div className="mt-1 ml-4 space-y-0.5">
                         {module.subPages.map((subPage, subIndex) => (
                           <Link
                             key={subPage.href}
                             href={subPage.href}
                             onClick={onMobileToggle}
                             className={cn(
-                              'block px-3 py-2 rounded-lg text-sm font-body font-medium transition-all duration-200',
+                              'block px-3 py-2 rounded-md text-sm font-body transition-all duration-200',
                               isActive(subPage.href)
-                                ? 'bg-primary/5 text-primary font-semibold'
-                                : 'text-foreground hover:bg-accent/50 hover:text-accent-foreground',
+                                ? 'bg-sidebar-primary/15 text-sidebar-primary font-medium shadow-sm'
+                                : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/70 hover:pl-4',
                               // Stagger animation delays
                               subIndex === 0 && 'delay-75',
                               subIndex === 1 && 'delay-100',
@@ -346,10 +346,10 @@ export function Sidebar({ isMobileOpen = false, onMobileToggle }: SidebarProps) 
                           }
                         }}
                         className={cn(
-                          'w-full flex items-center justify-center p-3 rounded-lg transition-all duration-200 ease-in-out hover:bg-primary/10 hover:text-primary',
+                          'w-full flex items-center justify-center p-3 rounded-lg transition-all duration-200 ease-in-out',
                           hasActiveSubpage
-                            ? 'bg-primary/10 text-primary'
-                            : 'text-foreground'
+                            ? 'bg-sidebar-primary/15 text-sidebar-primary shadow-sm'
+                            : 'text-sidebar-foreground/70 hover:text-sidebar-primary hover:bg-sidebar-accent'
                         )}
                         aria-label={module.name}
                       >

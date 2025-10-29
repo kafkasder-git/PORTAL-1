@@ -156,17 +156,14 @@ export default function DashboardLayout({
         className="opacity-25 dark:opacity-20"
       />
 
-      {/* Header */}
+      {/* Header - Premium Top Bar */}
       <header
         className={cn(
           'sticky top-0 z-50 relative',
-          'border-b border-border dark:border-white/5',
-          'bg-background/95 backdrop-blur-xl backdrop-saturate-150',
-          'shadow-sm transition-shadow duration-300',
-          'before:absolute before:inset-0',
-          'before:bg-gradient-to-r before:from-[oklch(from_var(--brand-primary)_l_c_h_/_3%)] before:to-transparent',
-          'before:pointer-events-none',
-          isScrolled && 'shadow-md'
+          'border-b border-border/50',
+          'bg-card/80 backdrop-blur-xl backdrop-saturate-150',
+          'transition-all duration-300',
+          isScrolled ? 'shadow-card-hover border-border' : 'shadow-sm'
         )}
       >
         <motion.div

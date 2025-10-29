@@ -149,12 +149,12 @@ export function DataTable<T extends Record<string, any>>({
             <div className="overflow-x-auto">
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="border-b bg-muted/50">
+                  <tr className="border-b border-border bg-secondary/50">
                     {columns.map((column) => (
                       <th
                         key={column.key}
                         className={cn(
-                          'p-4 text-left text-sm font-heading font-semibold text-foreground',
+                          'p-4 text-left text-xs font-heading font-semibold text-muted-foreground uppercase tracking-wider',
                           column.className
                         )}
                       >
@@ -174,9 +174,9 @@ export function DataTable<T extends Record<string, any>>({
                         transition={{ duration: 0.2, delay: Math.min(index * 0.02, 0.3) }}
                         onClick={() => onRowClick?.(item, index)}
                         className={cn(
-                          'border-b transition-colors duration-150',
-                          striped && index % 2 === 0 && 'bg-muted/20',
-                          hoverable && 'hover:bg-primary/5 cursor-pointer',
+                          'border-b border-border/50 transition-all duration-200',
+                          striped && index % 2 === 0 && 'bg-muted/30',
+                          hoverable && 'hover:bg-accent/40 hover:shadow-sm cursor-pointer',
                           onRowClick && 'cursor-pointer',
                           rowClassName?.(item, index)
                         )}
