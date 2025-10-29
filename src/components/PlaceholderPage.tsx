@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils';
 interface PlaceholderPageProps {
   title: string;
   description?: string;
-  icon?: LucideIcon;
+  icon?: LucideIcon | string;
   estimatedDate?: string;
   features?: string[];
 }

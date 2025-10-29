@@ -1,3 +1,5 @@
+'use client';
+
 import { PlaceholderPage } from '@/components/PlaceholderPage';
 import { FileBarChart } from 'lucide-react';
 
