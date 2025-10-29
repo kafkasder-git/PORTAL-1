@@ -2,12 +2,14 @@
 
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
+import { Settings, Save, User, Mail, Bell, Shield, Database } from 'lucide-react';
+import { PageLayout } from '@/components/layouts/PageLayout';
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState({
@@ -50,446 +52,351 @@ export default function SettingsPage() {
     setHasChanges(false);
   };
 
-  const handleInitialize = () => {
-    toast.success('Ayarlar başarıyla oluşturuldu');
+  const updateSetting = (section: string, field: string, value: any) => {
+    setSettings(prev => ({
+      ...prev,
+      [section]: { ...prev[section as keyof typeof prev], [field]: value }
+    }));
     setHasChanges(true);
   };
 
-  return (
-    <div data-testid="settings-page" className="container mx-auto p-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Ayarlar</h1>
-        <p className="text-muted-foreground">Sistem ayarlarını yapılandırın</p>
-      </div>
+  const tabs = [
+    { id: 'organization', label: 'Organizasyon', icon: User },
+    { id: 'email', label: 'E-posta', icon: Mail },
+    { id: 'notifications', label: 'Bildirimler', icon: Bell },
+    { id: 'security', label: 'Güvenlik', icon: Shield },
+    { id: 'system', label: 'Sistem', icon: Database }
+  ];
 
-      {!settings.organization.name ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>Ayarları Başlat</CardTitle>
-            <CardDescription>
-              İlk kez ayarları yapılandırıyorsunuz. Başlamak için aşağıdaki butona tıklayın.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button 
-              data-testid="settings-initialize-button"
-              onClick={handleInitialize}
-            >
-              Ayarları Oluştur
-            </Button>
-          </CardContent>
-        </Card>
-      ) : (
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList data-testid="settings-tabs-list">
-            <TabsTrigger 
-              data-testid="settings-tab-organization"
-              value="organization"
-            >
-              Organizasyon
-            </TabsTrigger>
-            <TabsTrigger 
-              data-testid="settings-tab-email"
-              value="email"
-            >
-              E-posta
-            </TabsTrigger>
-            <TabsTrigger 
-              data-testid="settings-tab-notifications"
-              value="notifications"
-            >
-              Bildirimler
-            </TabsTrigger>
-            <TabsTrigger 
-              data-testid="settings-tab-system"
-              value="system"
-            >
-              Sistem
-            </TabsTrigger>
-            <TabsTrigger 
-              data-testid="settings-tab-security"
-              value="security"
-            >
-              Güvenlik
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="organization">
-            <Card>
-              <CardHeader>
-                <CardTitle>Organizasyon Bilgileri</CardTitle>
-                <CardDescription>
-                  Dernek organizasyon bilgilerini güncelleyin
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="org-name">Organizasyon Adı *</Label>
-                  <Input
-                    id="org-name"
-                    data-testid="settings-org-name"
-                    value={settings.organization.name}
-                    onChange={(e) => {
-                      setSettings(prev => ({
-                        ...prev,
-                        organization: { ...prev.organization, name: e.target.value }
-                      }));
-                      setHasChanges(true);
-                    }}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="org-address">Adres</Label>
-                  <Input
-                    id="org-address"
-                    data-testid="settings-org-address"
-                    value={settings.organization.address}
-                    onChange={(e) => {
-                      setSettings(prev => ({
-                        ...prev,
-                        organization: { ...prev.organization, address: e.target.value }
-                      }));
-                      setHasChanges(true);
-                    }}
-                  />
-                </div>
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'organization':
+        return (
+          <Card className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+            <CardHeader>
+              <CardTitle>Organizasyon Bilgileri</CardTitle>
+              <CardDescription>Dernek organizasyon bilgilerini güncelleyin</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label htmlFor="org-name">Organizasyon Adı *</Label>
+                <Input
+                  id="org-name"
+                  value={settings.organization.name}
+                  onChange={(e) => updateSetting('organization', 'name', e.target.value)}
+                  className="border-slate-200 focus:border-slate-400"
+                />
+              </div>
+              <div>
+                <Label htmlFor="org-address">Adres</Label>
+                <Input
+                  id="org-address"
+                  value={settings.organization.address}
+                  onChange={(e) => updateSetting('organization', 'address', e.target.value)}
+                  className="border-slate-200 focus:border-slate-400"
+                />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="org-phone">Telefon</Label>
                   <Input
                     id="org-phone"
-                    data-testid="settings-org-phone"
                     value={settings.organization.phone}
-                    onChange={(e) => {
-                      setSettings(prev => ({
-                        ...prev,
-                        organization: { ...prev.organization, phone: e.target.value }
-                      }));
-                      setHasChanges(true);
-                    }}
+                    onChange={(e) => updateSetting('organization', 'phone', e.target.value)}
+                    className="border-slate-200 focus:border-slate-400"
                   />
                 </div>
                 <div>
                   <Label htmlFor="org-email">E-posta</Label>
                   <Input
                     id="org-email"
-                    data-testid="settings-org-email"
                     type="email"
                     value={settings.organization.email}
-                    onChange={(e) => {
-                      setSettings(prev => ({
-                        ...prev,
-                        organization: { ...prev.organization, email: e.target.value }
-                      }));
-                      setHasChanges(true);
-                    }}
+                    onChange={(e) => updateSetting('organization', 'email', e.target.value)}
+                    className="border-slate-200 focus:border-slate-400"
                   />
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+              </div>
+            </CardContent>
+          </Card>
+        );
 
-          <TabsContent value="email">
-            <Card>
-              <CardHeader>
-                <CardTitle>E-posta Ayarları</CardTitle>
-                <CardDescription>
-                  SMTP sunucu ayarlarını yapılandırın
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    data-testid="settings-smtp-enabled"
-                    checked={settings.email.enabled}
-                    onCheckedChange={(checked) => {
-                      setSettings(prev => ({
-                        ...prev,
-                        email: { ...prev.email, enabled: checked }
-                      }));
-                      setHasChanges(true);
-                    }}
-                  />
+      case 'email':
+        return (
+          <Card className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+            <CardHeader>
+              <CardTitle>E-posta Ayarları</CardTitle>
+              <CardDescription>SMTP sunucu ayarlarını yapılandırın</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
                   <Label htmlFor="smtp-enabled">SMTP Etkin</Label>
+                  <p className="text-sm text-slate-500">SMTP sunucu ayarlarını aktif hale getirir</p>
                 </div>
-                
-                {settings.email.enabled && (
-                  <>
+                <Switch
+                  checked={settings.email.enabled}
+                  onCheckedChange={(checked) => updateSetting('email', 'enabled', checked)}
+                />
+              </div>
+              
+              {settings.email.enabled && (
+                <div className="space-y-4 pt-4 border-t">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="smtp-host">SMTP Sunucu *</Label>
                       <Input
                         id="smtp-host"
-                        data-testid="settings-smtp-host"
                         value={settings.email.smtpHost}
-                        onChange={(e) => {
-                          setSettings(prev => ({
-                            ...prev,
-                            email: { ...prev.email, smtpHost: e.target.value }
-                          }));
-                          setHasChanges(true);
-                        }}
+                        onChange={(e) => updateSetting('email', 'smtpHost', e.target.value)}
+                        placeholder="smtp.gmail.com"
+                        className="border-slate-200 focus:border-slate-400"
                       />
                     </div>
                     <div>
                       <Label htmlFor="smtp-port">SMTP Port</Label>
                       <Input
                         id="smtp-port"
-                        data-testid="settings-smtp-port"
                         type="number"
                         value={settings.email.smtpPort}
-                        onChange={(e) => {
-                          setSettings(prev => ({
-                            ...prev,
-                            email: { ...prev.email, smtpPort: parseInt(e.target.value) }
-                          }));
-                          setHasChanges(true);
-                        }}
+                        onChange={(e) => updateSetting('email', 'smtpPort', parseInt(e.target.value))}
+                        className="border-slate-200 focus:border-slate-400"
                       />
                     </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="smtp-user">SMTP Kullanıcı</Label>
                       <Input
                         id="smtp-user"
-                        data-testid="settings-smtp-user"
                         value={settings.email.smtpUser}
-                        onChange={(e) => {
-                          setSettings(prev => ({
-                            ...prev,
-                            email: { ...prev.email, smtpUser: e.target.value }
-                          }));
-                          setHasChanges(true);
-                        }}
+                        onChange={(e) => updateSetting('email', 'smtpUser', e.target.value)}
+                        className="border-slate-200 focus:border-slate-400"
                       />
                     </div>
                     <div>
                       <Label htmlFor="smtp-password">SMTP Şifre</Label>
                       <Input
                         id="smtp-password"
-                        data-testid="settings-smtp-password"
                         type="password"
                         value={settings.email.smtpPassword}
-                        onChange={(e) => {
-                          setSettings(prev => ({
-                            ...prev,
-                            email: { ...prev.email, smtpPassword: e.target.value }
-                          }));
-                          setHasChanges(true);
-                        }}
+                        onChange={(e) => updateSetting('email', 'smtpPassword', e.target.value)}
+                        className="border-slate-200 focus:border-slate-400"
                       />
                     </div>
-                    <div>
-                      <Label htmlFor="from-email">Gönderen E-posta</Label>
-                      <Input
-                        id="from-email"
-                        data-testid="settings-from-email"
-                        type="email"
-                        value={settings.email.fromEmail}
-                        onChange={(e) => {
-                          setSettings(prev => ({
-                            ...prev,
-                            email: { ...prev.email, fromEmail: e.target.value }
-                          }));
-                          setHasChanges(true);
-                        }}
-                      />
-                    </div>
-                  </>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
+                  </div>
+                  <div>
+                    <Label htmlFor="from-email">Gönderen E-posta</Label>
+                    <Input
+                      id="from-email"
+                      type="email"
+                      value={settings.email.fromEmail}
+                      onChange={(e) => updateSetting('email', 'fromEmail', e.target.value)}
+                      className="border-slate-200 focus:border-slate-400"
+                    />
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        );
 
-          <TabsContent value="notifications">
-            <Card>
-              <CardHeader>
-                <CardTitle>Bildirim Ayarları</CardTitle>
-                <CardDescription>
-                  Bildirim tercihlerini yapılandırın
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center space-x-2">
+      case 'notifications':
+        return (
+          <Card className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+            <CardHeader>
+              <CardTitle>Bildirim Ayarları</CardTitle>
+              <CardDescription>Sistem bildirim tercihlerinizi yönetin</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="email-notifications">E-posta Bildirimleri</Label>
+                    <p className="text-sm text-slate-500">Yeni bağışlar ve güncellemeler için e-posta al</p>
+                  </div>
                   <Switch
-                    data-testid="settings-email-notifications"
                     checked={settings.notifications.emailNotifications}
-                    onCheckedChange={(checked) => {
-                      setSettings(prev => ({
-                        ...prev,
-                        notifications: { ...prev.notifications, emailNotifications: checked }
-                      }));
-                      setHasChanges(true);
-                    }}
+                    onCheckedChange={(checked) => updateSetting('notifications', 'emailNotifications', checked)}
                   />
-                  <Label htmlFor="email-notifications">E-posta Bildirimleri</Label>
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="push-notifications">Push Bildirimleri</Label>
+                    <p className="text-sm text-slate-500">Tarayıcı bildirimlerini aktifleştir</p>
+                  </div>
                   <Switch
-                    data-testid="settings-push-notifications"
                     checked={settings.notifications.pushNotifications}
-                    onCheckedChange={(checked) => {
-                      setSettings(prev => ({
-                        ...prev,
-                        notifications: { ...prev.notifications, pushNotifications: checked }
-                      }));
-                      setHasChanges(true);
-                    }}
+                    onCheckedChange={(checked) => updateSetting('notifications', 'pushNotifications', checked)}
                   />
-                  <Label htmlFor="push-notifications">Push Bildirimleri</Label>
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="sms-notifications">SMS Bildirimleri</Label>
+                    <p className="text-sm text-slate-500">Önemli durumlar için SMS al</p>
+                  </div>
                   <Switch
-                    data-testid="settings-sms-notifications"
                     checked={settings.notifications.smsNotifications}
-                    onCheckedChange={(checked) => {
-                      setSettings(prev => ({
-                        ...prev,
-                        notifications: { ...prev.notifications, smsNotifications: checked }
-                      }));
-                      setHasChanges(true);
-                    }}
+                    onCheckedChange={(checked) => updateSetting('notifications', 'smsNotifications', checked)}
                   />
-                  <Label htmlFor="sms-notifications">SMS Bildirimleri</Label>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+              </div>
+            </CardContent>
+          </Card>
+        );
 
-          <TabsContent value="system">
-            <Card>
-              <CardHeader>
-                <CardTitle>Sistem Ayarları</CardTitle>
-                <CardDescription>
-                  Sistem genel ayarlarını yapılandırın
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
+      case 'security':
+        return (
+          <Card className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+            <CardHeader>
+              <CardTitle>Güvenlik Ayarları</CardTitle>
+              <CardDescription>Şifre ve güvenlik politikalarını yapılandırın</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="session-timeout">Oturum Zaman Aşımı (dakika)</Label>
-                  <Input
-                    id="session-timeout"
-                    data-testid="settings-session-timeout"
-                    type="number"
-                    min="5"
-                    max="1440"
-                    value={settings.system.sessionTimeout}
-                    onChange={(e) => {
-                      setSettings(prev => ({
-                        ...prev,
-                        system: { ...prev.system, sessionTimeout: parseInt(e.target.value) }
-                      }));
-                      setHasChanges(true);
-                    }}
-                  />
+                  <Label htmlFor="two-factor">İki Faktörlü Kimlik Doğrulama</Label>
+                  <p className="text-sm text-slate-500">Ekstra güvenlik katmanı ekle</p>
                 </div>
+                <Switch
+                  checked={settings.security.requireTwoFactor}
+                  onCheckedChange={(checked) => updateSetting('security', 'requireTwoFactor', checked)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="password-length">Minimum Şifre Uzunluğu</Label>
+                <Input
+                  id="password-length"
+                  type="number"
+                  value={settings.security.passwordMinLength}
+                  onChange={(e) => updateSetting('security', 'passwordMinLength', parseInt(e.target.value))}
+                  className="border-slate-200 focus:border-slate-400"
+                />
+              </div>
+              <div>
+                <Label htmlFor="security-session">Oturum Timeout (dakika)</Label>
+                <Input
+                  id="security-session"
+                  type="number"
+                  value={settings.security.sessionTimeout}
+                  onChange={(e) => updateSetting('security', 'sessionTimeout', parseInt(e.target.value))}
+                  className="border-slate-200 focus:border-slate-400"
+                />
+              </div>
+            </CardContent>
+          </Card>
+        );
+
+      case 'system':
+        return (
+          <Card className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+            <CardHeader>
+              <CardTitle>Sistem Ayarları</CardTitle>
+              <CardDescription>Genel sistem parametrelerini yönetin</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="max-login-attempts">Maksimum Giriş Denemesi</Label>
-                  <Input
-                    id="max-login-attempts"
-                    data-testid="settings-max-login-attempts"
-                    type="number"
-                    min="3"
-                    max="10"
-                    value={settings.system.maxLoginAttempts}
-                    onChange={(e) => {
-                      setSettings(prev => ({
-                        ...prev,
-                        system: { ...prev.system, maxLoginAttempts: parseInt(e.target.value) }
-                      }));
-                      setHasChanges(true);
-                    }}
-                  />
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    data-testid="settings-maintenance-mode"
-                    checked={settings.system.maintenanceMode}
-                    onCheckedChange={(checked) => {
-                      setSettings(prev => ({
-                        ...prev,
-                        system: { ...prev.system, maintenanceMode: checked }
-                      }));
-                      setHasChanges(true);
-                    }}
-                  />
                   <Label htmlFor="maintenance-mode">Bakım Modu</Label>
+                  <p className="text-sm text-slate-500">Sistemi bakım için geçici olarak kapat</p>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+                <Switch
+                  checked={settings.system.maintenanceMode}
+                  onCheckedChange={(checked) => updateSetting('system', 'maintenanceMode', checked)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="max-attempts">Maksimum Giriş Denemesi</Label>
+                <Input
+                  id="max-attempts"
+                  type="number"
+                  value={settings.system.maxLoginAttempts}
+                  onChange={(e) => updateSetting('system', 'maxLoginAttempts', parseInt(e.target.value))}
+                  className="border-slate-200 focus:border-slate-400"
+                />
+              </div>
+              <div>
+                <Label htmlFor="system-session">Oturum Timeout (dakika)</Label>
+                <Input
+                  id="system-session"
+                  type="number"
+                  value={settings.system.sessionTimeout}
+                  onChange={(e) => updateSetting('system', 'sessionTimeout', parseInt(e.target.value))}
+                  className="border-slate-200 focus:border-slate-400"
+                />
+              </div>
+            </CardContent>
+          </Card>
+        );
 
-          <TabsContent value="security">
-            <Card>
-              <CardHeader>
-                <CardTitle>Güvenlik Ayarları</CardTitle>
-                <CardDescription>
-                  Güvenlik ve kimlik doğrulama ayarlarını yapılandırın
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    data-testid="settings-require-two-factor"
-                    checked={settings.security.requireTwoFactor}
-                    onCheckedChange={(checked) => {
-                      setSettings(prev => ({
-                        ...prev,
-                        security: { ...prev.security, requireTwoFactor: checked }
-                      }));
-                      setHasChanges(true);
-                    }}
-                  />
-                  <Label htmlFor="require-two-factor">İki Faktörlü Kimlik Doğrulama</Label>
-                </div>
-                <div>
-                  <Label htmlFor="password-min-length">Minimum Şifre Uzunluğu</Label>
-                  <Input
-                    id="password-min-length"
-                    data-testid="settings-password-min-length"
-                    type="number"
-                    min="6"
-                    max="20"
-                    value={settings.security.passwordMinLength}
-                    onChange={(e) => {
-                      setSettings(prev => ({
-                        ...prev,
-                        security: { ...prev.security, passwordMinLength: parseInt(e.target.value) }
-                      }));
-                      setHasChanges(true);
-                    }}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="security-session-timeout">Güvenlik Oturum Zaman Aşımı (dakika)</Label>
-                  <Input
-                    id="security-session-timeout"
-                    data-testid="settings-security-session-timeout"
-                    type="number"
-                    min="5"
-                    max="1440"
-                    value={settings.security.sessionTimeout}
-                    onChange={(e) => {
-                      setSettings(prev => ({
-                        ...prev,
-                        security: { ...prev.security, sessionTimeout: parseInt(e.target.value) }
-                      }));
-                      setHasChanges(true);
-                    }}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+      default:
+        return null;
+    }
+  };
 
-          <div className="mt-6 flex justify-end">
-            <Button
-              data-testid="settings-save-button"
-              onClick={handleSave}
-              disabled={!hasChanges}
-            >
-              Kaydet
-            </Button>
-          </div>
-        </Tabs>
-      )}
-    </div>
+  return (
+    <PageLayout
+      title="Sistem Ayarları"
+      description="Sistem konfigürasyonunu ve tercihlerinizi yönetin"
+      icon="Settings"
+      actions={
+        <Button 
+          onClick={handleSave}
+          disabled={!hasChanges}
+          className={`gap-2 ${hasChanges ? 'bg-slate-700 hover:bg-slate-600' : 'opacity-50'}`}
+        >
+          <Save className="h-4 w-4" />
+          {hasChanges ? 'Değişiklikleri Kaydet' : 'Kaydedildi'}
+        </Button>
+      }
+    >
+      <div className="space-y-6">
+        {/* Tab Navigation */}
+        <Card className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+          <CardContent className="p-0">
+            <div className="flex flex-wrap">
+              {tabs.map((tab) => {
+                const Icon = tab.icon;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                      activeTab === tab.id
+                        ? 'border-slate-700 text-slate-900 dark:text-slate-100'
+                        : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                    }`}
+                  >
+                    <Icon className="h-4 w-4" />
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Tab Content */}
+        <div className="space-y-4">
+          {renderTabContent()}
+        </div>
+
+        {/* Status */}
+        {hasChanges && (
+          <Card className="border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="border-amber-300 text-amber-700">
+                  Kaydedilmemiş Değişiklikler
+                </Badge>
+                <p className="text-sm text-amber-600">
+                  Yaptığınız değişiklikleri kaydetmek için "Değişiklikleri Kaydet" butonuna tıklayın.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </PageLayout>
   );
 }

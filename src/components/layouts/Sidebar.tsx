@@ -183,7 +183,7 @@ export function Sidebar({ isMobileOpen = false, onMobileToggle }: SidebarProps) 
       {/* Sidebar */}
       <aside
         className={cn(
-          'fixed left-0 top-16 h-[calc(100vh-4rem)] bg-sidebar text-sidebar-foreground border-r border-sidebar-border z-40 overflow-y-auto transition-all duration-300 ease-in-out backdrop-blur-xl',
+          'fixed left-0 top-16 h-[calc(100vh-4rem)] bg-slate-900 text-slate-100 border-r border-slate-700 z-40 overflow-y-auto transition-all duration-300 ease-in-out backdrop-blur-xl',
           isCollapsed ? 'w-20 sidebar-collapsed' : 'w-64 sidebar-expanded',
           isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         )}
@@ -285,8 +285,8 @@ export function Sidebar({ isMobileOpen = false, onMobileToggle }: SidebarProps) 
                       className={cn(
                         'w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-heading font-medium transition-all duration-200 ease-in-out',
                         hasActiveSubpage
-                          ? 'bg-sidebar-primary/10 text-sidebar-primary shadow-sm border-l-4 border-sidebar-primary'
-                          : 'text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent hover:shadow-sm border-l-4 border-transparent hover:border-sidebar-border'
+                          ? 'bg-slate-800/50 text-slate-100 shadow-sm border-l-4 border-slate-400'
+                          : 'text-slate-300 hover:text-slate-100 hover:bg-slate-800/50 hover:shadow-sm border-l-4 border-transparent hover:border-slate-600'
                       )}
                     >
                       <div className="flex items-center gap-3">
@@ -319,8 +319,8 @@ export function Sidebar({ isMobileOpen = false, onMobileToggle }: SidebarProps) 
                             className={cn(
                               'block px-3 py-2 rounded-md text-sm font-body transition-all duration-200',
                               isActive(subPage.href)
-                                ? 'bg-sidebar-primary/15 text-sidebar-primary font-medium shadow-sm'
-                                : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/70 hover:pl-4',
+                                ? 'bg-slate-700/50 text-slate-100 font-medium shadow-sm'
+                                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 hover:pl-4',
                               // Stagger animation delays
                               subIndex === 0 && 'delay-75',
                               subIndex === 1 && 'delay-100',
@@ -348,8 +348,8 @@ export function Sidebar({ isMobileOpen = false, onMobileToggle }: SidebarProps) 
                         className={cn(
                           'w-full flex items-center justify-center p-3 rounded-lg transition-all duration-200 ease-in-out',
                           hasActiveSubpage
-                            ? 'bg-sidebar-primary/15 text-sidebar-primary shadow-sm'
-                            : 'text-sidebar-foreground/70 hover:text-sidebar-primary hover:bg-sidebar-accent'
+                            ? 'bg-slate-800/50 text-slate-100 shadow-sm'
+                            : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
                         )}
                         aria-label={module.name}
                       >
@@ -384,7 +384,7 @@ export function Sidebar({ isMobileOpen = false, onMobileToggle }: SidebarProps) 
         </nav>
 
         {/* Bottom Section: Collapse Toggle & Settings */}
-        <div className="sticky bottom-0 bg-sidebar border-t border-sidebar-border mt-auto">
+        <div className="sticky bottom-0 bg-slate-900 border-t border-slate-700 mt-auto">
           {/* Collapse Toggle */}
           <div className="p-4">
             {!isCollapsed ? (
@@ -392,7 +392,7 @@ export function Sidebar({ isMobileOpen = false, onMobileToggle }: SidebarProps) 
                 variant="ghost"
                 size="sm"
                 onClick={toggleSidebar}
-                className="w-full justify-start hover:bg-primary/10 hover:text-primary transition-colors"
+                className="w-full justify-start hover:bg-slate-800 hover:text-slate-100 transition-colors"
                 aria-label="Toggle sidebar"
                 data-testid="sidebar-toggle"
               >
@@ -406,7 +406,7 @@ export function Sidebar({ isMobileOpen = false, onMobileToggle }: SidebarProps) 
                     variant="ghost"
                     size="sm"
                     onClick={toggleSidebar}
-                    className="w-full justify-center hover:bg-primary/10 hover:text-primary transition-colors"
+                    className="w-full justify-center hover:bg-slate-800 hover:text-slate-100 transition-colors"
                     aria-label="Toggle sidebar"
                     data-testid="sidebar-toggle"
                   >
@@ -426,8 +426,8 @@ export function Sidebar({ isMobileOpen = false, onMobileToggle }: SidebarProps) 
                 className={cn(
                   'w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-heading font-semibold transition-colors',
                   isActive('/settings')
-                    ? 'bg-primary/10 text-primary'
-                    : 'text-foreground hover:bg-primary/10 hover:text-primary'
+                    ? 'bg-slate-800/50 text-slate-100'
+                    : 'text-slate-300 hover:bg-slate-800/50 hover:text-slate-100'
                 )}
               >
                 <Settings className="w-5 h-5" />
@@ -441,8 +441,8 @@ export function Sidebar({ isMobileOpen = false, onMobileToggle }: SidebarProps) 
                     className={cn(
                       'flex items-center justify-center p-3 rounded-lg transition-colors',
                       isActive('/settings')
-                        ? 'bg-primary/10 text-primary'
-                        : 'text-foreground hover:bg-primary/10 hover:text-primary'
+                        ? 'bg-slate-800/50 text-slate-100'
+                        : 'text-slate-300 hover:bg-slate-800/50 hover:text-slate-100'
                     )}
                     aria-label="Ayarlar"
                   >

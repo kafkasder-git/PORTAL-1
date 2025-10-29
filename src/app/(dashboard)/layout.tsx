@@ -8,8 +8,6 @@ import { Sidebar } from '@/components/layouts/Sidebar';
 import { LogOut, Menu, ChevronDown, Settings } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import { BackgroundPattern } from '@/components/ui/background-pattern';
-import { AnimatedGradient } from '@/components/ui/animated-gradient';
 import { LoadingOverlay } from '@/components/ui/loading-overlay';
 import { SuspenseBoundary } from '@/components/ui/suspense-boundary';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -143,17 +141,10 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="relative min-h-screen">
-      {/* Background Layers */}
-      <BackgroundPattern
-        variant="dots"
-        opacity={0.08}
-        className="text-muted-foreground"
-      />
-      <AnimatedGradient
-        variant="subtle"
-        speed="slow"
-        className="opacity-25 dark:opacity-20"
+    <div className="min-h-screen bg-background relative">
+      {/* Subtle background accent */}
+      <div 
+        className="fixed inset-0 bg-gradient-to-br from-slate-50/50 via-transparent to-slate-100/30 dark:from-slate-900/20 dark:via-slate-800/10 dark:to-slate-900/10 pointer-events-none z-0"
       />
 
       {/* Header - Premium Top Bar */}
@@ -275,6 +266,15 @@ export default function DashboardLayout({
 
         {/* Main Content */}
         <main className="flex-1 p-6 lg:p-8 max-w-[1600px] mx-auto w-full relative transition-all duration-300">
+          {/* Simple Corporate Background */}
+          <div 
+            className="absolute inset-0 opacity-5 dark:opacity-10"
+            style={{
+              backgroundImage: `radial-gradient(circle at 25% 25%, hsl(var(--muted)) 1px, transparent 1px),
+                             radial-gradient(circle at 75% 75%, hsl(var(--muted)) 1px, transparent 1px)`,
+              backgroundSize: '50px 50px'
+            }}
+          />
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={pathname}

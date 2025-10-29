@@ -15,11 +15,17 @@ interface StatCardProps {
     direction?: 'up' | 'down' | 'neutral';
   };
   description?: string;
-  variant?: 'blue' | 'red' | 'green' | 'purple' | 'orange' | 'cyan';
+  variant?: 'blue' | 'red' | 'green' | 'purple' | 'orange' | 'cyan' | 'default';
   className?: string;
 }
 
 const variantStyles = {
+  default: {
+    gradient: 'from-slate-500/15 via-slate-500/8 to-transparent',
+    iconBg: 'bg-slate-500/12',
+    iconColor: 'text-slate-700 dark:text-slate-300',
+    borderColor: 'border-slate-500/15 hover:border-slate-500/30',
+  },
   blue: {
     gradient: 'from-blue-500/15 via-blue-500/8 to-transparent',
     iconBg: 'bg-blue-500/12',
@@ -64,7 +70,7 @@ export function StatCard({
   icon: Icon,
   trend,
   description,
-  variant = 'blue',
+  variant = 'default',
   className,
 }: StatCardProps) {
   const styles = variantStyles[variant];

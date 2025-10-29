@@ -58,8 +58,8 @@ export default function BeneficiariesPage() {
       label: '',
       render: (item) => (
         <Link href={`/yardim/ihtiyac-sahipleri/${item.$id}`}>
-          <Button variant="ghost" size="icon-sm" className="h-8 w-8">
-            <Eye className="h-4 w-4" />
+          <Button variant="ghost" size="icon-sm" className="h-8 w-8 hover:bg-slate-100">
+            <Eye className="h-4 w-4 text-slate-600" />
           </Button>
         </Link>
       ),
@@ -69,7 +69,7 @@ export default function BeneficiariesPage() {
       key: 'type',
       label: 'Tür',
       render: () => (
-        <Badge variant="secondary" className="font-medium">
+        <Badge variant="default" className="bg-slate-700 font-medium">
           İhtiyaç Sahibi
         </Badge>
       ),
@@ -114,7 +114,7 @@ export default function BeneficiariesPage() {
       key: 'family_size',
       label: 'Aile Büyüklüğü',
       render: (item) => (
-        <Badge variant="outline">{item.family_size ?? '-'}</Badge>
+        <Badge variant="outline" className="border-slate-300 text-slate-700">{item.family_size ?? '-'}</Badge>
       ),
     },
   ];
@@ -129,11 +129,11 @@ export default function BeneficiariesPage() {
         icon="Users"
         actions={
           <>
-            <Button variant="outline" onClick={handleExport} className="gap-2">
+            <Button variant="outline" onClick={handleExport} className="gap-2 border-slate-300 text-slate-700 hover:bg-slate-50">
               <Download className="h-4 w-4" />
               Dışa Aktar
             </Button>
-            <Button onClick={() => setShowQuickAddModal(true)} className="gap-2">
+            <Button onClick={() => setShowQuickAddModal(true)} className="gap-2 bg-slate-700 hover:bg-slate-600">
               <Plus className="h-4 w-4" />
               Yeni Ekle
             </Button>

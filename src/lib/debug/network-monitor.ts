@@ -38,7 +38,7 @@ class NetworkMonitorClass {
   constructor() {
     // Safe initialization for SSR - fetch is available on both server and client
     if (typeof window !== 'undefined') {
-      this.originalFetch = fetch.bind(window);
+    this.originalFetch = fetch.bind(window);
     } else {
       // Fallback for server-side
       this.originalFetch = fetch;
@@ -109,7 +109,7 @@ class NetworkMonitorClass {
 
       // Only log if not ignored
       if (!shouldIgnore) {
-        console.log(`📤 [${requestId}] ${method} ${url}`);
+      console.log(`📤 [${requestId}] ${method} ${url}`);
       }
 
       try {
@@ -144,20 +144,20 @@ class NetworkMonitorClass {
         // Log failed requests (always log failures even if otherwise ignored)
         if (!response.ok) {
           if (!shouldIgnore) {
-            this.logFailedRequest(log);
+          this.logFailedRequest(log);
           }
         } else {
           // Only log success if not ignored
           if (!shouldIgnore) {
-            console.log(
-              `✅ [${requestId}] ${method} ${url} - ${response.status} (${log.duration.toFixed(2)}ms)`
-            );
+          console.log(
+            `✅ [${requestId}] ${method} ${url} - ${response.status} (${log.duration.toFixed(2)}ms)`
+          );
           }
         }
 
         // Track specific endpoints (only if not ignored)
         if (!shouldIgnore) {
-          this.trackSpecialEndpoints(url, log);
+        this.trackSpecialEndpoints(url, log);
         }
 
         return response;
@@ -171,7 +171,7 @@ class NetworkMonitorClass {
         this.requests.push(log);
         // Always log failed requests even if URL is ignored
         if (!shouldIgnore) {
-          this.logFailedRequest(log);
+        this.logFailedRequest(log);
         }
 
         throw error;
@@ -354,12 +354,12 @@ class NetworkMonitorClass {
       } catch (error) {
         // Fallback if URL parsing fails
         const endpoint = req.url.split('?')[0];
-        const stats = endpointStats.get(endpoint) || { total: 0, failed: 0 };
-        stats.total++;
-        if (!req.success) {
-          stats.failed++;
-        }
-        endpointStats.set(endpoint, stats);
+      const stats = endpointStats.get(endpoint) || { total: 0, failed: 0 };
+      stats.total++;
+      if (!req.success) {
+        stats.failed++;
+      }
+      endpointStats.set(endpoint, stats);
       }
     });
 

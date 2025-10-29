@@ -54,25 +54,25 @@ export default function DashboardPage() {
       title: 'Toplam İhtiyaç Sahibi',
       value: '0',
       icon: Users,
-      variant: 'blue' as const,
+      variant: 'default' as const,
     },
     {
       title: 'Toplam Bağış',
       value: '0',
       icon: Heart,
-      variant: 'red' as const,
+      variant: 'default' as const,
     },
     {
       title: 'Bağış Tutarı',
       value: '0 ₺',
       icon: DollarSign,
-      variant: 'green' as const,
+      variant: 'default' as const,
     },
     {
       title: 'Aktif Kullanıcı',
       value: '1',
       icon: TrendingUp,
-      variant: 'purple' as const,
+      variant: 'default' as const,
     },
   ];
 
@@ -82,27 +82,24 @@ export default function DashboardPage() {
       description: 'Kayıtlı ihtiyaç sahiplerini görüntüle ve yönet',
       icon: Users,
       href: '/yardim/ihtiyac-sahipleri',
-      color: 'from-blue-500 to-blue-600',
-      iconBg: 'bg-blue-500/10',
-      iconColor: 'text-blue-600 dark:text-blue-400',
+      iconBg: 'bg-slate-500/10',
+      iconColor: 'text-slate-700 dark:text-slate-300',
     },
     {
       title: 'Bağışlar',
       description: 'Bağış kayıtlarını görüntüle ve yönet',
       icon: Heart,
       href: '/bagis/liste',
-      color: 'from-red-500 to-red-600',
-      iconBg: 'bg-red-500/10',
-      iconColor: 'text-red-600 dark:text-red-400',
+      iconBg: 'bg-slate-500/10',
+      iconColor: 'text-slate-700 dark:text-slate-300',
     },
     {
       title: 'Raporlar',
       description: 'Detaylı raporları ve istatistikleri incele',
       icon: BarChart3,
       href: '/bagis/raporlar',
-      color: 'from-green-500 to-green-600',
-      iconBg: 'bg-green-500/10',
-      iconColor: 'text-green-600 dark:text-green-400',
+      iconBg: 'bg-slate-500/10',
+      iconColor: 'text-slate-700 dark:text-slate-300',
     },
   ];
 
@@ -202,9 +199,9 @@ export default function DashboardPage() {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         className={cn(
-                          "group relative p-5 rounded-xl border-2 transition-all duration-300",
-                          "hover:shadow-lg hover:border-primary/50 cursor-pointer",
-                          "bg-gradient-to-br from-background to-muted/20"
+                          "group relative p-5 rounded-xl border transition-all duration-300",
+                          "hover:shadow-lg hover:border-slate-400 dark:hover:border-slate-600 cursor-pointer",
+                          "bg-white dark:bg-slate-900"
                         )}
                       >
                         <div className={cn(
@@ -260,16 +257,10 @@ export default function DashboardPage() {
                       className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors"
                     >
                       <div className={cn(
-                        "p-2 rounded-lg",
-                        activity.type === 'success' && "bg-green-500/10",
-                        activity.type === 'info' && "bg-blue-500/10",
-                        activity.type === 'warning' && "bg-yellow-500/10"
+                        "p-2 rounded-lg bg-slate-500/10"
                       )}>
                         <Icon className={cn(
-                          "h-4 w-4",
-                          activity.type === 'success' && "text-green-600 dark:text-green-400",
-                          activity.type === 'info' && "text-blue-600 dark:text-blue-400",
-                          activity.type === 'warning' && "text-yellow-600 dark:text-yellow-400"
+                          "h-4 w-4 text-slate-700 dark:text-slate-300"
                         )} />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -310,45 +301,45 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 md:grid-cols-3">
-              <div className="flex items-center justify-between p-4 rounded-xl bg-green-500/10 border border-green-500/20">
+              <div className="flex items-center justify-between p-4 rounded-xl bg-slate-500/10 border border-slate-300 dark:border-slate-700">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-green-500/20">
-                    <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
+                  <div className="p-2 rounded-lg bg-slate-500/20">
+                    <CheckCircle2 className="h-5 w-5 text-slate-700 dark:text-slate-300" />
                   </div>
                   <div>
                     <p className="text-sm font-medium">Veritabanı</p>
                     <p className="text-xs text-muted-foreground">Bağlantı aktif</p>
                   </div>
                 </div>
-                <Badge variant="default" className="bg-green-600">
+                <Badge variant="default" className="bg-slate-700">
                   Aktif
                 </Badge>
               </div>
-              <div className="flex items-center justify-between p-4 rounded-xl bg-green-500/10 border border-green-500/20">
+              <div className="flex items-center justify-between p-4 rounded-xl bg-slate-500/10 border border-slate-300 dark:border-slate-700">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-green-500/20">
-                    <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
+                  <div className="p-2 rounded-lg bg-slate-500/20">
+                    <CheckCircle2 className="h-5 w-5 text-slate-700 dark:text-slate-300" />
                   </div>
                   <div>
                     <p className="text-sm font-medium">Kimlik Doğrulama</p>
                     <p className="text-xs text-muted-foreground">Servis aktif</p>
                   </div>
                 </div>
-                <Badge variant="default" className="bg-green-600">
+                <Badge variant="default" className="bg-slate-700">
                   Aktif
                 </Badge>
               </div>
-              <div className="flex items-center justify-between p-4 rounded-xl bg-green-500/10 border border-green-500/20">
+              <div className="flex items-center justify-between p-4 rounded-xl bg-slate-500/10 border border-slate-300 dark:border-slate-700">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-green-500/20">
-                    <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
+                  <div className="p-2 rounded-lg bg-slate-500/20">
+                    <CheckCircle2 className="h-5 w-5 text-slate-700 dark:text-slate-300" />
                   </div>
                   <div>
                     <p className="text-sm font-medium">API Servisleri</p>
                     <p className="text-xs text-muted-foreground">Tüm servisler aktif</p>
                   </div>
                 </div>
-                <Badge variant="default" className="bg-green-600">
+                <Badge variant="default" className="bg-slate-700">
                   Aktif
                 </Badge>
               </div>
