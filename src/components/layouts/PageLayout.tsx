@@ -22,6 +22,7 @@ const iconMap: Record<string, LucideIcon> = {
   ClipboardList: require('lucide-react').ClipboardList,
   Wallet: require('lucide-react').Wallet,
   PiggyBank: require('lucide-react').PiggyBank,
+  Home: require('lucide-react').Home,
 };
 
 interface PageLayoutProps {

@@ -282,6 +282,21 @@ export const beneficiarySchema = z.object({
   labels: z.array(z.nativeEnum(Label)).optional(),
   earthquakeVictim: z.boolean().default(false),
   
+  // Household Composition (Aile Yapısı)
+  children_count: z.number().min(0).max(20).optional(),
+  orphan_children_count: z.number().min(0).max(20).optional(),
+  elderly_count: z.number().min(0).max(20).optional(),
+  disabled_count: z.number().min(0).max(20).optional(),
+  
+  // Financial Status
+  income_level: z.enum(['VERY_LOW', 'LOW', 'MEDIUM', 'HIGH']).optional(),
+  occupation: z.string().max(200).optional(),
+  has_debt: z.boolean().default(false),
+  has_vehicle: z.boolean().default(false),
+  
+  // Additional Notes
+  notes: z.string().max(1000).optional(),
+  
   // Metadata
   createdAt: z.string().datetime().optional(),  // Appwrite ISO 8601 string
   updatedAt: z.string().datetime().optional(),  // Appwrite ISO 8601 string

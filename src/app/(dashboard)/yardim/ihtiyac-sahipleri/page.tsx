@@ -126,7 +126,7 @@ export default function BeneficiariesPage() {
       <PageLayout
         title="İhtiyaç Sahipleri"
         description="Kayıtlı ihtiyaç sahiplerini görüntüleyin ve yönetin"
-        icon={Users}
+        icon="Users"
         actions={
           <>
             <Button variant="outline" onClick={handleExport} className="gap-2">

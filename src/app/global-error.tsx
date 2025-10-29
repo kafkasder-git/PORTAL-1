@@ -21,8 +21,7 @@ export default function GlobalError({
     console.error('Current URL:', window.location.href);
 
     // Check for unsupported browsers
-    const isUnsupportedBrowser = /MSIE|Trident/.test(navigator.userAgent);
-    if (isUnsupportedBrowser) {
+    if (typeof navigator !== 'undefined' && /MSIE|Trident/.test(navigator.userAgent)) {
       console.error('🚨 Unsupported browser detected');
     }
 
@@ -67,6 +66,8 @@ export default function GlobalError({
     (window as any).__GLOBAL_ERROR__ = { error, digest: error.digest, timestamp: new Date() };
   }
 
+  // Error type detection (moved outside useEffect for JSX access)
+  const isUnsupportedBrowser = typeof navigator !== 'undefined' && /MSIE|Trident/.test(navigator.userAgent);
   const isHydrationError =
     error.message?.toLowerCase().includes('hydration') ||
     error.message?.toLowerCase().includes('mismatch');

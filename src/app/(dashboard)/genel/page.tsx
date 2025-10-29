@@ -155,7 +155,7 @@ export default function DashboardPage() {
     <PageLayout
       title={`Hoş geldiniz, ${user?.name || 'Kullanıcı'}!`}
       description="Sistemin genel durumunu buradan takip edebilirsiniz"
-      icon={Home}
+      icon="Home"
       badge={{ text: 'Sistem Aktif', variant: 'default' }}
     >
       {/* Stats Grid */}
