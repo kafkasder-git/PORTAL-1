@@ -128,24 +128,24 @@
 :root {
   --radius: 0.625rem;
 
-  /* Base Colors */
-  --background: oklch(1 0 0);
+  /* Base Colors - Corporate Professional Neutrals */
+  --background: oklch(0.985 0 0); /* Cool neutral - Gray-50 equivalent */
   --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
+  --card: oklch(1 0 0); /* Pure white for cards - clean professional */
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
   --primary: var(--brand-primary);
   --primary-foreground: #ffffff;
-  --secondary: oklch(0.97 0 0);
+  --secondary: oklch(0.97 0 0); /* Cool neutral gray */
   --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
+  --muted: oklch(0.96 0 0); /* Neutral gray - clear contrast */
   --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
+  --accent: oklch(0.97 0 0); /* Cool neutral */
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
+  --border: oklch(0.90 0 0); /* Clear neutral border */
+  --input: oklch(0.92 0 0); /* Clean input borders */
   --ring: oklch(0.708 0 0);
 
   /* Chart Colors */
@@ -155,14 +155,14 @@
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
 
-  /* Sidebar Colors */
-  --sidebar: oklch(0.985 0 0);
+  /* Sidebar Colors - Corporate Professional */
+  --sidebar: oklch(0.99 0 0); /* Slightly lighter than background */
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: var(--brand-primary);
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent: oklch(0.97 0 0); /* Cool neutral */
   --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-border: oklch(0.90 0 0); /* Clear neutral border */
   --sidebar-ring: oklch(0.708 0 0);
 
   /* Brand Colors - Kurumsal Mavi #1358B8 */
@@ -547,6 +547,15 @@
 
   .shadow-glow-success {
     box-shadow: var(--shadow-glow-success);
+  }
+
+  /* Enhanced Card Shadows */
+  .shadow-card {
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+  }
+
+  .shadow-card-hover {
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.08);
   }
 
   /* Animation Utilities */

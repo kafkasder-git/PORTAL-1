@@ -1,7 +1,8 @@
 {
-  "status": "init",
-  "scope": "codebase",
+  "status": "commited",
   "type": "frontend",
-  "localEndpoint": "http://localhost:3000/",
-  "serverPort": 34049
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:3000",
+  "loginUser": "admin@test.com",
+  "loginPassword": "admin123"
 }

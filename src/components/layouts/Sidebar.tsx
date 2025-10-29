@@ -24,15 +24,12 @@ import {
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { useAuthStore } from '@/stores/authStore';
-import { UserRole } from '@/types/auth';
 
 interface SubPage {
   name: string;
@@ -131,40 +128,10 @@ interface SidebarProps {
   onMobileToggle?: () => void;
 }
 
-// Helper function to get role badge variant
-const getRoleBadgeVariant = (
-  role: UserRole
-): 'default' | 'secondary' | 'destructive' | 'outline' => {
-  switch (role) {
-    case UserRole.SUPER_ADMIN:
-    case UserRole.ADMIN:
-      return 'destructive';
-    case UserRole.MANAGER:
-      return 'default';
-    case UserRole.MEMBER:
-    case UserRole.VOLUNTEER:
-      return 'secondary';
-    case UserRole.VIEWER:
-      return 'outline';
-    default:
-      return 'default';
-  }
-};
-
-// Helper function to get initials from name
-const getInitials = (name: string): string => {
-  const parts = name.trim().split(' ');
-  if (parts.length >= 2) {
-    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-  }
-  return name.substring(0, 2).toUpperCase();
-};
-
 export function Sidebar({ isMobileOpen = false, onMobileToggle }: SidebarProps) {
   const pathname = usePathname();
   const [expandedModules, setExpandedModules] = useState<string[]>(['genel']);
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const user = useAuthStore((state) => state.user);
 
   // Load collapsed state from localStorage on mount
   useEffect(() => {
@@ -223,56 +190,6 @@ export function Sidebar({ isMobileOpen = false, onMobileToggle }: SidebarProps) 
         aria-label="Sidebar"
         aria-expanded={!isCollapsed}
       >
-        {/* User Profile Section */}
-        <div
-          className={cn(
-            'p-4 border-b border-sidebar-border transition-colors hover:bg-primary/5 cursor-pointer',
-            isCollapsed && 'flex justify-center'
-          )}
-          aria-label="User profile"
-        >
-          {!isCollapsed ? (
-            <div className="flex items-center gap-3">
-              <Avatar size="lg">
-              <AvatarImage src={user?.avatar || undefined} alt={user?.name || 'User'} />
-              <AvatarFallback className="font-heading font-semibold text-sm">
-                  {user?.name ? getInitials(user.name) : 'U'}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <p className="font-heading font-semibold text-sm text-foreground truncate">
-                  {user?.name || 'Kullanıcı'}
-                </p>
-                <Badge
-                  variant={getRoleBadgeVariant(user?.role || UserRole.VIEWER)}
-                  className="text-xs mt-1"
-                >
-                  {user?.role || 'Viewer'}
-                </Badge>
-              </div>
-            </div>
-          ) : (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div>
-                  <Avatar size="md">
-                  <AvatarImage src={user?.avatar || undefined} alt={user?.name || 'User'} />
-                  <AvatarFallback className="font-heading font-semibold text-sm">
-                      {user?.name ? getInitials(user.name) : 'U'}
-                    </AvatarFallback>
-                  </Avatar>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent side="right">
-                <div className="text-sm">
-                  <p className="font-semibold">{user?.name || 'Kullanıcı'}</p>
-                  <p className="text-muted-foreground">{user?.role || 'Viewer'}</p>
-                </div>
-              </TooltipContent>
-            </Tooltip>
-          )}
-        </div>
-
         {/* Quick Actions Bar */}
         <div
           className={cn('px-4 pb-4 pt-4', isCollapsed && 'flex flex-col items-center')}
