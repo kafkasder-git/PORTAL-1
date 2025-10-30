@@ -4,7 +4,7 @@
   "description": "Dernek Yönetim Sistemi - Next.js 16 + Appwrite. See README.md for SDK usage guide.",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbo",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",

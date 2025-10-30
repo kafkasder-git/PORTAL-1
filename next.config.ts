@@ -7,14 +7,20 @@ enabled: process.env.ANALYZE === 'true',
 });
 
 const baseConfig: NextConfig = {
-// Performance optimizations
-experimental: {
-optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
-  optimizeCss: true,
+  // Performance optimizations
+  experimental: {
+    optimizePackageImports: [
+      'lucide-react',
+      '@radix-ui/react-icons',
+      '@radix-ui/react-dialog',
+      '@radix-ui/react-dropdown-menu',
+      '@radix-ui/react-select',
+      '@radix-ui/react-popover',
+      '@tanstack/react-query',
+      '@tanstack/react-table',
+    ],
+    optimizeCss: true,
   },
-
-  // Turbopack configuration
-  turbopack: {},
 
   // Image optimization
   images: {
