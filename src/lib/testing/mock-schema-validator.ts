@@ -5,7 +5,7 @@
  */
 
 import { COLLECTION_SCHEMAS } from '@/lib/appwrite/config';
-import { mockAppwriteBeneficiaries } from '@/lib/api/mock-api';
+import { mockBeneficiaries } from '@/lib/api/mock-api';
 import type { 
   BeneficiaryDocument, 
   DonationDocument, 
@@ -151,7 +151,7 @@ export class MockSchemaValidator {
    */
   validateBeneficiarySchema(): ValidationResult {
     const schema = COLLECTION_SCHEMAS.BENEFICIARIES;
-    const sample = mockAppwriteBeneficiaries[0];
+    const sample = mockBeneficiaries[0];
     
     if (!sample) {
       return {

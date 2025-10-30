@@ -135,9 +135,14 @@ export function Sidebar({ isMobileOpen = false, onMobileToggle }: SidebarProps) 
 
   // Load collapsed state from localStorage on mount
   useEffect(() => {
-    const stored = localStorage.getItem('sidebar-collapsed');
-    if (stored !== null) {
-      setIsCollapsed(stored === 'true');
+    try {
+      const stored = localStorage.getItem('sidebar-collapsed');
+      if (stored !== null) {
+        setIsCollapsed(stored === 'true');
+      }
+    } catch (error) {
+      // Handle localStorage access errors gracefully
+      console.warn('Unable to access localStorage:', error);
     }
   }, []);
 
@@ -211,7 +216,7 @@ export function Sidebar({ isMobileOpen = false, onMobileToggle }: SidebarProps) 
                 variant="ghost"
                 size="sm"
                 onClick={handleNotifications}
-                className="relative hover:bg-accent hover:text-accent-foreground transition-colors"
+                className="relative hover:bg-slate-800/30 hover:text-slate-100 transition-colors duration-200"
                 aria-label="Bildirimler (3)"
                 data-testid="notification-button"
               >
@@ -249,7 +254,7 @@ export function Sidebar({ isMobileOpen = false, onMobileToggle }: SidebarProps) 
                     variant="ghost"
                     size="sm"
                     onClick={handleNotifications}
-                    className="relative hover:bg-primary/10 hover:text-primary transition-colors"
+                    className="relative hover:bg-slate-800/30 hover:text-slate-100 transition-colors duration-200"
                     aria-label="Bildirimler (3)"
                     data-testid="notification-button"
                   >

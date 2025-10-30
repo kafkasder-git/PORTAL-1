@@ -23,8 +23,30 @@ global.ResizeObserver = class ResizeObserver {
 }
 
 // Mock IntersectionObserver
-global.IntersectionObserver = class IntersectionObserver {
-  observe() {}
-  unobserve() {}
-  disconnect() {}
-}
+global.IntersectionObserver = class {
+  root: Element | null = null;
+  rootMargin: string = '';
+  thresholds: readonly number[] = [];
+  
+  constructor(callback: IntersectionObserverCallback, options?: IntersectionObserverInit) {
+    this.root = options?.root || null;
+    this.rootMargin = options?.rootMargin || '';
+    this.thresholds = options?.threshold || [];
+  }
+  
+  observe(element: Element) {
+    // Mock implementation
+  }
+  
+  unobserve(element: Element) {
+    // Mock implementation
+  }
+  
+  disconnect() {
+    // Mock implementation
+  }
+  
+  takeRecords(): IntersectionObserverEntry[] {
+    return [];
+  }
+};

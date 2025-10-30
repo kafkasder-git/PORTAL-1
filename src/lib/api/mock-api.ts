@@ -33,7 +33,7 @@ interface ApiResponse<T> {
 const delay = (ms: number = 300) => new Promise(resolve => setTimeout(resolve, ms));
 
 // === LEGACY MOCK STORAGE (kept for backward compatibility) ===
-let mockBeneficiaries: Beneficiary[] = [
+const mockBeneficiaries: Beneficiary[] = [
   {
     id: "beneficiary-001",
     photo: "https://via.placeholder.com/300x400/cccccc/666666?text=Ahmet+Yılmaz",

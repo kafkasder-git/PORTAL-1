@@ -163,7 +163,7 @@ export default function DonationsPage() {
                           <span className="text-sm text-slate-500">#{donation.receipt_number}</span>
                         </div>
                         <h3 className="font-semibold text-lg mb-1">{donation.donor_name}</h3>
-                        <p className="text-slate-600 mb-2">{donation.description || 'Açıklama yok'}</p>
+                        <p className="text-slate-600 mb-2">{donation.notes || 'Açıklama yok'}</p>
                         <div className="flex items-center gap-4 text-sm text-slate-500">
                           <span className="flex items-center gap-1">
                             <DollarSign className="h-4 w-4" />
@@ -171,7 +171,7 @@ export default function DonationsPage() {
                           </span>
                           <span className="flex items-center gap-1">
                             <FileText className="h-4 w-4" />
-                            {donation.type}
+                            {donation.donation_type}
                           </span>
                         </div>
                       </div>
@@ -180,7 +180,7 @@ export default function DonationsPage() {
                           {donation.amount.toLocaleString('tr-TR')} ₺
                         </div>
                         <div className="text-xs text-slate-500">
-                          {new Date(donation.created_at).toLocaleDateString('tr-TR')}
+                          {new Date(donation.$createdAt).toLocaleDateString('tr-TR')}
                         </div>
                       </div>
                     </div>

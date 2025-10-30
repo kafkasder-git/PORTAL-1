@@ -106,7 +106,8 @@ export default function BeneficiaryDetailPage({ params }: { params: Promise<{ id
   })
 
   const { register, control, handleSubmit, formState: { isSubmitting, errors }, getValues, reset } = useForm<FormValues>({
-    resolver: zodResolver(docSchema)
+    resolver: zodResolver(docSchema),
+    mode: 'onChange'
   })
 
   // Reset form values when beneficiary data loads to ensure form is always in sync
@@ -131,8 +132,8 @@ export default function BeneficiaryDetailPage({ params }: { params: Promise<{ id
     }
   }, [beneficiary, reset])
 
-  const onSubmit = (values: FormValues) => {
-    updateMutation.mutate(values)
+  const onSubmit = (data: FormValues) => {
+    updateMutation.mutate(data as Partial<BeneficiaryDocument>)
   }
 
   if (isLoading) {
