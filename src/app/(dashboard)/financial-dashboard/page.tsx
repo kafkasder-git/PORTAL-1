@@ -1,21 +1,7 @@
-'use client';
-
-import { PlaceholderPage } from '@/components/PlaceholderPage';
-
-export default function FinancialDashboardPage() {
+export default function Placeholder() {
   return (
-    <PlaceholderPage
-      title="Finansal Dashboard"
-      description="Mali durumu görsel olarak takip edin"
-      icon="BarChart3"
-      estimatedDate="Nisan 2025"
-      features={[
-        'Gerçek zamanlı mali göstergeler',
-        'Gelir-gider grafikleri',
-        'Bütçe karşılaştırmaları',
-        'Trend analizleri',
-        'Özelleştirilebilir widget\'lar',
-      ]}
-    />
+    <div className="flex items-center justify-center h-64">
+      <p className="text-muted-foreground">Bu sayfa geliştirilmemiştir.</p>
+    </div>
   );
 }

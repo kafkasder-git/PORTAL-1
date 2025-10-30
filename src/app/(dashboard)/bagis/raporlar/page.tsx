@@ -1,21 +1,7 @@
-'use client';
-
-import { PlaceholderPage } from '@/components/PlaceholderPage';
-
-export default function DonationReportsPage() {
+export default function Placeholder() {
   return (
-    <PlaceholderPage
-      title="Bağış Raporları"
-      description="Bağış raporlarını görüntüleyin ve dışa aktarın"
-      icon="BarChart3"
-      estimatedDate="Şubat 2025"
-      features={[
-        'Dönemsel bağış raporları',
-        'Bağışçı bazlı analizler',
-        'Excel ve PDF dışa aktarma',
-        'Grafiksel gösterimler',
-        'Karşılaştırmalı raporlar',
-      ]}
-    />
+    <div className="flex items-center justify-center h-64">
+      <p className="text-muted-foreground">Bu sayfa geliştirilmemiştir.</p>
+    </div>
   );
 }

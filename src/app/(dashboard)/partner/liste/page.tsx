@@ -1,5 +1,7 @@
-import { PlaceholderPage } from '@/components/PlaceholderPage';
-
-export default function PartnersPage() {
-  return <PlaceholderPage title="Ortak Listesi" description="İş ortaklarını ve sponsorları yönetin" />;
+export default function Placeholder() {
+  return (
+    <div className="flex items-center justify-center h-64">
+      <p className="text-muted-foreground">Bu sayfa geliştirilmemiştir.</p>
+    </div>
+  );
 }

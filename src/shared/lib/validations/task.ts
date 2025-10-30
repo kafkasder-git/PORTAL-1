@@ -2,7 +2,7 @@
 // Zod ile form validasyonu
 
 import { z } from 'zod';
-import type { TaskDocument } from '@/types/collections';
+import type { TaskDocument } from '@/entities/collections';
 
 // === HELPER VALIDATORS ===
 

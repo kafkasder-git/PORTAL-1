@@ -1,21 +1,7 @@
-'use client';
-
-import { PlaceholderPage } from '@/components/PlaceholderPage';
-
-export default function IncomeExpensePage() {
+export default function Placeholder() {
   return (
-    <PlaceholderPage
-      title="Gelir Gider"
-      description="Gelir ve gider kayıtlarını yönetin"
-      icon="Receipt"
-      estimatedDate="Mart 2025"
-      features={[
-        'Gelir kayıt sistemi',
-        'Gider takibi',
-        'Kategori bazlı raporlama',
-        'Bütçe planlaması',
-        'Nakit akış analizi',
-      ]}
-    />
+    <div className="flex items-center justify-center h-64">
+      <p className="text-muted-foreground">Bu sayfa geliştirilmemiştir.</p>
+    </div>
   );
 }

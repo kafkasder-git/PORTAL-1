@@ -2,17 +2,17 @@
 
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { parametersApi } from '@/lib/api/appwrite-api';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
+import { parametersApi } from '@/shared/lib/api/appwrite-api';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Button } from '@/shared/components/ui/button';
+import { Input } from '@/shared/components/ui/input';
+import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle } from '@/shared/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select';
+import { Label } from '@/shared/components/ui/label';
+import { Badge } from '@/shared/components/ui/badge';
 import { toast } from 'sonner';
 import { Plus, Search, Edit, Trash2, Check, X } from 'lucide-react';
-import type { ParameterCategory, ParameterDocument } from '@/types/collections';
+import type { ParameterCategory, ParameterDocument } from '@/entities/collections';
 
 const CATEGORY_LABELS: Record<ParameterCategory, string> = {
   gender: 'Cinsiyet',

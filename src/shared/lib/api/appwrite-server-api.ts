@@ -7,9 +7,9 @@
  */
 
 import { ID, Permission, Role } from 'node-appwrite';
-import { serverDatabases as databases, serverStorage as storage, Query } from '@/lib/appwrite/server';
-import { DATABASE_ID } from '@/lib/appwrite/config';
-import { COLLECTIONS, STORAGE_BUCKETS } from '@/lib/appwrite/config';
+import { serverDatabases as databases, serverStorage as storage, Query } from '@/shared/lib/appwrite/server';
+import { DATABASE_ID } from '@/shared/lib/appwrite/config';
+import { COLLECTIONS, STORAGE_BUCKETS } from '@/shared/lib/appwrite/config';
 import type {
   AppwriteResponse,
   QueryParams,
@@ -22,7 +22,7 @@ import type {
   CreateDocumentData,
   UpdateDocumentData,
   UploadedFile,
-} from '@/types/collections';
+} from '@/entities/collections';
 
 /**
  * Shared helpers
@@ -290,9 +290,11 @@ export const messagesApi = {
  * Storage API
  */
 export const storageApi = {
-  async uploadFile(args: { bucketId: string; file: Blob; permissions?: string[] }): Promise<AppwriteResponse<UploadedFile>> {
+  async uploadFile(args: { bucketId: string; file: Blob | File; permissions?: string[] }): Promise<AppwriteResponse<UploadedFile>> {
     const { bucketId, file, permissions } = args;
-    const uploaded = await storage.createFile(bucketId, ID.unique(), file, permissions);
+    // Convert Blob to File if needed
+    const fileToUpload = file instanceof File ? file : new File([file], 'upload', { type: file.type || 'application/octet-stream' });
+    const uploaded = await storage.createFile(bucketId, ID.unique(), fileToUpload, permissions);
     return { data: uploaded as unknown as UploadedFile, error: null };
   },
 

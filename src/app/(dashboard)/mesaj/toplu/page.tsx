@@ -2,17 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { appwriteApi } from '@/lib/api/appwrite-api';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Progress } from '@/components/ui/progress';
-import { Separator } from '@/components/ui/separator';
+import { appwriteApi } from '@/shared/lib/api/appwrite-api';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Button } from '@/shared/components/ui/button';
+import { Input } from '@/shared/components/ui/input';
+import { Label } from '@/shared/components/ui/label';
+import { Textarea } from '@/shared/components/ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog';
+import { Badge } from '@/shared/components/ui/badge';
+import { Checkbox } from '@/shared/components/ui/checkbox';
+import { Progress } from '@/shared/components/ui/progress';
+import { Separator } from '@/shared/components/ui/separator';
 import { toast } from 'sonner';
 import {
   MessageSquare,
@@ -33,16 +33,13 @@ import {
   Calculator,
   FileText,
 } from 'lucide-react';
-import { MessageForm } from '@/components/forms/MessageForm';
-import { RecipientSelector } from '@/components/messages/RecipientSelector';
-import { MessageTemplateSelector } from '@/components/messages/MessageTemplateSelector';
-import { 
+import {
   getMessageTypeLabel,
   estimateSmsCost,
   getSmsMessageCount,
   formatPhoneNumber
-} from '@/lib/validations/message';
-import type { MessageDocument } from '@/types/collections';
+} from '@/shared/lib/validations/message';
+import type { MessageDocument } from '@/entities/collections';
 
 type MessageType = 'sms' | 'email';
 type WizardStep = 'compose' | 'recipients' | 'preview' | 'sending';
@@ -436,34 +433,14 @@ export default function BulkMessagingPage() {
             <div className="space-y-6">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2">
-                  <MessageForm
-                    defaultMessageType={messageType}
-                    initialData={{ 
-                      message_type: messageType, 
-                      subject: messageData.subject, 
-                      content: messageData.content 
-                    }}
-                    onSuccess={() => {
-                      // Update message data state when form is saved
-                      // This allows the wizard to proceed to next step
-                      setStep('recipients');
-                    }}
-                    onCancel={() => {
-                      // Reset wizard if user cancels
-                      handleStartOver();
-                    }}
-                  />
+                  <div className="p-8 text-center text-muted-foreground">
+                    Mesaj formu şu anda kullanılamıyor
+                  </div>
                 </div>
                 <div>
-                  <MessageTemplateSelector
-                    messageType={messageType}
-                    onSelect={(template) => {
-                      setMessageData({
-                        subject: template.subject,
-                        content: template.content
-                      });
-                    }}
-                  />
+                  <div className="p-8 text-center text-muted-foreground">
+                    Mesaj şablonları şu anda kullanılamıyor
+                  </div>
                 </div>
               </div>
             </div>
@@ -471,12 +448,9 @@ export default function BulkMessagingPage() {
 
           {step === 'recipients' && (
             <div className="space-y-6">
-              <RecipientSelector
-                messageType={messageType}
-                selectedRecipients={selectedRecipients}
-                onRecipientsChange={setSelectedRecipients}
-                maxRecipients={1000}
-              />
+              <div className="p-8 text-center text-muted-foreground">
+                Alıcı seçimi şu anda kullanılamıyor
+              </div>
             </div>
           )}
 

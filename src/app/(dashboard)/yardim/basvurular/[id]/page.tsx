@@ -2,17 +2,17 @@
 
 import { use } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { aidApplicationsApi } from '@/lib/api/appwrite-api';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
+import { aidApplicationsApi } from '@/shared/lib/api/appwrite-api';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Button } from '@/shared/components/ui/button';
+import { Badge } from '@/shared/components/ui/badge';
+import { Separator } from '@/shared/components/ui/separator';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select';
+import { Label } from '@/shared/components/ui/label';
 import { ArrowLeft, Edit, Calendar, User, DollarSign, Utensils, Package, Stethoscope, CheckCircle, Clock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import type { AidApplicationDocument } from '@/types/collections';
+import type { AidApplicationDocument } from '@/entities/collections';
 
 const STAGE_LABELS = {
   draft: { label: 'Taslak', icon: Clock, color: 'bg-gray-100 text-gray-700' },

@@ -69,6 +69,7 @@ export function BeneficiaryForm({ onSuccess, onCancel }: BeneficiaryFormProps) {
         'archived': 'SILINDI'
       } as const;
       
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return api.beneficiaries.createBeneficiary({
         ...data,
         status: statusMap[data.status] || 'AKTIF'

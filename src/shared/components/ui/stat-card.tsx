@@ -1,9 +1,9 @@
 'use client';
 
 import { LucideIcon, TrendingUp, TrendingDown } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Badge } from '@/shared/components/ui/badge';
+import { cn } from '@/shared/lib/utils';
 
 interface StatCardProps {
   title: string;

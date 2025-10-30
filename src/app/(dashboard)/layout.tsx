@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '@/shared/stores/authStore';
-import { Sidebar } from '@/components/layouts/Sidebar';
+import { Sidebar } from '@/shared/components/layout/Sidebar';
 import { LogOut, Menu, ChevronDown, Settings } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/shared/lib/utils';

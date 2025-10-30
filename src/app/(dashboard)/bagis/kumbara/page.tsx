@@ -1,19 +1,7 @@
-import { PlaceholderPage } from '@/components/PlaceholderPage';
-
-export default function KumbaraPage() {
+export default function Placeholder() {
   return (
-    <PlaceholderPage
-      title="Kumbara Takibi"
-      description="Kumbara bağışlarını takip edin ve yönetin"
-      icon="PiggyBank"
-      estimatedDate="Mart 2025"
-      features={[
-        'Kumbara kayıt sistemi',
-        'Toplam tutar takibi',
-        'Konum bazlı raporlama',
-        'Kumbara dağıtım takibi',
-        'Gelir analizi ve grafikler',
-      ]}
-    />
+    <div className="flex items-center justify-center h-64">
+      <p className="text-muted-foreground">Bu sayfa geliştirilmemiştir.</p>
+    </div>
   );
 }

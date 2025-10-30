@@ -2,16 +2,16 @@
 
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { aidApplicationsApi } from '@/lib/api/appwrite-api';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
+import { aidApplicationsApi } from '@/shared/lib/api/appwrite-api';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Input } from '@/shared/components/ui/input';
+import { Button } from '@/shared/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select';
+import { Badge } from '@/shared/components/ui/badge';
 import { Search, Plus, Eye, Calendar, DollarSign, Utensils, Package, Stethoscope } from 'lucide-react';
 import Link from 'next/link';
-import { AidApplicationForm } from '@/components/forms/AidApplicationForm';
+
 
 const STAGE_LABELS = {
   draft: { label: 'Taslak', color: 'bg-gray-100 text-gray-700' },
@@ -77,10 +77,9 @@ export default function AidApplicationsPage() {
                 Yardım başvurusu oluşturun ve detaylarını doldurun
               </DialogDescription>
             </DialogHeader>
-            <AidApplicationForm
-              onSuccess={() => setShowCreateForm(false)}
-              onCancel={() => setShowCreateForm(false)}
-            />
+            <div className="p-4 text-center text-muted-foreground">
+              Yardım başvuru formu şu anda kullanılamıyor
+            </div>
           </DialogContent>
         </Dialog>
       </div>

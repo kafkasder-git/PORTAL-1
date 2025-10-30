@@ -1,19 +1,7 @@
-import { PlaceholderPage } from '@/components/PlaceholderPage';
-
-export default function CashVaultPage() {
+export default function Placeholder() {
   return (
-    <PlaceholderPage
-      title="Nakdi Vezne"
-      description="Nakdi yardım kasasını yönetin"
-      icon="Wallet"
-      estimatedDate="Mart 2025"
-      features={[
-        'Kasa giriş-çıkış takibi',
-        'Nakit yardım dağıtımı',
-        'Günlük kasa raporu',
-        'Bütçe kontrolü',
-        'Harcama analizi',
-      ]}
-    />
+    <div className="flex items-center justify-center h-64">
+      <p className="text-muted-foreground">Bu sayfa geliştirilmemiştir.</p>
+    </div>
   );
 }

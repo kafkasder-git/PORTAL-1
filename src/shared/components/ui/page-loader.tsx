@@ -1,9 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Skeleton } from '@/components/ui/skeleton';
-import { LoadingOverlay } from '@/components/ui/loading-overlay';
-import { cn } from '@/lib/utils';
+import { Skeleton } from '@/shared/components/ui/skeleton';
+import { LoadingOverlay } from '@/shared/components/ui/loading-overlay';
+import { cn } from '@/shared/lib/utils';
 
 interface PageLoaderProps {
   variant?: 'overlay' | 'skeleton' | 'simple';

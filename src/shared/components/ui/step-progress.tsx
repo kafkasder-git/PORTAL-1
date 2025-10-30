@@ -4,8 +4,8 @@ import * as React from "react"
 import { motion } from "framer-motion"
 import { CheckCircle2, type LucideIcon } from "lucide-react"
 
-import { cn } from "@/lib/utils"
-import { Progress } from "@/components/ui/progress"
+import { cn } from "@/shared/lib/utils"
+import { Progress } from "@/shared/components/ui/progress"
 
 export interface Step {
   id: string

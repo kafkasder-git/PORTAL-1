@@ -13,7 +13,7 @@ import {
   sanitizeAmount,
   sanitizeDate,
   validateFile,
-} from '@/lib/sanitization';
+} from '@/shared/lib/sanitization';
 
 describe('Sanitization Library', () => {
   describe('sanitizeHtml', () => {

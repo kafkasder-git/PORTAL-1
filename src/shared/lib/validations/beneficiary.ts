@@ -30,7 +30,7 @@ import {
   City,
   Disease,
   Label
-} from '@/types/beneficiary';
+} from '@/entities/beneficiary';
 
 // === HELPER VALIDATORS ===
 
@@ -112,7 +112,7 @@ nationality: z.string()
 .max(50, 'Uyruk en fazla 50 karakter olmalıdır'),
 birthDate: pastDateSchema,
 identityNumber: tcKimlikNoSchema.optional(),
-mernisCheck: z.boolean().optional().default(false),
+mernisCheck: z.boolean().default(false),
   fundRegion: z.nativeEnum(FundRegion, {
     message: 'Fon bölgesi seçiniz'
   }),
@@ -122,7 +122,7 @@ mernisCheck: z.boolean().optional().default(false),
   fileNumber: z.string()
     .min(1, 'Dosya numarası zorunludur')
     .max(20, 'Dosya numarası en fazla 20 karakter olmalıdır')
-    .regex(/^[A-Z0-9]+$/, 'Dosya numarası sadece büyük harf ve rakam içerebilir')
+    .regex(/^[A-Z0-9]+$/, 'Dosya numarası sadece büyük harf ve rakam içerebilir'),
 });
 
 // === DETAYLI FORM SCHEMA ===
@@ -142,11 +142,9 @@ export const beneficiarySchema = z.object({
   nationality: z.string()
     .min(2, 'Uyruk en az 2 karakter olmalıdır')
     .max(50, 'Uyruk en fazla 50 karakter olmalıdır'),
+  birthDate: pastDateSchema,
   identityNumber: tcKimlikNoSchema.optional(),
   mernisCheck: z.boolean().default(false),
-  category: z.nativeEnum(BeneficiaryCategory, {
-    message: 'Kategori seçiniz'
-  }),
   fundRegion: z.nativeEnum(FundRegion, {
     message: 'Fon bölgesi seçiniz'
   }),
@@ -213,7 +211,6 @@ export const beneficiarySchema = z.object({
   // Kişisel Veriler
   gender: z.nativeEnum(Gender).optional(),
   birthPlace: z.string().max(100).optional(),
-  birthDate: pastDateSchema,
   maritalStatus: z.nativeEnum(MaritalStatus).optional(),
   educationStatus: z.nativeEnum(EducationStatus).optional(),
   educationLevel: z.string().max(100).optional(),

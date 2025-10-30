@@ -4,14 +4,14 @@ import { useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Toaster } from 'sonner';
-import { useAuthStore } from '@/stores/authStore';
+import { useAuthStore } from '@/shared/stores/authStore';
 import { useState } from 'react';
 
 // Debug utilities (development only)
-import { HydrationLogger } from '@/lib/debug/hydration-logger';
-import { StoreDebugger } from '@/lib/debug/store-debugger';
-import { NetworkMonitor } from '@/lib/debug/network-monitor';
-import { SuspenseBoundary } from '@/components/ui/suspense-boundary';
+import { HydrationLogger } from '@/shared/lib/debug/hydration-logger';
+import { StoreDebugger } from '@/shared/lib/debug/store-debugger';
+import { NetworkMonitor } from '@/shared/lib/debug/network-monitor';
+import { SuspenseBoundary } from '@/shared/components/ui/suspense-boundary';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(

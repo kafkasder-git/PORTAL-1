@@ -29,9 +29,10 @@ global.IntersectionObserver = class {
   thresholds: readonly number[] = [];
   
   constructor(callback: IntersectionObserverCallback, options?: IntersectionObserverInit) {
-    this.root = options?.root || null;
+    this.root = (options?.root && options.root instanceof Element) ? options.root : null;
     this.rootMargin = options?.rootMargin || '';
-    this.thresholds = options?.threshold || [];
+    const threshold = options?.threshold;
+    this.thresholds = Array.isArray(threshold) ? threshold : typeof threshold === 'number' ? [threshold] : [];
   }
   
   observe(element: Element) {

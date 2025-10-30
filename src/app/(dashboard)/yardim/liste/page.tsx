@@ -1,19 +1,7 @@
-import { PlaceholderPage } from '@/components/PlaceholderPage';
-
-export default function AidListPage() {
+export default function Placeholder() {
   return (
-    <PlaceholderPage
-      title="Yardım Listesi"
-      description="Yapılan yardımları görüntüleyin ve takip edin"
-      icon="ClipboardList"
-      estimatedDate="Şubat 2025"
-      features={[
-        'Yardım kayıt sistemi',
-        'Detaylı yardım takibi',
-        'Kategori bazlı listeleme',
-        'Dağıtım raporları',
-        'İstatistiksel analizler',
-      ]}
-    />
+    <div className="flex items-center justify-center h-64">
+      <p className="text-muted-foreground">Bu sayfa geliştirilmemiştir.</p>
+    </div>
   );
 }

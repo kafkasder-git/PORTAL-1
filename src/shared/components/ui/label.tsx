@@ -4,12 +4,12 @@ import * as React from "react"
 import * as LabelPrimitive from "@radix-ui/react-label"
 import { Info } from "lucide-react"
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/shared/lib/utils"
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip"
+} from "@/shared/components/ui/tooltip"
 
 export interface LabelProps
   extends React.ComponentProps<typeof LabelPrimitive.Root> {

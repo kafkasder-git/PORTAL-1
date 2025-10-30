@@ -5,13 +5,13 @@ import {
   sanitizeEmail,
   sanitizeNumber,
   sanitizeObject
-} from '@/lib/sanitization';
-import { beneficiarySchema } from '@/lib/validations/beneficiary';
+} from '@/shared/lib/sanitization';
+import { beneficiarySchema } from '@/shared/lib/validations/beneficiary';
 import {
   BeneficiaryCategory,
   FundRegion,
   FileConnection
-} from '@/types/beneficiary';
+} from '@/entities/beneficiary';
 
 describe('Beneficiary Sanitization Integration', () => {
   describe('TC Kimlik No Sanitization + Validation', () => {

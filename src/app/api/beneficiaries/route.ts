@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import api from '@/shared/lib/api';
-import { BeneficiaryDocument } from '@/types/collections';
+import { BeneficiaryDocument } from '@/entities/collections';
 import { withCsrfProtection } from '@/shared/lib/middleware/csrf-middleware';
-import { QueryParams } from '@/types/collections';
+import { QueryParams } from '@/entities/collections';
 
 /**
  * Parse query parameters for pagination and filtering
@@ -103,8 +103,8 @@ async function getBeneficiariesHandler(request: NextRequest) {
     }
 
     // Handle different response structures
-    const beneficiaries = Array.isArray(response.data) ? response.data : response.data?.data || [];
-    const total = Array.isArray(response.data) ? response.data.length : response.data?.total || 0;
+    const beneficiaries = Array.isArray(response.data) ? response.data : (response.data as any)?.data || [];
+    const total = Array.isArray(response.data) ? response.data.length : (response.data as any)?.total || 0;
 
     return NextResponse.json({
       success: true,

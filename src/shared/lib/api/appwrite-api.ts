@@ -3,8 +3,8 @@
  * Replaces mock API with real Appwrite operations
  */
 
-import { account, databases, storage, Query, handleAppwriteError, withRetry } from '@/lib/appwrite/client';
-import { DATABASE_ID, COLLECTIONS, STORAGE_BUCKETS } from '@/lib/appwrite/config';
+import { account, databases, storage, Query, handleAppwriteError, withRetry } from '@/shared/lib/appwrite/client';
+import { DATABASE_ID, COLLECTIONS, STORAGE_BUCKETS } from '@/shared/lib/appwrite/config';
 import { ID } from 'appwrite';
 import type {
   UserDocument,
@@ -24,23 +24,23 @@ import type {
   UpdateDocumentData,
   FileUpload,
   UploadedFile
-} from '@/types/collections';
-import { UserRole } from '@/types/auth';
+} from '@/entities/collections';
+import { UserRole } from '@/entities/auth';
 import {
   sanitizeTcNo,
   sanitizePhone,
   sanitizeEmail,
   sanitizeNumber,
   sanitizeObject
-} from '@/lib/sanitization';
+} from '@/shared/lib/sanitization';
 
 import {
   ValidationError,
   DatabaseError,
   formatErrorMessage
-} from '@/lib/errors';
+} from '@/shared/lib/errors';
 
-import { beneficiarySchema } from '@/lib/validations/beneficiary';
+import { beneficiarySchema } from '@/shared/lib/validations/beneficiary';
 import { z } from 'zod';
 
 /**

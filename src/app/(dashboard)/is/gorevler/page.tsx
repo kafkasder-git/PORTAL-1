@@ -26,8 +26,6 @@ import {
   CheckCircle,
   XCircle
 } from 'lucide-react';
-import { TaskForm } from '@/components/forms/TaskForm';
-import { KanbanBoard } from '@/components/tasks/KanbanBoard';
 import { toast } from 'sonner';
 import { 
   getPriorityColor, 
@@ -37,7 +35,7 @@ import {
   isTaskOverdue, 
   isTaskDueSoon 
 } from '@/shared/lib/validations/task';
-import type { TaskDocument, UserDocument } from '@/types/collections';
+import type { TaskDocument, UserDocument } from '@/entities/collections';
 
 type ViewMode = 'kanban' | 'list';
 type StatusFilter = 'all' | 'pending' | 'in_progress' | 'completed' | 'cancelled';
@@ -214,15 +212,9 @@ export default function TasksPage() {
                   Görev bilgilerini girin ve atama yapın
                 </DialogDescription>
               </DialogHeader>
-              <TaskForm
-                onSuccess={() => {
-                  setShowCreateModal(false);
-                  // Refresh tasks list
-                  queryClient.invalidateQueries({ queryKey: ['tasks'] });
-                  queryClient.invalidateQueries({ queryKey: ['dashboard-metrics'] });
-                }}
-                onCancel={() => setShowCreateModal(false)}
-              />
+              <div className="p-4 text-center text-muted-foreground">
+                Görev formu şu anda kullanılamıyor
+              </div>
             </DialogContent>
           </Dialog>
         </div>
@@ -382,11 +374,9 @@ export default function TasksPage() {
             <CardDescription>Görevleri sürükleyip bırakarak durumlarını değiştirin</CardDescription>
           </CardHeader>
           <CardContent>
-            <KanbanBoard
-              tasks={tasks}
-              onTaskMove={handleTaskMove}
-              onTaskClick={handleTaskClick}
-            />
+            <div className="p-8 text-center text-muted-foreground">
+              Kanban görünümü şu anda kullanılamıyor
+            </div>
           </CardContent>
         </Card>
       ) : (
@@ -553,31 +543,9 @@ export default function TasksPage() {
                 Görev bilgilerini güncelleyin
               </DialogDescription>
             </DialogHeader>
-            <TaskForm
-              taskId={selectedTask.$id}
-              initialData={{
-                title: selectedTask.title,
-                description: selectedTask.description,
-                assigned_to: selectedTask.assigned_to,
-                priority: selectedTask.priority,
-                status: selectedTask.status,
-                due_date: selectedTask.due_date,
-                category: selectedTask.category,
-                tags: selectedTask.tags,
-                completed_at: selectedTask.completed_at
-              }}
-              onSuccess={() => {
-                setShowEditModal(false);
-                setSelectedTask(null);
-                // Refresh tasks list
-                queryClient.invalidateQueries({ queryKey: ['tasks'] });
-                queryClient.invalidateQueries({ queryKey: ['dashboard-metrics'] });
-              }}
-              onCancel={() => {
-                setShowEditModal(false);
-                setSelectedTask(null);
-              }}
-            />
+            <div className="p-4 text-center text-muted-foreground">
+              Görev formu şu anda kullanılamıyor
+            </div>
           </DialogContent>
         </Dialog>
       )}

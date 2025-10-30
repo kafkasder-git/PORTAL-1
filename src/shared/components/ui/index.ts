@@ -25,7 +25,6 @@ export * from './pagination';
 export * from './popover';
 export * from './progress';
 export * from './radio-group';
-export * from './responsive-grid';
 export * from './responsive-table';
 export * from './select';
 export * from './separator';

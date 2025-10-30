@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { validateCsrfToken, getCsrfTokenHeader } from '@/lib/csrf';
+import { validateCsrfToken, getCsrfTokenHeader } from '@/shared/lib/csrf';
 
 /**
 * Wrap API route handler with CSRF protection

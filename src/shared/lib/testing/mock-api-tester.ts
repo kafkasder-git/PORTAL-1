@@ -9,15 +9,15 @@ import {
   appwriteCreateBeneficiary, 
   appwriteUpdateBeneficiary, 
   appwriteDeleteBeneficiary 
-} from '@/lib/api/mock-api';
-import { mockAuthApi } from '@/lib/api/mock-auth-api';
+} from '@/shared/lib/api/mock-api';
+import { mockAuthApi } from '@/shared/lib/api/mock-auth-api';
 import { 
   AppwriteResponse, 
   BeneficiaryDocument, 
   QueryParams, 
   CreateDocumentData, 
   UpdateDocumentData 
-} from '@/types/collections';
+} from '@/entities/collections';
 
 interface TestResult {
   testName: string;
@@ -50,7 +50,8 @@ export class MockAPITester {
         tests.push({ testName: 'getBeneficiaries default', passed: false, message: 'Invalid response format' });
       }
     } catch (error) {
-      tests.push({ testName: 'getBeneficiaries default', passed: false, message: `Error: ${error.message}` });
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      tests.push({ testName: 'getBeneficiaries default', passed: false, message: `Error: ${errorMessage}` });
     }
 
     // Test getBeneficiary with valid ID
@@ -68,7 +69,8 @@ export class MockAPITester {
         tests.push({ testName: 'getBeneficiary valid ID', passed: false, message: 'No data to test' });
       }
     } catch (error) {
-      tests.push({ testName: 'getBeneficiary valid ID', passed: false, message: `Error: ${error.message}` });
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      tests.push({ testName: 'getBeneficiary valid ID', passed: false, message: `Error: ${errorMessage}` });
     }
 
     // Test getBeneficiary with invalid ID
@@ -80,7 +82,8 @@ export class MockAPITester {
         tests.push({ testName: 'getBeneficiary invalid ID', passed: false, message: 'Should return error' });
       }
     } catch (error) {
-      tests.push({ testName: 'getBeneficiary invalid ID', passed: false, message: `Error: ${error.message}` });
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      tests.push({ testName: 'getBeneficiary invalid ID', passed: false, message: `Error: ${errorMessage}` });
     }
 
     // Test createBeneficiary
@@ -104,7 +107,8 @@ export class MockAPITester {
         tests.push({ testName: 'createBeneficiary', passed: false, message: 'Invalid response' });
       }
     } catch (error) {
-      tests.push({ testName: 'createBeneficiary', passed: false, message: `Error: ${error.message}` });
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      tests.push({ testName: 'createBeneficiary', passed: false, message: `Error: ${errorMessage}` });
     }
 
     // Test updateBeneficiary
@@ -123,7 +127,8 @@ export class MockAPITester {
         tests.push({ testName: 'updateBeneficiary', passed: false, message: 'No data to update' });
       }
     } catch (error) {
-      tests.push({ testName: 'updateBeneficiary', passed: false, message: `Error: ${error.message}` });
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      tests.push({ testName: 'updateBeneficiary', passed: false, message: `Error: ${errorMessage}` });
     }
 
     // Test deleteBeneficiary
@@ -141,7 +146,8 @@ export class MockAPITester {
         tests.push({ testName: 'deleteBeneficiary', passed: false, message: 'No data to delete' });
       }
     } catch (error) {
-      tests.push({ testName: 'deleteBeneficiary', passed: false, message: `Error: ${error.message}` });
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      tests.push({ testName: 'deleteBeneficiary', passed: false, message: `Error: ${errorMessage}` });
     }
 
     tests.forEach(test => test.duration = Date.now() - startTime);
@@ -161,7 +167,8 @@ export class MockAPITester {
         tests.push({ testName: 'auth login valid', passed: false, message: 'Invalid response' });
       }
     } catch (error) {
-      tests.push({ testName: 'auth login valid', passed: false, message: `Error: ${error.message}` });
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      tests.push({ testName: 'auth login valid', passed: false, message: `Error: ${errorMessage}` });
     }
 
     // Test login with invalid credentials
@@ -181,7 +188,8 @@ export class MockAPITester {
         tests.push({ testName: 'auth logout', passed: false, message: 'Invalid response' });
       }
     } catch (error) {
-      tests.push({ testName: 'auth logout', passed: false, message: `Error: ${error.message}` });
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      tests.push({ testName: 'auth logout', passed: false, message: `Error: ${errorMessage}` });
     }
 
     // Test getCurrentUser (should throw no session)
@@ -209,7 +217,8 @@ export class MockAPITester {
         tests.push({ testName: 'pagination page 1 limit 2', passed: false, message: 'Invalid pagination' });
       }
     } catch (error) {
-      tests.push({ testName: 'pagination page 1 limit 2', passed: false, message: `Error: ${error.message}` });
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      tests.push({ testName: 'pagination page 1 limit 2', passed: false, message: `Error: ${errorMessage}` });
     }
 
     // Test pagination with page 2, limit 1
@@ -221,7 +230,8 @@ export class MockAPITester {
         tests.push({ testName: 'pagination page 2 limit 1', passed: false, message: 'Invalid pagination' });
       }
     } catch (error) {
-      tests.push({ testName: 'pagination page 2 limit 1', passed: false, message: `Error: ${error.message}` });
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      tests.push({ testName: 'pagination page 2 limit 1', passed: false, message: `Error: ${errorMessage}` });
     }
 
     tests.forEach(test => test.duration = Date.now() - startTime);
@@ -235,25 +245,27 @@ export class MockAPITester {
     // Test search
     try {
       const response = await appwriteGetBeneficiaries({ search: 'Ahmet' });
-      if (response.data && response.data.some(b => b.name.includes('Ahmet'))) {
+      if (response.data && response.data.some((b: any) => b.name?.includes('Ahmet'))) {
         tests.push({ testName: 'filtering search', passed: true, message: 'Success' });
       } else {
         tests.push({ testName: 'filtering search', passed: false, message: 'Search not working' });
       }
     } catch (error) {
-      tests.push({ testName: 'filtering search', passed: false, message: `Error: ${error.message}` });
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      tests.push({ testName: 'filtering search', passed: false, message: `Error: ${errorMessage}` });
     }
 
     // Test filter by status
     try {
       const response = await appwriteGetBeneficiaries({ filters: { status: 'AKTIF' } });
-      if (response.data && response.data.every(b => b.status === 'AKTIF')) {
+      if (response.data && response.data.every((b: any) => b.status === 'AKTIF')) {
         tests.push({ testName: 'filtering status', passed: true, message: 'Success' });
       } else {
         tests.push({ testName: 'filtering status', passed: false, message: 'Status filter not working' });
       }
     } catch (error) {
-      tests.push({ testName: 'filtering status', passed: false, message: `Error: ${error.message}` });
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      tests.push({ testName: 'filtering status', passed: false, message: `Error: ${errorMessage}` });
     }
 
     tests.forEach(test => test.duration = Date.now() - startTime);
@@ -273,7 +285,8 @@ export class MockAPITester {
         tests.push({ testName: 'error invalid ID', passed: false, message: 'Should return error' });
       }
     } catch (error) {
-      tests.push({ testName: 'error invalid ID', passed: false, message: `Error: ${error.message}` });
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      tests.push({ testName: 'error invalid ID', passed: false, message: `Error: ${errorMessage}` });
     }
 
     // Test create with missing required fields
@@ -286,7 +299,8 @@ export class MockAPITester {
         tests.push({ testName: 'error missing fields', passed: false, message: 'Should return error' });
       }
     } catch (error) {
-      tests.push({ testName: 'error missing fields', passed: false, message: `Error: ${error.message}` });
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      tests.push({ testName: 'error missing fields', passed: false, message: `Error: ${errorMessage}` });
     }
 
     tests.forEach(test => test.duration = Date.now() - startTime);

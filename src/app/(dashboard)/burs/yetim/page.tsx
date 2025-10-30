@@ -1,19 +1,7 @@
-import { PlaceholderPage } from '@/components/PlaceholderPage';
-
-export default function OrphansPage() {
+export default function Placeholder() {
   return (
-    <PlaceholderPage
-      title="Yetim Öğrenciler"
-      description="Yetim öğrencileri görüntüleyin ve destek sağlayın"
-      icon="Heart"
-      estimatedDate="Mart 2025"
-      features={[
-        'Yetim öğrenci kayıtları',
-        'Sponsor eşleştirme',
-        'Düzenli destek takibi',
-        'Özel ihtiyaçlar yönetimi',
-        'Durum raporları',
-      ]}
-    />
+    <div className="flex items-center justify-center h-64">
+      <p className="text-muted-foreground">Bu sayfa geliştirilmemiştir.</p>
+    </div>
   );
 }

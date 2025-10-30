@@ -23,12 +23,13 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ success: false, error: 'ID parametresi gerekli' }, { status: 400 });
     }
 
-    const response = await api.meetings.getMeeting(id);
-    if (response.error || !response.data) {
+    const response = await api.meetings.getMeetings({ search: id, limit: 1 });
+    const meeting = response.data?.[0];
+    if (!meeting) {
       return NextResponse.json({ success: false, error: 'Kayıt bulunamadı' }, { status: 404 });
     }
 
-    return NextResponse.json({ success: true, data: response.data });
+    return NextResponse.json({ success: true, data: meeting });
   } catch (error: any) {
     console.error('Get meeting error:', error);
     return NextResponse.json({ success: false, error: 'Veri alınamadı' }, { status: 500 });

@@ -9,7 +9,7 @@ import {
   translateError,
   formatErrorMessage,
   createErrorResponse,
-} from '@/lib/errors';
+} from '@/shared/lib/errors';
 
 describe('Error Handling Library', () => {
   describe('AppError', () => {

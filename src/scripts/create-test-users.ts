@@ -3,8 +3,8 @@
  * Creates test users in Appwrite database for development
  */
 
-import { serverUsers, handleServerError } from '@/lib/appwrite/server';
-import { UserRole } from '@/types/auth';
+import { serverUsers, handleServerError } from '@/shared/lib/appwrite/server';
+import { UserRole } from '@/entities/auth';
 import { ID } from 'node-appwrite';
 
 interface TestUser {

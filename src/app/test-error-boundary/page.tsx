@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
-import { useAuthStore } from '@/stores/authStore';
+import { Button } from '@/shared/components/ui/button';
+import { Input } from '@/shared/components/ui/input';
+import { Checkbox } from '@/shared/components/ui/checkbox';
+import { useAuthStore } from '@/shared/stores/authStore';
 
 export default function TestErrorBoundaryPage() {
   if (process.env.NODE_ENV !== 'development') {

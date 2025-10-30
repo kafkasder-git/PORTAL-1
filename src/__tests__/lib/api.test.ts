@@ -7,8 +7,8 @@ import {
   deleteBeneficiary,
   uploadBeneficiaryPhoto,
   checkMernis,
-} from '@/lib/api/mock-api';
-import type { BeneficiaryQuickAdd, BeneficiaryStatus } from '@/types/beneficiary';
+} from '@/shared/lib/api/mock-api';
+import type { BeneficiaryStatus, BeneficiaryQuickAdd } from '@/entities/beneficiary';
 
 describe('Mock API', () => {
   describe('createBeneficiary', () => {

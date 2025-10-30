@@ -9,10 +9,9 @@ import { PageLayout } from '@/shared/components/layout/PageLayout';
 import { Badge } from '@/shared/components/ui/badge';
 import { Users, Plus, Download, Eye } from 'lucide-react';
 import Link from 'next/link';
-import { BeneficiaryQuickAddModal } from '@/components/forms/BeneficiaryQuickAddModal';
 import api from '@/shared/lib/api';
 import { exportBeneficiaries } from '@/shared/lib/api/mock-api';
-import type { BeneficiaryDocument } from '@/types/collections';
+import type { BeneficiaryDocument } from '@/entities/collections';
 import { toast } from 'sonner';
 
 export default function BeneficiariesPage() {
@@ -121,8 +120,6 @@ export default function BeneficiariesPage() {
 
   return (
     <>
-      <BeneficiaryQuickAddModal open={showQuickAddModal} onOpenChange={handleModalClose} />
-
       <PageLayout
         title="İhtiyaç Sahipleri"
         description="Kayıtlı ihtiyaç sahiplerini görüntüleyin ve yönetin"

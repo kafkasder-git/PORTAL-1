@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import api from '@/lib/api';
+import api from '@/shared/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { ExecutiveCard } from '@/shared/components/ui/executive-card';
 import { Input } from '@/shared/components/ui/input';
@@ -29,7 +29,7 @@ export default function DonationsPage() {
   const total = data?.total || 0;
   const totalPages = Math.ceil(total / limit);
 
-  const totalAmount = donations.reduce((sum, d) => sum + d.amount, 0);
+  const totalAmount = donations.reduce((sum: number, d: any) => sum + d.amount, 0);
 
   const columns: Column<any>[] = [
     {
@@ -168,7 +168,7 @@ export default function DonationsPage() {
 
         <ExecutiveCard
         title="Bu Sayfa"
-        value={`${donations.reduce((sum, d) => sum + d.amount, 0).toLocaleString('tr-TR')} ₺`}
+        value={`${donations.reduce((sum: number, d: any) => sum + d.amount, 0).toLocaleString('tr-TR')} ₺`}
         subtitle="Mevcut Sayfa Tutarı"
         icon={DollarSign}
         variant="elevated"

@@ -6,14 +6,14 @@ import {
   identityInfoSchema,
   personalDataSchema,
   healthInfoSchema
-} from '@/lib/validations/beneficiary';
+} from '@/shared/lib/validations/beneficiary';
 import {
   BeneficiaryCategory,
   FundRegion,
   FileConnection,
   MaritalStatus,
   Gender
-} from '@/types/beneficiary';
+} from '@/entities/beneficiary';
 
 describe('Beneficiary Validation Schema', () => {
   describe('quickAddBeneficiarySchema', () => {

@@ -10,7 +10,7 @@ import {
   BeneficiarySearchParams,
   PhotoUploadResponse,
   MernisCheckResponse
-} from '@/types/beneficiary';
+} from '@/entities/beneficiary';
 
 // Appwrite-aligned types
 import type { 
@@ -19,7 +19,7 @@ import type {
   QueryParams, 
   CreateDocumentData, 
   UpdateDocumentData 
-} from '@/types/collections';
+} from '@/entities/collections';
 
 // Define ApiResponse type locally (legacy)
 interface ApiResponse<T> {
@@ -33,7 +33,7 @@ interface ApiResponse<T> {
 const delay = (ms: number = 300) => new Promise(resolve => setTimeout(resolve, ms));
 
 // === LEGACY MOCK STORAGE (kept for backward compatibility) ===
-const mockBeneficiaries: Beneficiary[] = [
+export const mockBeneficiaries: Beneficiary[] = [
   {
     id: "beneficiary-001",
     photo: "https://via.placeholder.com/300x400/cccccc/666666?text=Ahmet+Yılmaz",
@@ -146,6 +146,7 @@ let mockAppwriteBeneficiaries: BeneficiaryDocument[] = mockBeneficiaries.map((b,
   $permissions: [],
   $collectionId: "beneficiaries",
   $databaseId: "mock-db",
+  $sequence: idx,
   name: `${b.firstName} ${b.lastName}`,
   tc_no: b.identityNumber || "",
   phone: b.mobilePhone || "",
@@ -231,6 +232,7 @@ export const createBeneficiary = async (data: BeneficiaryQuickAdd): Promise<ApiR
       $permissions: [],
       $collectionId: "beneficiaries",
       $databaseId: "mock-db",
+      $sequence: mockAppwriteBeneficiaries.length,
       name: `${newBeneficiary.firstName} ${newBeneficiary.lastName}`,
       tc_no: newBeneficiary.identityNumber || "",
       phone: newBeneficiary.mobilePhone || "",
@@ -687,8 +689,9 @@ export async function appwriteCreateBeneficiary(data: CreateDocumentData<Benefic
     $permissions: [],
     $collectionId: "beneficiaries",
     $databaseId: "mock-db",
+    $sequence: mockAppwriteBeneficiaries.length,
     // Map required core fields with safe fallbacks
-    name: data.name || `${data.firstName ?? ''} ${data.lastName ?? ''}`.trim() || 'Ad Soyad',
+    name: data.name || ((data as any).firstName || (data as any).lastName ? `${(data as any).firstName ?? ''} ${(data as any).lastName ?? ''}`.trim() : 'Ad Soyad'),
     tc_no: data.tc_no || '',
     phone: data.phone || '',
     email: data.email,

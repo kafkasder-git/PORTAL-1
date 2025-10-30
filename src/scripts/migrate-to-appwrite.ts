@@ -3,11 +3,11 @@
  * Migrates existing mock JSON data to Appwrite collections
  */
 
-import { serverDatabases, serverUsers, handleServerError } from '@/lib/appwrite/server';
-import { DATABASE_ID, COLLECTIONS } from '@/lib/appwrite/config';
+import { serverDatabases, serverUsers, handleServerError } from '@/shared/lib/appwrite/server';
+import { DATABASE_ID, COLLECTIONS } from '@/shared/lib/appwrite/config';
 import { ID } from 'node-appwrite';
-import { createUserLabels } from '@/lib/appwrite/permissions';
-import { UserRole } from '@/types/auth';
+import { createUserLabels } from '@/shared/lib/appwrite/permissions';
+import { UserRole } from '@/entities/auth';
 
 // Mock data is no longer available, we'll only create test users
 

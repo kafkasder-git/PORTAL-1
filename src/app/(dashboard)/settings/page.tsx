@@ -1,15 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Button } from '@/shared/components/ui/button';
+import { Input } from '@/shared/components/ui/input';
+import { Label } from '@/shared/components/ui/label';
+import { Switch } from '@/shared/components/ui/switch';
+import { Badge } from '@/shared/components/ui/badge';
 import { toast } from 'sonner';
 import { Settings, Save, User, Mail, Bell, Shield, Database } from 'lucide-react';
-import { PageLayout } from '@/components/layouts/PageLayout';
+import { PageLayout } from '@/shared/components/layout/PageLayout';
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState({

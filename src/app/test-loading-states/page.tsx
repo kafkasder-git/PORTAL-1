@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { LoadingOverlay } from '@/components/ui/loading-overlay';
-import { useAuthStore } from '@/stores/authStore';
+import { LoadingOverlay } from '@/shared/components/ui/loading-overlay';
+import { useAuthStore } from '@/shared/stores/authStore';
 
 export default function TestLoadingStatesPage() {
   // Development guard

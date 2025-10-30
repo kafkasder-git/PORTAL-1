@@ -2,15 +2,15 @@
 
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { appwriteApi } from '@/lib/api/appwrite-api';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
-import { useAuthStore } from '@/stores/authStore';
+import { appwriteApi } from '@/shared/lib/api/appwrite-api';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Input } from '@/shared/components/ui/input';
+import { Button } from '@/shared/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog';
+import { Badge } from '@/shared/components/ui/badge';
+import { Checkbox } from '@/shared/components/ui/checkbox';
+import { useAuthStore } from '@/shared/stores/authStore';
 import { toast } from 'sonner';
 import {
   Search,
@@ -28,13 +28,12 @@ import {
   Mail,
   MoreHorizontal,
 } from 'lucide-react';
-import { MessageForm } from '@/components/forms/MessageForm';
 import {
   getStatusLabel,
   getStatusColor,
   getMessageTypeLabel
-} from '@/lib/validations/message';
-import type { MessageDocument, UserDocument } from '@/types/collections';
+} from '@/shared/lib/validations/message';
+import type { MessageDocument, UserDocument } from '@/entities/collections';
 
 type ActiveTab = 'inbox' | 'sent' | 'drafts';
 
@@ -221,15 +220,9 @@ export default function InternalMessagingPage() {
                 Ekip üyelerine mesaj gönderin
               </DialogDescription>
             </DialogHeader>
-            <MessageForm
-              defaultMessageType="internal"
-              onSuccess={() => {
-                setShowComposeModal(false);
-                // Refresh messages list
-                queryClient.invalidateQueries({ queryKey: ['internal-messages'] });
-              }}
-              onCancel={() => setShowComposeModal(false)}
-            />
+            <div className="p-4 text-center text-muted-foreground">
+              Mesaj formu şu anda kullanılamıyor
+            </div>
           </DialogContent>
         </Dialog>
       </div>

@@ -4,15 +4,15 @@
  * Ensures mock data stays in sync with real Appwrite collections
  */
 
-import { COLLECTION_SCHEMAS } from '@/lib/appwrite/config';
-import { mockBeneficiaries } from '@/lib/api/mock-api';
+import { COLLECTION_SCHEMAS } from '@/shared/lib/appwrite/config';
+import { mockBeneficiaries } from '@/shared/lib/api/mock-api';
 import type { 
   BeneficiaryDocument, 
   DonationDocument, 
   TaskDocument, 
   MeetingDocument, 
   MessageDocument 
-} from '@/types/collections';
+} from '@/entities/collections';
 
 // Extended schemas for collections not in config.ts
 const EXTENDED_SCHEMAS = {

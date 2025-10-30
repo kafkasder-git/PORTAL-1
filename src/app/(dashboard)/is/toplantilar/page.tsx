@@ -7,24 +7,24 @@ import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Button } from '@/shared/components/ui/button';
+import { Input } from '@/shared/components/ui/input';
+import { Badge } from '@/shared/components/ui/badge';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@/shared/components/ui/select';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from '@/shared/components/ui/dialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,21 +34,19 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+} from '@/shared/components/ui/alert-dialog';
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from '@/components/ui/tabs';
-import { DatePicker } from '@/components/ui/date-picker';
+} from '@/shared/components/ui/tabs';
+import { DatePicker } from '@/shared/components/ui/date-picker';
 
-import { appwriteApi } from '@/lib/api/appwrite-api';
-import { useAuthStore } from '@/stores/authStore';
-import { MeetingForm } from '@/components/forms/MeetingForm';
-import { CalendarView } from '@/components/meetings/CalendarView';
-import type { MeetingDocument } from '@/types/collections';
-import { meetingTypeLabels, meetingStatusLabels } from '@/lib/validations/meeting';
+import { appwriteApi } from '@/shared/lib/api/appwrite-api';
+import { useAuthStore } from '@/shared/stores/authStore';
+import type { MeetingDocument } from '@/entities/collections';
+import { meetingTypeLabels, meetingStatusLabels } from '@/shared/lib/validations/meeting';
 
 export default function MeetingsPage() {
   const queryClient = useQueryClient();
@@ -366,11 +364,9 @@ export default function MeetingsPage() {
               </CardContent>
             </Card>
           ) : (
-            <CalendarView
-              meetings={calendarMeetings}
-              onMeetingClick={handleMeetingClick}
-              onDateClick={handleDateClick}
-            />
+            <div className="p-8 text-center text-muted-foreground">
+              Takvim görünümü şu anda kullanılamıyor
+            </div>
           )}
         </>
       )}
@@ -688,17 +684,9 @@ export default function MeetingsPage() {
               Toplantı bilgilerini girin ve katılımcıları belirleyin
             </DialogDescription>
           </DialogHeader>
-          <MeetingForm
-            onSuccess={handleCreateSuccess}
-            onCancel={() => setShowCreateModal(false)}
-            initialData={
-              selectedDate
-                ? {
-                    meeting_date: selectedDate.toISOString(),
-                  }
-                : undefined
-            }
-          />
+          <div className="p-4 text-center text-muted-foreground">
+            Toplantı formu şu anda kullanılamıyor
+          </div>
         </DialogContent>
       </Dialog>
 
@@ -712,30 +700,9 @@ export default function MeetingsPage() {
             </DialogDescription>
           </DialogHeader>
           {selectedMeeting && (
-            <MeetingForm
-              meetingId={selectedMeeting.$id}
-              initialData={{
-                title: selectedMeeting.title,
-                description: selectedMeeting.description,
-                meeting_date: selectedMeeting.meeting_date,
-                location: selectedMeeting.location,
-                meeting_type: selectedMeeting.meeting_type,
-                organizer: selectedMeeting.organizer,
-                participants: selectedMeeting.participants,
-                status: selectedMeeting.status,
-                agenda: selectedMeeting.agenda,
-                notes: selectedMeeting.notes
-              }}
-              onSuccess={() => {
-                setSelectedMeeting(null);
-                // Refresh meetings list
-                queryClient.invalidateQueries({ queryKey: ['meetings'] });
-                queryClient.invalidateQueries({ queryKey: ['meetings-calendar'] });
-                queryClient.invalidateQueries({ queryKey: ['meetings-stats'] });
-                queryClient.invalidateQueries({ queryKey: ['meetings-tab'] });
-              }}
-              onCancel={() => setSelectedMeeting(null)}
-            />
+            <div className="p-4 text-center text-muted-foreground">
+              Toplantı formu şu anda kullanılamıyor
+            </div>
           )}
         </DialogContent>
       </Dialog>

@@ -3,7 +3,7 @@
  * Tests the connection to Appwrite backend
  */
 
-import { appwriteApi } from '@/lib/api/appwrite-api';
+import { appwriteApi } from '@/shared/lib/api/appwrite-api';
 
 export async function testAppwriteConnection() {
   console.log('Testing Appwrite connection...');

@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import api from '@/lib/api';
-import { useAuthStore } from '@/stores/authStore';
+import api from '@/shared/lib/api';
+import { useAuthStore } from '@/shared/stores/authStore';
 
 export default function TestAppwritePage() {
   const [testResults, setTestResults] = useState<string[]>([]);
@@ -30,7 +30,7 @@ export default function TestAppwritePage() {
       // Test 2: Test beneficiaries API
       try {
         const beneficiaries = await api.beneficiaries.getBeneficiaries({ page: 1, limit: 5 });
-        const total = Array.isArray(beneficiaries.data) ? beneficiaries.data.length : beneficiaries.data?.total || 0;
+        const total = Array.isArray(beneficiaries.data) ? beneficiaries.data.length : (beneficiaries.data as any)?.total || 0;
         addResult(`✅ Beneficiaries API working: ${total} total records`);
       } catch (error: any) {
         addResult(`❌ Beneficiaries API error: ${error.message}`);

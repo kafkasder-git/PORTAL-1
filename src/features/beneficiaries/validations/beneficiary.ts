@@ -30,7 +30,7 @@ import {
   City,
   Disease,
   Label
-} from '@/types/beneficiary';
+} from '@/entities/beneficiary';
 
 // === HELPER VALIDATORS ===
 

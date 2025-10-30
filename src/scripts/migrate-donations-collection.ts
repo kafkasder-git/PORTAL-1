@@ -2,8 +2,8 @@
  * Migration Script: Add receipt_file_id to donations collection
  */
 
-import { serverDatabases, handleServerError } from '@/lib/appwrite/server';
-import { DATABASE_ID, COLLECTIONS } from '@/lib/appwrite/config';
+import { serverDatabases, handleServerError } from '@/shared/lib/appwrite/server';
+import { DATABASE_ID, COLLECTIONS } from '@/shared/lib/appwrite/config';
 
 export async function migrateDonationsCollection() {
   console.log('Migrating donations collection...');

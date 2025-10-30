@@ -4,6 +4,7 @@
  */
 
 import { Models } from 'appwrite';
+import type { BeneficiaryDocument, DonationDocument, ScholarshipDocument, UserDocument } from './collections';
 
 /**
  * Base Appwrite document with timestamps
@@ -18,60 +19,31 @@ export interface AppwriteDocument extends Models.Document {
 }
 
 /**
- * User Profile Document (extends Appwrite Auth User)
- * Stores additional user information beyond auth
+ * User Profile Document
+ * Note: The full UserDocument interface is defined in collections.ts
+ * This re-export avoids circular dependencies
  */
-export interface UserDocument extends AppwriteDocument {
-  userId: string; // Reference to Appwrite Auth User ID
-  name: string;
-  role: 'SUPER_ADMIN' | 'ADMIN' | 'MANAGER' | 'MEMBER' | 'VIEWER' | 'VOLUNTEER';
-  avatar?: string | null;
-  isActive: boolean;
-}
+export type { UserDocument } from './collections';
 
 /**
  * Beneficiary Document
- * İhtiyaç sahibi bilgileri
+ * Note: The full BeneficiaryDocument interface is defined in collections.ts
+ * This re-export avoids circular dependencies
  */
-export interface BeneficiaryDocument extends AppwriteDocument {
-  name: string;
-  tc_no: string;
-  phone: string;
-  address: string;
-  city: string;
-  district: string;
-  neighborhood: string;
-  income_level: string;
-  family_size: number;
-  health_status: string;
-  employment_status: string;
-  notes: string;
-  status: 'active' | 'inactive';
-}
+export type { BeneficiaryDocument } from './collections';
 
 /**
  * Donation Document
- * Bağış bilgileri
+ * Note: The full DonationDocument interface is defined in collections.ts
+ * This re-export avoids circular dependencies
  */
-export interface DonationDocument extends AppwriteDocument {
-  donor_name: string;
-  donor_phone: string;
-  donor_email: string;
-  amount: number;
-  currency: string;
-  donation_type: string;
-  payment_method: string;
-  donation_purpose: string;
-  notes: string;
-  receipt_number: string;
-  status: 'completed' | 'pending' | 'cancelled';
-}
+export type { DonationDocument } from './collections';
 
 /**
  * Aid Request Document (placeholder for future)
  * Yardım talebi bilgileri
  */
-export interface AidRequestDocument extends AppwriteDocument {
+export interface AidRequestDoc extends AppwriteDocument {
   beneficiaryId: string;
   request_type: string;
   description: string;
@@ -82,18 +54,11 @@ export interface AidRequestDocument extends AppwriteDocument {
 }
 
 /**
- * Scholarship Document (placeholder for future)
- * Burs bilgileri
+ * Scholarship Document
+ * Note: The full ScholarshipDocument interface is defined in collections.ts
+ * This re-export avoids circular dependencies
  */
-export interface ScholarshipDocument extends AppwriteDocument {
-  student_name: string;
-  tc_no: string;
-  school: string;
-  grade: string;
-  amount: number;
-  semester: string;
-  status: 'active' | 'completed' | 'cancelled';
-}
+export type { ScholarshipDocument } from './collections';
 
 /**
  * Generic API Response wrapper
@@ -135,7 +100,7 @@ export interface AppwriteDocumentList<T> {
  */
 export type NewBeneficiary = Omit<BeneficiaryDocument, keyof AppwriteDocument>;
 export type NewDonation = Omit<DonationDocument, keyof AppwriteDocument>;
-export type NewAidRequest = Omit<AidRequestDocument, keyof AppwriteDocument>;
+export type NewAidRequest = Omit<AidRequestDoc, keyof AppwriteDocument>;
 export type NewScholarship = Omit<ScholarshipDocument, keyof AppwriteDocument>;
 
 /**

@@ -1,21 +1,7 @@
-'use client';
-
-import { PlaceholderPage } from '@/components/PlaceholderPage';
-
-export default function FundReportsPage() {
+export default function Placeholder() {
   return (
-    <PlaceholderPage
-      title="Finans Raporları"
-      description="Mali raporları görüntüleyin ve analiz edin"
-      icon="BarChart3"
-      estimatedDate="Nisan 2025"
-      features={[
-        'Aylık mali raporlar',
-        'Yıllık finansal özet',
-        'Gelir-gider karşılaştırması',
-        'Grafik ve tablolar',
-        'PDF rapor çıktısı',
-      ]}
-    />
+    <div className="flex items-center justify-center h-64">
+      <p className="text-muted-foreground">Bu sayfa geliştirilmemiştir.</p>
+    </div>
   );
 }

@@ -4,7 +4,7 @@
  */
 
 import { Permission, Role } from 'appwrite';
-import { UserRole } from '@/types/auth';
+import { UserRole } from '@/entities/auth';
 
 /**
  * Get Appwrite permissions for a user role

@@ -3,17 +3,8 @@
  * TypeScript definitions for Appwrite documents
  */
 
-import { UserRole } from '@/types/auth';
-
-// Base Appwrite Document type
-export interface AppwriteDocument {
-  $id: string;
-  $createdAt: string;
-  $updatedAt: string;
-  $permissions?: string[];
-  $collectionId: string;
-  $databaseId: string;
-}
+import { UserRole } from '@/entities/auth';
+import type { AppwriteDocument } from './appwrite';
 
 // Users Collection
 export interface UserDocument extends AppwriteDocument {
@@ -451,5 +442,5 @@ export type DocumentByCollection = {
 };
 
 // Utility Types
-export type CreateDocumentData<T> = Omit<T, '$id' | '$createdAt' | '$updatedAt' | '$permissions' | '$collectionId' | '$databaseId'>;
+export type CreateDocumentData<T> = Omit<T, '$id' | '$createdAt' | '$updatedAt' | '$permissions' | '$collectionId' | '$databaseId' | '$sequence'>;
 export type UpdateDocumentData<T> = Partial<CreateDocumentData<T>>;

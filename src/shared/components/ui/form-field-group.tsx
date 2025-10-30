@@ -1,9 +1,9 @@
 import * as React from "react"
 import { type LucideIcon } from "lucide-react"
 
-import { cn } from "@/lib/utils"
-import { Card, CardContent } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
+import { cn } from "@/shared/lib/utils"
+import { Card, CardContent } from "@/shared/components/ui/card"
+import { Separator } from "@/shared/components/ui/separator"
 
 export interface FormFieldGroupProps {
   title: string

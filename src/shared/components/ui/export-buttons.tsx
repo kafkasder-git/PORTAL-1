@@ -1,8 +1,8 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@/shared/components/ui/button';
 import { Download, FileJson, FileSpreadsheet, FileText } from 'lucide-react';
-import { exportCSV, exportJSON, exportHTML, printTable } from '@/lib/export';
+import { exportCSV, exportJSON, exportHTML, printTable } from '@/shared/lib/export';
 import { useState } from 'react';
 
 interface ExportButtonsProps {

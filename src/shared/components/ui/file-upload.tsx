@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Button } from '@/shared/components/ui/button';
+import { Input } from '@/shared/components/ui/input';
+import { Label } from '@/shared/components/ui/label';
 import { Upload, X, FileText, Image, File, AlertCircle } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { validateFile } from '@/lib/sanitization';
+import { cn } from '@/shared/lib/utils';
+import { validateFile } from '@/shared/lib/sanitization';
 
 interface FileUploadProps {
   onFileSelect: (file: File | null, sanitizedFilename?: string) => void;

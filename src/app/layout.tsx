@@ -3,7 +3,7 @@ import { Inter, Poppins, Montserrat } from 'next/font/google';
 import Script from 'next/script';
 import './globals.css';
 import { Providers } from './providers';
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/lib/utils';
 
 const inter = Inter({
   subsets: ['latin'],

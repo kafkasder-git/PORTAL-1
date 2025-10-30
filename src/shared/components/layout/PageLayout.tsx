@@ -2,9 +2,9 @@
 
 import { motion } from 'framer-motion';
 import { ArrowLeft, LucideIcon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
+import { Button } from '@/shared/components/ui/button';
+import { Badge } from '@/shared/components/ui/badge';
+import { cn } from '@/shared/lib/utils';
 import { useRouter } from 'next/navigation';
 
 // Icon mapping

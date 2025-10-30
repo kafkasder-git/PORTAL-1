@@ -21,7 +21,7 @@ describe('Environment Validation', () => {
       process.env.NEXT_PUBLIC_DATABASE_ID = 'test-db';
 
       // Dynamic import to test validation
-      import('@/lib/env-validation').then(({ validateClientEnv }) => {
+      import('@/shared/lib/env-validation').then(({ validateClientEnv }) => {
         expect(() => validateClientEnv()).not.toThrow();
       });
     });
@@ -31,7 +31,7 @@ describe('Environment Validation', () => {
       process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID = 'test-project-id';
       process.env.NEXT_PUBLIC_DATABASE_ID = 'test-db';
 
-      import('@/lib/env-validation').then(({ getClientEnv }) => {
+      import('@/shared/lib/env-validation').then(({ getClientEnv }) => {
         const env = getClientEnv();
         expect(env.NEXT_PUBLIC_STORAGE_DOCUMENTS).toBe('documents');
         expect(env.NEXT_PUBLIC_APP_NAME).toBe('Dernek Yönetim Sistemi');
@@ -48,7 +48,7 @@ describe('Environment Validation', () => {
       process.env.CSRF_SECRET = 'a'.repeat(32);
       process.env.SESSION_SECRET = 'b'.repeat(32);
 
-      import('@/lib/env-validation').then(({ validateServerEnv }) => {
+      import('@/shared/lib/env-validation').then(({ validateServerEnv }) => {
         expect(() => validateServerEnv()).not.toThrow();
       });
     });
@@ -61,7 +61,7 @@ describe('Environment Validation', () => {
       process.env.CSRF_SECRET = 'too-short'; // Less than 32 chars
       process.env.SESSION_SECRET = 'b'.repeat(32);
 
-      import('@/lib/env-validation').then(({ validateServerEnv }) => {
+      import('@/shared/lib/env-validation').then(({ validateServerEnv }) => {
         expect(() => validateServerEnv()).toThrow();
       });
     });
@@ -75,7 +75,7 @@ describe('Environment Validation', () => {
       process.env.NEXT_PUBLIC_ENABLE_REALTIME = 'false';
       process.env.NEXT_PUBLIC_ENABLE_ANALYTICS = 'true';
 
-      import('@/lib/env-validation').then(({ getClientEnv }) => {
+      import('@/shared/lib/env-validation').then(({ getClientEnv }) => {
         const env = getClientEnv();
         expect(env.NEXT_PUBLIC_ENABLE_REALTIME).toBe(false);
         expect(env.NEXT_PUBLIC_ENABLE_ANALYTICS).toBe(true);
@@ -89,7 +89,7 @@ describe('Environment Validation', () => {
       process.env.SMTP_USER = 'test@gmail.com';
       process.env.SMTP_PASSWORD = 'password';
 
-      import('@/lib/env-validation').then(({ getServerEnv, hasEmailConfig }) => {
+      import('@/shared/lib/env-validation').then(({ getServerEnv, hasEmailConfig }) => {
         const env = getServerEnv();
         expect(hasEmailConfig(env)).toBe(true);
       });
@@ -100,7 +100,7 @@ describe('Environment Validation', () => {
       process.env.TWILIO_AUTH_TOKEN = 'token123';
       process.env.TWILIO_PHONE_NUMBER = '+905551234567';
 
-      import('@/lib/env-validation').then(({ getServerEnv, hasSmsConfig }) => {
+      import('@/shared/lib/env-validation').then(({ getServerEnv, hasSmsConfig }) => {
         const env = getServerEnv();
         expect(hasSmsConfig(env)).toBe(true);
       });

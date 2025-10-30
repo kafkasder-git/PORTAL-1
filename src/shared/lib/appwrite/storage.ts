@@ -3,10 +3,10 @@
  * Provides utilities for file upload, download, and management
  */
 
-import { storage, handleAppwriteError } from '@/lib/appwrite/client';
-import { STORAGE_BUCKETS } from '@/lib/appwrite/config';
+import { storage, handleAppwriteError } from '@/shared/lib/appwrite/client';
+import { STORAGE_BUCKETS } from '@/shared/lib/appwrite/config';
 import { ID, Permission, Role, ImageFormat } from 'appwrite';
-import type { FileUpload, UploadedFile } from '@/types/collections';
+import type { FileUpload, UploadedFile } from '@/entities/collections';
 
 /**
  * Upload file to specified bucket

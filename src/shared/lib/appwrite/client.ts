@@ -90,7 +90,7 @@ export const storage = new Storage(client);
  * 
  * @example
  * ```typescript
- * import { databases, Query } from '@/lib/appwrite/client';
+ * import { databases, Query } from '@/shared/lib/appwrite/client';
  * 
  * const users = await databases.listDocuments(
  *   DATABASE_ID,

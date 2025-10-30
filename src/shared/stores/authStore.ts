@@ -8,7 +8,7 @@
 import { create } from 'zustand';
 import { devtools, persist, subscribeWithSelector, createJSONStorage } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import { User, UserRole, Permission, ROLE_PERMISSIONS } from '@/types/auth';
+import { User, UserRole, Permission, ROLE_PERMISSIONS } from '@/entities/auth';
 
 interface Session {
   userId: string;

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import { useInfiniteScroll, usePaginatedQuery } from '@/hooks/useInfiniteScroll';
+import { useInfiniteScroll, usePaginatedQuery } from '@/shared/hooks/useInfiniteScroll';
 
 // Mock TanStack Query
 vi.mock('@tanstack/react-query', () => ({

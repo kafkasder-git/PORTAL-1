@@ -3,7 +3,7 @@
  * Temporary fallback for development when Appwrite users don't exist yet
  */
 
-import { User, UserRole, ROLE_PERMISSIONS } from '@/types/auth';
+import { User, UserRole, ROLE_PERMISSIONS } from '@/entities/auth';
 
 interface MockUser {
   id: string;
