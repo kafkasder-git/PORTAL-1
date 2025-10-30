@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { aidApplicationsApi as api } from '@/lib/api';
-import { withCsrfProtection } from '@/lib/middleware/csrf-middleware';
+import { aidApplicationsApi as api } from '@/shared/lib/api';
+import { withCsrfProtection } from '@/shared/lib/middleware/csrf-middleware';
 
 function validateApplication(data: any): { isValid: boolean; errors: string[] } {
   const errors: string[] = [];

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import api from '@/lib/api';
-import { withCsrfProtection } from '@/lib/middleware/csrf-middleware';
-import { InputSanitizer } from '@/lib/security';
+import api from '@/shared/lib/api';
+import { withCsrfProtection } from '@/shared/lib/middleware/csrf-middleware';
+import { InputSanitizer } from '@/shared/lib/security';
 
 function validateUserUpdate(data: any): { isValid: boolean; errors: string[] } {
   const errors: string[] = [];

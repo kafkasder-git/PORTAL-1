@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { getValidationReport } from '@/lib/appwrite/validation';
-import { connectivityTester } from '@/lib/appwrite/connectivity-test';
-import { getConfigStatus } from '@/lib/appwrite/config';
+import { getValidationReport } from '@/shared/lib/appwrite/validation';
+import { connectivityTester } from '@/shared/lib/appwrite/connectivity-test';
+import { getConfigStatus } from '@/shared/lib/appwrite/config';
 
 // Cache for detailed health checks (30 seconds)
 let healthCache: { data: any; timestamp: number } | null = null;

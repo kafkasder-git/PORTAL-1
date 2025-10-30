@@ -356,6 +356,13 @@ Available color variants:
 - `orange` - Warnings
 - `cyan` - Alternative accent
 
+### Corporate Design Standards
+Following the established corporate design standards:
+- **Cards**: Use `default`, `elevated`, `outline`, `ghost` variants only
+- **Buttons**: Use `default`, `secondary`, `outline`, `ghost`, `destructive`, `link` variants only
+- **Colors**: Slate/gray corporate palette only
+- **Effects**: No gradients, glows, or premium animations
+
 ### Dark Mode
 All components automatically support dark mode through CSS variables.
 

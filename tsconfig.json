@@ -21,10 +21,15 @@
     "paths": {
       "@/*": ["./src/*"],
       "@/components/*": ["./src/components/*"],
+      "@/components/ui/*": ["./src/shared/components/ui/*"],
+      "@/components/layouts/*": ["./src/shared/components/layout/*"],
       "@/lib/*": ["./src/lib/*"],
+      "@/shared/*": ["./src/shared/*"],
       "@/hooks/*": ["./src/hooks/*"],
-      "@/stores/*": ["./src/stores/*"],
+      "@/stores/*": ["./src/shared/stores/*"],
       "@/types/*": ["./src/types/*"],
+      "@/entities/*": ["./src/entities/*"],
+      "@/features/*": ["./src/features/*"],
       "@/data/*": ["./src/data/*"]
     }
   },

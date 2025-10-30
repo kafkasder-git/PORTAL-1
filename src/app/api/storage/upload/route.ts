@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import api from '@/lib/api';
-import { withCsrfProtection } from '@/lib/middleware/csrf-middleware';
-import { STORAGE_BUCKETS } from '@/lib/appwrite/config';
+import api from '@/shared/lib/api';
+import { withCsrfProtection } from '@/shared/lib/middleware/csrf-middleware';
+import { STORAGE_BUCKETS } from '@/shared/lib/appwrite/config';
 
 /**
  * POST /api/storage/upload

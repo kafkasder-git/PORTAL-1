@@ -3,15 +3,15 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { DataTable, Column } from '@/components/ui/data-table';
-import { PageLayout } from '@/components/layouts/PageLayout';
-import { Badge } from '@/components/ui/badge';
+import { Button } from '@/shared/components/ui/button';
+import { DataTable, Column } from '@/shared/components/ui/data-table';
+import { PageLayout } from '@/shared/components/layout/PageLayout';
+import { Badge } from '@/shared/components/ui/badge';
 import { Users, Plus, Download, Eye } from 'lucide-react';
 import Link from 'next/link';
 import { BeneficiaryQuickAddModal } from '@/components/forms/BeneficiaryQuickAddModal';
-import api from '@/lib/api';
-import { exportBeneficiaries } from '@/lib/api/mock-api';
+import api from '@/shared/lib/api';
+import { exportBeneficiaries } from '@/shared/lib/api/mock-api';
 import type { BeneficiaryDocument } from '@/types/collections';
 import { toast } from 'sonner';
 

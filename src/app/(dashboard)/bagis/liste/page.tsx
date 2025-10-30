@@ -3,14 +3,16 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Search, Plus, DollarSign, Eye, FileText } from 'lucide-react';
-import { PageLayout } from '@/components/layouts/PageLayout';
-import { DonationForm } from '@/components/forms/DonationForm';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { ExecutiveCard } from '@/shared/components/ui/executive-card';
+import { Input } from '@/shared/components/ui/input';
+import { Button } from '@/shared/components/ui/button';
+import { Badge } from '@/shared/components/ui/badge';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog';
+import { DataTable, Column } from '@/shared/components/ui/data-table';
+import { Search, Plus, DollarSign, Eye, FileText, Edit, Trash2 } from 'lucide-react';
+import { PageLayout } from '@/shared/components/layout/PageLayout';
+import { DonationForm } from '@/features/donations';
 
 export default function DonationsPage() {
   const [search, setSearch] = useState('');
@@ -29,14 +31,83 @@ export default function DonationsPage() {
 
   const totalAmount = donations.reduce((sum, d) => sum + d.amount, 0);
 
+  const columns: Column<any>[] = [
+    {
+      key: 'actions',
+      label: '',
+      render: (item) => (
+        <div className="flex gap-1">
+          <Button variant="ghost" size="icon-sm" title="Görüntüle">
+            <Eye className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon-sm" title="Düzenle">
+            <Edit className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon-sm" title="Sil" className="text-red-600 hover:text-red-700">
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      ),
+      className: 'w-24',
+    },
+    {
+      key: 'receipt_number',
+      label: 'Fiş No',
+      render: (item) => (
+        <Badge variant="outline" className="font-mono">
+          #{item.receipt_number}
+        </Badge>
+      ),
+    },
+    {
+      key: 'donor_name',
+      label: 'Bağışçı',
+      render: (item) => (
+        <span className="font-medium">{item.donor_name}</span>
+      ),
+    },
+    {
+      key: 'amount',
+      label: 'Tutar',
+      render: (item) => (
+        <div className="flex items-center gap-2">
+          <DollarSign className="h-4 w-4 text-green-600" />
+          <span className="font-bold text-green-600">
+            {item.amount.toLocaleString('tr-TR')} ₺
+          </span>
+        </div>
+      ),
+    },
+    {
+      key: 'donation_type',
+      label: 'Tür',
+      render: (item) => (
+        <Badge variant="secondary">{item.donation_type}</Badge>
+      ),
+    },
+    {
+      key: '$createdAt',
+      label: 'Tarih',
+      render: (item) => (
+        <span className="text-sm text-muted-foreground">
+          {new Date(item.$createdAt).toLocaleDateString('tr-TR', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric'
+          })}
+        </span>
+      ),
+    },
+  ];
+
   return (
     <>
       <Dialog open={showCreateForm} onOpenChange={setShowCreateForm}>
         <DialogTrigger asChild>
-          <Button onClick={() => setShowCreateForm(true)} className="gap-2 bg-slate-700 hover:bg-slate-600">
-            <Plus className="h-4 w-4" />
-            Yeni Bağış
-          </Button>
+        <Button size="lg" onClick={() => setShowCreateForm(true)} className="gap-2">
+        <Plus className="h-5 w-5" />
+        Yeni Bağış Ekle
+        </Button>
         </DialogTrigger>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -57,164 +128,117 @@ export default function DonationsPage() {
         description="Bağış kayıtlarını görüntüleyin ve yönetin"
         icon="DollarSign"
         actions={
-          <>
-            <Button variant="outline" className="gap-2 border-slate-300 text-slate-700 hover:bg-slate-50">
-              <FileText className="h-4 w-4" />
-              Rapor
-            </Button>
-          </>
+        <>
+        <Button variant="outline" className="gap-2">
+        <FileText className="h-4 w-4" />
+        Rapor Oluştur
+        </Button>
+        </>
         }
       >
         {/* Stats */}
-        <div className="grid gap-4 md:grid-cols-3">
-          <Card className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Toplam Bağış</CardTitle>
-              <DollarSign className="h-4 w-4 text-slate-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{total}</div>
-            </CardContent>
-          </Card>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <ExecutiveCard
+        title="Toplam Bağış"
+        value={total}
+        subtitle="Kayıtlı Bağış Sayısı"
+        icon={DollarSign}
+        variant="elevated"
+        status="info"
+        trend={{
+        value: "+12%",
+        direction: "up",
+        label: "geçen aya göre"
+        }}
+        />
 
-          <Card className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Toplam Tutar</CardTitle>
-              <DollarSign className="h-4 w-4 text-slate-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {totalAmount.toLocaleString('tr-TR')} ₺
-              </div>
-            </CardContent>
-          </Card>
+        <ExecutiveCard
+        title="Toplam Tutar"
+        value={`${totalAmount.toLocaleString('tr-TR')} ₺`}
+        subtitle="Toplam Bağış Miktarı"
+        icon={DollarSign}
+        variant="elevated"
+        status="success"
+        trend={{
+        value: "+8%",
+        direction: "up",
+        label: "geçen aya göre"
+        }}
+        />
 
-          <Card className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Bu Sayfadaki Tutar</CardTitle>
-              <DollarSign className="h-4 w-4 text-slate-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {donations.reduce((sum, d) => sum + d.amount, 0).toLocaleString('tr-TR')} ₺
-              </div>
-            </CardContent>
-          </Card>
+        <ExecutiveCard
+        title="Bu Sayfa"
+        value={`${donations.reduce((sum, d) => sum + d.amount, 0).toLocaleString('tr-TR')} ₺`}
+        subtitle="Mevcut Sayfa Tutarı"
+        icon={DollarSign}
+        variant="elevated"
+        status="info"
+        />
         </div>
 
         {/* Search */}
-        <Card className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
-          <CardHeader>
-            <CardTitle>Arama</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-              <Input
-                placeholder="Bağışçı adı veya fiş numarası ile ara..."
-                className="pl-10 border-slate-200 focus:border-slate-400"
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setPage(1);
-                }}
-              />
-            </div>
-          </CardContent>
+        <Card variant="outline" size="sm">
+        <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+        <Search className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+        Gelişmiş Arama
+        </CardTitle>
+        <CardDescription>
+        Bağışçı adı, fiş numarası veya tutar ile arama yapın
+        </CardDescription>
+        </CardHeader>
+        <CardContent className="p-4">
+        <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+        placeholder="Bağışçı adı veya fiş numarası ile ara..."
+        className="pl-10 h-10 text-sm sm:h-12 sm:text-base sm:pl-12"
+        value={search}
+        onChange={(e) => {
+        setSearch(e.target.value);
+        setPage(1);
+        }}
+        />
+        </div>
+        </CardContent>
         </Card>
 
         {/* List */}
-        <Card className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
-          <CardHeader>
-            <CardTitle>Bağış Listesi</CardTitle>
-            <CardDescription>Toplam {total} bağış kaydı</CardDescription>
-          </CardHeader>
+        <Card variant="elevated" size="lg">
+        <CardHeader>
+        <div className="flex items-center justify-between">
+        <div>
+        <CardTitle className="text-2xl flex items-center gap-3">
+        <FileText className="h-6 w-6 text-slate-600 dark:text-slate-400" />
+        Bağış Listesi
+        </CardTitle>
+        <CardDescription className="text-base mt-2">
+        Sistemde kayıtlı toplam {total} bağış kaydı bulunmaktadır
+        </CardDescription>
+        </div>
+        <Badge variant="secondary" className="px-4 py-2 text-sm font-medium">
+        {total} Kayıt
+        </Badge>
+        </div>
+        </CardHeader>
           <CardContent>
-            {isLoading ? (
-              <div className="space-y-4">
-                {[...Array(5)].map((_, index) => (
-                  <div key={index} className="border rounded-lg p-4">
-                    <div className="animate-pulse space-y-3">
-                      <div className="h-4 bg-slate-200 rounded w-1/4"></div>
-                      <div className="h-4 bg-slate-200 rounded w-1/2"></div>
-                      <div className="h-4 bg-slate-200 rounded w-1/3"></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : donations.length === 0 ? (
-              <div className="text-center py-8">
-                <DollarSign className="h-12 w-12 text-slate-400 mx-auto mb-4" />
-                <p className="text-slate-500">Henüz bağış kaydı bulunmuyor</p>
-                <Button onClick={() => setShowCreateForm(true)} className="mt-4 bg-slate-700 hover:bg-slate-600">
-                  İlk bağışı ekle
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {donations.map((donation) => (
-                  <div key={donation.$id} className="border border-slate-200 dark:border-slate-700 rounded-lg p-4 hover:border-slate-400 transition-colors">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Badge variant="default" className="bg-slate-700">
-                            Bağış
-                          </Badge>
-                          <span className="text-sm text-slate-500">#{donation.receipt_number}</span>
-                        </div>
-                        <h3 className="font-semibold text-lg mb-1">{donation.donor_name}</h3>
-                        <p className="text-slate-600 mb-2">{donation.notes || 'Açıklama yok'}</p>
-                        <div className="flex items-center gap-4 text-sm text-slate-500">
-                          <span className="flex items-center gap-1">
-                            <DollarSign className="h-4 w-4" />
-                            {donation.amount.toLocaleString('tr-TR')} ₺
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <FileText className="h-4 w-4" />
-                            {donation.donation_type}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-lg font-bold mb-1">
-                          {donation.amount.toLocaleString('tr-TR')} ₺
-                        </div>
-                        <div className="text-xs text-slate-500">
-                          {new Date(donation.$createdAt).toLocaleDateString('tr-TR')}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="flex items-center justify-between mt-6">
-                <div className="text-sm text-slate-500">
-                  Sayfa {page} / {totalPages} (Toplam {total} kayıt)
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={page === 1}
-                    onClick={() => setPage(page - 1)}
-                  >
-                    Önceki
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={page === totalPages}
-                    onClick={() => setPage(page + 1)}
-                  >
-                    Sonraki
-                  </Button>
-                </div>
-              </div>
-            )}
+            <DataTable
+              data={donations}
+              columns={columns}
+              isLoading={isLoading}
+              error={null}
+              searchable={false}
+              searchValue={search}
+              onSearchChange={setSearch}
+              pagination={{
+                page,
+                totalPages,
+                total,
+                onPageChange: setPage,
+              }}
+              emptyMessage="Henüz bağış kaydı bulunmuyor"
+              emptyDescription="İlk bağış kaydını eklemek için yukarıdaki butona tıklayın"
+            />
           </CardContent>
         </Card>
       </PageLayout>

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { InputSanitizer, AuditLogger, PasswordSecurity } from '@/lib/security';
-import { authRateLimit } from '@/lib/rate-limit';
+import { InputSanitizer, AuditLogger, PasswordSecurity } from '@/shared/lib/security';
+import { authRateLimit } from '@/shared/lib/rate-limit';
 
 async function loginHandler(req: NextRequest): Promise<NextResponse> {
   try {

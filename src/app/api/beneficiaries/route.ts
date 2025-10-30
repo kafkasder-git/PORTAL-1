@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import api from '@/lib/api';
+import api from '@/shared/lib/api';
 import { BeneficiaryDocument } from '@/types/collections';
-import { withCsrfProtection } from '@/lib/middleware/csrf-middleware';
+import { withCsrfProtection } from '@/shared/lib/middleware/csrf-middleware';
 import { QueryParams } from '@/types/collections';
 
 /**

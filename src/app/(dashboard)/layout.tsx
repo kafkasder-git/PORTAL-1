@@ -3,18 +3,18 @@
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAuthStore } from '@/stores/authStore';
+import { useAuthStore } from '@/shared/stores/authStore';
 import { Sidebar } from '@/components/layouts/Sidebar';
 import { LogOut, Menu, ChevronDown, Settings } from 'lucide-react';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
-import { LoadingOverlay } from '@/components/ui/loading-overlay';
-import { SuspenseBoundary } from '@/components/ui/suspense-boundary';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
-import { UserRole } from '@/types/auth';
+import { cn } from '@/shared/lib/utils';
+import { LoadingOverlay } from '@/shared/components/ui/loading-overlay';
+import { SuspenseBoundary } from '@/shared/components/ui/suspense-boundary';
+import { Avatar, AvatarImage, AvatarFallback } from '@/shared/components/ui/avatar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/shared/components/ui/popover';
+import { Separator } from '@/shared/components/ui/separator';
+import { Badge } from '@/shared/components/ui/badge';
+import { UserRole } from '@/entities/auth';
 import Link from 'next/link';
 
 export default function DashboardLayout({
