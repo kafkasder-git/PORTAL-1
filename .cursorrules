@@ -1,0 +1,210 @@
+# Cursor AI Rules - Global Project Rules
+
+## Project Overview
+This is a Turkish NGO Management System (Dernek Yönetim Sistemi) built with Next.js 16, React 19, and Appwrite backend.
+
+## Critical Rules
+
+### 1. Appwrite SDK Usage - NEVER MIX!
+⚠️ **CRITICAL**: Always use the correct SDK based on context:
+
+**Client SDK** (`appwrite` package):
+- ✅ Use in: Client Components, Browser-side code
+- ✅ File: `src/shared/lib/appwrite/client.ts`
+- ✅ Import: `import { clientDatabases } from '@/shared/lib/appwrite/client'`
+- ❌ NEVER use in: API routes, Server Components, Server Actions
+
+**Server SDK** (`node-appwrite` package):
+- ✅ Use in: API Routes, Server Components, Server Actions
+- ✅ File: `src/shared/lib/appwrite/server.ts`
+- ✅ Import: `import { serverDatabases } from '@/shared/lib/appwrite/server'`
+- ❌ NEVER use in: Client Components, Browser-side code
+
+### 2. TypeScript - Strict Mode
+- ✅ Always define explicit types
+- ✅ Use interfaces for props and data structures
+- ❌ NEVER use `any` type - use `unknown` if needed
+- ✅ Always define return types for functions
+
+### 3. Security Requirements
+- ✅ ALWAYS validate input with Zod schemas
+- ✅ ALWAYS sanitize HTML output with DOMPurify
+- ✅ ALWAYS check permissions before operations
+- ✅ ALWAYS include CSRF token in state-changing requests
+- ✅ ALWAYS use HttpOnly cookies for session management
+
+### 4. File Structure
+- **Entities**: `src/entities/` - Domain types
+- **Features**: `src/features/[feature-name]/` - Feature modules
+- **Shared**: `src/shared/` - Reusable code
+- **Components**: PascalCase.tsx (e.g., `BeneficiaryForm.tsx`)
+- **Utils**: camelCase.ts (e.g., `sanitization.ts`)
+- **Types**: camelCase.types.ts (e.g., `beneficiary.types.ts`)
+
+### 5. Component Structure
+Always follow this structure:
+```typescript
+'use client'; // Only if needed
+
+// 1. Imports
+// 2. Types/Interfaces
+// 3. Component
+export function Component({ prop }: ComponentProps) {
+  // 4. Hooks
+  // 5. State
+  // 6. Handlers
+  // 7. Render
+  return (...)
+}
+```
+
+### 6. State Management
+- **Zustand**: Client state (auth, UI state)
+- **React Query**: Server state (API data)
+- ✅ Always use selectors in Zustand for performance
+- ✅ Always define proper query keys in React Query
+
+### 7. API Routes
+Always follow this pattern:
+```typescript
+export async function GET(request: NextRequest) {
+  try {
+    // 1. Authentication
+    const user = await validateSession(request);
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    // 2. Permission check
+    if (!hasPermission(user, Permission.RESOURCE_READ)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    // 3. Validation (if POST/PUT)
+    // 4. Business logic
+    // 5. Return response
+    return NextResponse.json({ success: true, data: ... });
+  } catch (error) {
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+```
+
+### 8. Permission System
+- 6 Roles: SUPER_ADMIN, ADMIN, MANAGER, MEMBER, VIEWER, VOLUNTEER
+- 30+ Permissions: Format `resource:action` (e.g., `beneficiaries:create`)
+- ✅ Always check permissions client-side AND server-side
+
+### 9. Error Handling
+- ✅ Always use try-catch in async operations
+- ✅ Always handle loading and error states in UI
+- ✅ Always return consistent error format: `{ success: false, error: "message" }`
+
+### 10. Testing
+- ✅ Write unit tests for utility functions
+- ✅ Write integration tests for API routes
+- ✅ Use Vitest for unit tests
+- ✅ Use Playwright for E2E tests
+
+## Code Style
+
+### TypeScript
+```typescript
+// ✅ Good
+function getUser(id: string): Promise<User | null> {
+  // ...
+}
+
+interface ComponentProps {
+  data: User;
+  onSubmit: (data: FormData) => Promise<void>;
+}
+
+// ❌ Bad
+function getUser(id: any) { // No any!
+  // ...
+}
+```
+
+### React Components
+- ✅ Use functional components with hooks
+- ✅ Use TypeScript interfaces for props
+- ✅ Handle loading, error, and empty states
+- ✅ Include accessibility attributes (aria-label, etc.)
+
+### Imports Order
+1. React/Next.js imports
+2. Third-party libraries
+3. Shared components/utils
+4. Feature-specific imports
+5. Types
+6. Relative imports
+
+## Common Patterns
+
+### Data Fetching (Client)
+```typescript
+import { useQuery } from '@tanstack/react-query';
+
+const { data, isLoading, error } = useQuery({
+  queryKey: ['beneficiaries', filters],
+  queryFn: () => fetchBeneficiaries(filters),
+});
+```
+
+### Data Fetching (Server)
+```typescript
+import { serverDatabases } from '@/shared/lib/appwrite/server';
+
+const data = await serverDatabases.listDocuments(/* ... */);
+```
+
+### Form Handling
+```typescript
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+const form = useForm({
+  resolver: zodResolver(beneficiarySchema),
+});
+```
+
+### Permission Check
+```typescript
+// Client
+const hasPermission = useAuthStore((state) => 
+  state.hasPermission(Permission.BENEFICIARIES_CREATE)
+);
+
+// Server
+if (!user.permissions.includes(Permission.BENEFICIARIES_CREATE)) {
+  return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+}
+```
+
+## Turkish Language Context
+- UI text is in Turkish
+- Variable names and code in English
+- Comments can be in English or Turkish
+- Error messages shown to users should be in Turkish
+
+## Documentation
+- Full documentation available in `docs/` folder
+- DEVELOPMENT_GUIDE.md - Development standards
+- ARCHITECTURE.md - System architecture
+- API_GUIDE.md - API usage guide
+- AGENTS.md - Detailed AI agent rules
+
+## When in Doubt
+1. Check existing similar code in the project
+2. Follow the patterns already established
+3. Read relevant documentation in `docs/` folder
+4. Ask for clarification if needed
+
+## Never Do
+- ❌ Mix Appwrite Client and Server SDKs
+- ❌ Use `any` type
+- ❌ Skip input validation
+- ❌ Skip permission checks
+- ❌ Skip error handling
+- ❌ Hardcode credentials or secrets
+- ❌ Commit `.env` files
+

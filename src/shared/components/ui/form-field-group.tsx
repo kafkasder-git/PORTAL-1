@@ -26,12 +26,12 @@ export function FormFieldGroup({
     <div className="mb-4">
       <div className="flex items-center gap-2 mb-1">
         {Icon && <Icon className="h-5 w-5 text-primary" />}
-        <h3 className="font-heading font-semibold text-base text-foreground">
+        <h3 className="font-heading font-semibold text-base xl:text-lg text-foreground">
           {title}
         </h3>
       </div>
       {description && (
-        <p className="text-sm text-muted-foreground">{description}</p>
+        <p className="text-sm xl:text-base text-muted-foreground">{description}</p>
       )}
       <Separator className="mt-3" />
     </div>

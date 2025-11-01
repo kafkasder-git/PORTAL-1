@@ -146,7 +146,7 @@ export default function UserManagementPage() {
             Yeni Kullanıcı
           </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Yeni Kullanıcı Ekle</DialogTitle>
             <DialogDescription>
@@ -212,7 +212,7 @@ export default function UserManagementPage() {
       </Dialog>
 
       <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Kullanıcı Düzenle</DialogTitle>
             <DialogDescription>
@@ -289,8 +289,8 @@ export default function UserManagementPage() {
         }
       >
         {/* Stats */}
-        <div className="grid gap-4 md:grid-cols-3">
-          <Card className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+        <div className="grid grid-cols-3 gap-4">
+          <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Toplam Kullanıcı</CardTitle>
               <Users className="h-4 w-4 text-slate-500" />
@@ -300,7 +300,7 @@ export default function UserManagementPage() {
             </CardContent>
           </Card>
 
-          <Card className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+          <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Aktif Kullanıcı</CardTitle>
               <UserCheck className="h-4 w-4 text-slate-500" />
@@ -310,7 +310,7 @@ export default function UserManagementPage() {
             </CardContent>
           </Card>
 
-          <Card className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+          <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Admin Kullanıcı</CardTitle>
               <Shield className="h-4 w-4 text-slate-500" />
@@ -322,12 +322,12 @@ export default function UserManagementPage() {
         </div>
 
         {/* Filters */}
-        <Card className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+        <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
           <CardHeader>
             <CardTitle>Filtreler</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-row gap-4">
               <div className="flex-1">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -340,7 +340,7 @@ export default function UserManagementPage() {
                 </div>
               </div>
               <Select value={selectedRole} onValueChange={setSelectedRole}>
-                <SelectTrigger className="w-full sm:w-[180px]">
+                <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Rol seçin" />
                 </SelectTrigger>
                 <SelectContent>
@@ -352,7 +352,7 @@ export default function UserManagementPage() {
                 </SelectContent>
               </Select>
               <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                <SelectTrigger className="w-full sm:w-[180px]">
+                <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Durum seçin" />
                 </SelectTrigger>
                 <SelectContent>
@@ -366,7 +366,7 @@ export default function UserManagementPage() {
         </Card>
 
         {/* Users Table */}
-        <Card className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+        <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
           <CardHeader>
             <CardTitle>Kullanıcı Listesi</CardTitle>
             <CardDescription>

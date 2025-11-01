@@ -70,7 +70,6 @@ export function DataTable<T extends Record<string, any>>({
   const effectiveSearchValue = searchValue ?? internalSearch;
   const handleSearchChange = onSearchChange ?? setInternalSearch;
 
-  // Filter data if internal search is used
   const filteredData = searchable && !onSearchChange
     ? data.filter((item) =>
         Object.values(item).some((value) =>
@@ -86,19 +85,24 @@ export function DataTable<T extends Record<string, any>>({
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           {searchable && (
             <div className="relative w-full sm:w-80">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 value={effectiveSearchValue}
                 onChange={(e) => handleSearchChange(e.target.value)}
                 placeholder={searchPlaceholder}
-                className="pl-9"
+                className="pl-10 h-10"
               />
             </div>
           )}
           {pagination && (
-            <Badge variant="secondary" className="font-semibold">
-              {pagination.total} Kayıt
-            </Badge>
+            <div className="flex items-center gap-2 ml-auto">
+              <span className="text-sm text-muted-foreground">
+                Toplam: {pagination.total} kayıt
+              </span>
+              <Badge variant="secondary" className="font-semibold">
+                {pagination.total}
+              </Badge>
+            </div>
           )}
         </div>
       )}
@@ -117,7 +121,7 @@ export function DataTable<T extends Record<string, any>>({
           {/* Error State */}
           {error && !isLoading && (
             <div className="flex flex-col items-center justify-center py-16 gap-3">
-              <div className="p-3 rounded-full bg-destructive/10">
+              <div className="p-3 rounded-lg bg-destructive/10">
                 <Search className="h-8 w-8 text-destructive" />
               </div>
               <div className="text-center">
@@ -132,8 +136,8 @@ export function DataTable<T extends Record<string, any>>({
           {/* Empty State */}
           {!isLoading && !error && filteredData.length === 0 && (
             <div className="flex flex-col items-center justify-center py-16 gap-3">
-              <div className="p-3 rounded-full bg-muted">
-                <Search className="h-8 w-8 text-muted-foreground" />
+              <div className="p-3 rounded-lg bg-primary/10">
+                <Search className="h-8 w-8 text-primary/40" />
               </div>
               <div className="text-center">
                 <p className="font-semibold text-foreground">{emptyMessage}</p>
@@ -149,14 +153,14 @@ export function DataTable<T extends Record<string, any>>({
             <div className="overflow-x-auto">
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="border-b border-border bg-secondary/50">
+                  <tr className="border-b border-border bg-muted/30">
                     {columns.map((column) => (
                       <th
-                      key={column.key}
-                      className={cn(
-                      'p-2 sm:p-3 lg:p-4 text-left text-xs font-heading font-semibold text-muted-foreground uppercase tracking-wider',
-                      column.className
-                      )}
+                        key={column.key}
+                        className={cn(
+                        'px-8 py-5 text-left text-xs xl:text-sm font-heading font-semibold text-muted-foreground uppercase tracking-wider',
+                        column.className
+                        )}
                       >
                         {column.label}
                       </th>
@@ -164,33 +168,33 @@ export function DataTable<T extends Record<string, any>>({
                   </tr>
                 </thead>
                 <tbody>
-                {filteredData.map((item, index) => (
-                <tr
-                key={item.id || item.$id || index}
-                onClick={() => onRowClick?.(item, index)}
-                className={cn(
-                'border-b border-border/50 transition-all duration-200',
-                striped && index % 2 === 0 && 'bg-muted/30',
-                hoverable && 'hover:bg-accent/40 hover:shadow-sm cursor-pointer',
-                onRowClick && 'cursor-pointer',
-                rowClassName?.(item, index)
-                )}
-                >
-                {columns.map((column) => (
-                <td
-                key={column.key}
-                  className={cn(
-                      'p-2 sm:p-3 lg:p-4 text-xs sm:text-sm text-foreground',
-                    column.className
-                )}
-                >
-                {column.render
-                ? column.render(item, index)
-                : String(item[column.key] ?? '-')}
-                </td>
-                ))}
-                </tr>
-                ))}
+                  {filteredData.map((item, index) => (
+                    <tr
+                      key={item.id || item.$id || index}
+                      onClick={() => onRowClick?.(item, index)}
+                      className={cn(
+                        'border-b border-border/50 transition-all duration-200',
+                        striped && index % 2 === 0 && 'bg-muted/15',
+                        hoverable && 'hover:bg-primary/5 hover:shadow-sm',
+                        onRowClick && 'cursor-pointer',
+                        rowClassName?.(item, index)
+                      )}
+                    >
+                      {columns.map((column) => (
+                        <td
+                          key={column.key}
+                          className={cn(
+                          'px-8 py-5 text-sm xl:text-base text-foreground',
+                          column.className
+                          )}
+                        >
+                          {column.render
+                            ? column.render(item, index)
+                            : String(item[column.key] ?? '-')}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
@@ -202,7 +206,7 @@ export function DataTable<T extends Record<string, any>>({
       {pagination && !isLoading && !error && filteredData.length > 0 && (
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground">
-            Sayfa {pagination.page} / {pagination.totalPages}
+            Sayfa <span className="font-semibold text-foreground">{pagination.page}</span> / <span className="font-semibold text-foreground">{pagination.totalPages}</span>
           </p>
           <div className="flex items-center gap-2">
             <Button
@@ -235,7 +239,7 @@ export function DataTable<T extends Record<string, any>>({
                     pagination.onPageChange(page);
                   }
                 }}
-                className="w-16 text-center h-8"
+                className="w-16 text-center h-9 text-sm"
               />
             </div>
             <Button

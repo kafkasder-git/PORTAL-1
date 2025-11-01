@@ -50,10 +50,12 @@ import { validateClientSDKUsage } from './sdk-guard';
 // validateAppwriteConfig(); // ❌ Removed to prevent import-time crash
 
 // Safe validation at module load - warns but doesn't throw
-validateAppwriteConfigSafe();
-
-// SDK usage validation - ensures client SDK is used in browser context
-validateClientSDKUsage();
+// Only validate if using Appwrite backend (skip for mock backend)
+const backendProvider = process.env.NEXT_PUBLIC_BACKEND_PROVIDER;
+if (backendProvider === 'appwrite') {
+  validateAppwriteConfigSafe();
+  validateClientSDKUsage();
+}
 
 /**
  * Client-side Appwrite client
@@ -62,9 +64,17 @@ validateClientSDKUsage();
  * Note: Configuration is validated lazily to prevent import-time crashes.
  * Call initializeClient() explicitly if you need strict validation.
  */
-export const client = new Client()
-  .setEndpoint(appwriteConfig.endpoint)
-  .setProject(appwriteConfig.projectId);
+export const client = (() => {
+  const instance = new Client();
+  // Only set endpoint if configured (prevents "Invalid endpoint URL" error with mock backend)
+  if (appwriteConfig.endpoint) {
+    instance.setEndpoint(appwriteConfig.endpoint);
+  }
+  if (appwriteConfig.projectId) {
+    instance.setProject(appwriteConfig.projectId);
+  }
+  return instance;
+})();
 
 /**
  * Account service instance

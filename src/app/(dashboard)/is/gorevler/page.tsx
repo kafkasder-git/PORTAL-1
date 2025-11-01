@@ -166,7 +166,7 @@ export default function TasksPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-row items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Görev Yönetimi</h1>
           <p className="text-gray-600 mt-2">
@@ -221,7 +221,7 @@ export default function TasksPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Toplam Görev</CardTitle>
@@ -269,7 +269,7 @@ export default function TasksPage() {
           <CardTitle>Filtreler</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-4 gap-4">
             {/* Search */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -421,7 +421,7 @@ export default function TasksPage() {
                         </div>
 
                         {/* Details */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <div className="grid grid-cols-4 gap-4 text-sm">
                           <div className="flex items-center gap-2">
                             <User className="h-4 w-4 text-gray-400" />
                             <span className="text-gray-500">Atanan:</span>

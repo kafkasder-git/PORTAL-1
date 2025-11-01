@@ -66,7 +66,7 @@ export const PremiumDashboard = React.forwardRef<
       {/* Premium Background Effects */}
       {background !== 'default' && (
         <>
-          <div className="absolute inset-0 bg-gradient-to-br from-background/80 via-transparent to-background/60" />
+          <div className="absolute inset-0 bg-linear-to-br from-background/80 via-transparent to-background/60" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(120,119,198,0.1),transparent_50%)]" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(255,119,198,0.05),transparent_50%)]" />
         </>
@@ -110,15 +110,15 @@ export const PremiumGrid = React.forwardRef<
       case 1:
         return 'grid-cols-1';
       case 2:
-        return 'grid-cols-1 md:grid-cols-2';
+        return 'grid-cols-2';
       case 3:
-        return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3';
+        return 'grid-cols-3';
       case 4:
-        return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4';
+        return 'grid-cols-4';
       case 5:
-        return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5';
+        return 'grid-cols-5';
       case 6:
-        return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6';
+        return 'grid-cols-6';
       default:
         return 'grid-cols-1';
     }

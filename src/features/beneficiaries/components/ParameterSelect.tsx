@@ -7,6 +7,36 @@ import { Loader2 } from 'lucide-react';
 import { parametersApi } from '@/shared/lib/api';
 import type { ParameterCategory } from '@/entities/collections';
 
+// Category labels mapping - only include categories that exist in ParameterCategory type
+const CATEGORY_LABELS: Record<ParameterCategory, string> = {
+  gender: 'Cinsiyet',
+  religion: 'İnanç',
+  marital_status: 'Medeni Durum',
+  employment_status: 'Çalışma Durumu',
+  living_status: 'Yaşam Durumu',
+  housing_type: 'Konut Türü',
+  income_level: 'Gelir Düzeyi',
+  guardian_relation: 'Vasi Yakınlık Derecesi',
+  education_status: 'Eğitim Durumu',
+  education_level: 'Eğitim Düzeyi',
+  education_success: 'Eğitim Başarısı',
+  death_reason: 'Vefat Nedeni',
+  health_problem: 'Sağlık Sorunu',
+  illness: 'Hastalık',
+  treatment: 'Tedavi',
+  special_condition: 'Özel Durum',
+  occupation: 'Meslek',
+  cancellation_reason: 'İptal Nedeni',
+  document_type: 'Belge Türü',
+  refund_reason: 'İade Nedeni',
+  sponsorship_end_reason: 'Sponsorluk Bitirme Nedeni',
+  sponsorship_continue: 'Sponsorluk Devam Etme',
+  school_type: 'Okul Türü',
+  school_institution_type: 'Okul Kurum Türü',
+  orphan_assignment_correction: 'Yetim Atama Düzeltmeleri',
+  orphan_detail: 'Yetim Detay',
+};
+
 interface ParameterSelectProps<T = string> {
   category: ParameterCategory;
   value?: T;
@@ -37,8 +67,7 @@ export function ParameterSelect<T = string>({
   return (
     <div className="space-y-2">
       <Label htmlFor={`parameter-${category}`}>
-        {/* TODO: Add proper label based on category */}
-        {category.replace('_', ' ').toUpperCase()}
+        {CATEGORY_LABELS[category] || category.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
       </Label>
       <Select 
         value={String(value || '')} 

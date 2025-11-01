@@ -1,0 +1,65 @@
+{
+  "timestamp": "2025-10-31T21:31:43.314Z",
+  "browsers": [
+    {
+      "browser": "Chrome",
+      "tests": [
+        {
+          "name": "initialLoad",
+          "status": "pass",
+          "duration": 2759,
+          "message": "Page loaded successfully"
+        },
+        {
+          "name": "authFlow",
+          "status": "warning",
+          "duration": 1443,
+          "message": "Auth session not persisted in localStorage"
+        },
+        {
+          "name": "errorBoundary",
+          "status": "fail",
+          "duration": 648,
+          "message": "page.evaluate: Error: Test error for boundary\n    at eval (eval at evaluate (:290:30), <anonymous>:1:12)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+        },
+        {
+          "name": "loadingState",
+          "status": "fail",
+          "duration": 629,
+          "message": "Only 0/5 variants found"
+        },
+        {
+          "name": "hydration",
+          "status": "pass",
+          "duration": 3698,
+          "message": "Hydration completed without errors"
+        },
+        {
+          "name": "navigation",
+          "status": "warning",
+          "duration": 710,
+          "message": "No navigation links found"
+        },
+        {
+          "name": "browser-launch",
+          "status": "fail",
+          "duration": 0,
+          "message": "Failed to launch browser: Cannot set properties of undefined (setting 'duration')"
+        }
+      ],
+      "summary": {
+        "passed": 2,
+        "failed": 3,
+        "warnings": 2,
+        "total": 7
+      }
+    }
+  ],
+  "summary": {
+    "totalTests": 7,
+    "passedTests": 2,
+    "failedTests": 3,
+    "warningTests": 2
+  },
+  "browserSpecificIssues": {}
+}

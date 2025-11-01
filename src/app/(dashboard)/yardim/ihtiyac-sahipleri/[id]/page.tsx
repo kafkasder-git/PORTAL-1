@@ -138,7 +138,7 @@ export default function BeneficiaryDetailPage({ params }: { params: Promise<{ id
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center py-20">
         <div className="text-center space-y-4">
           <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary border-t-transparent mx-auto" />
           <p className="text-muted-foreground">Yükleniyor...</p>
@@ -149,31 +149,29 @@ export default function BeneficiaryDetailPage({ params }: { params: Promise<{ id
 
   if (error || !beneficiary) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
-        <div className="max-w-2xl mx-auto">
-          <Button variant="outline" onClick={() => router.back()} className="mb-6 gap-2">
-            <ArrowLeft className="h-4 w-4" />
-            Geri Dön
-          </Button>
-          <Card className="border-red-200 bg-red-50">
-            <CardContent className="pt-6">
-              <div className="text-center py-8">
-                <XCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-red-900 mb-2">İhtiyaç Sahibi Bulunamadı</h3>
-                <p className="text-red-700">Aradığınız kayıt sistemde mevcut değil.</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+      <>
+        <Button variant="outline" onClick={() => router.back()} className="mb-6 gap-2">
+          <ArrowLeft className="h-4 w-4" />
+          Geri Dön
+        </Button>
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="pt-6">
+            <div className="text-center py-8">
+              <XCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-red-900 mb-2">İhtiyaç Sahibi Bulunamadı</h3>
+              <p className="text-red-700">Aradığınız kayıt sistemde mevcut değil.</p>
+            </div>
+          </CardContent>
+        </Card>
+      </>
     )
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="min-h-screen bg-gray-50">
+    <form onSubmit={handleSubmit(onSubmit)}>
       {/* Header */}
-      <div className="bg-white border-b sticky top-0 z-50 shadow-sm">
-        <div className="max-w-[1600px] mx-auto px-6 py-3">
+      <div className="bg-white border-b sticky top-0 z-50 shadow-sm -mx-6 -mt-6 mb-6">
+        <div className="px-6 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Button 
@@ -228,11 +226,10 @@ export default function BeneficiaryDetailPage({ params }: { params: Promise<{ id
       </div>
 
       {/* Main Content */}
-      <div className="max-w-[1600px] mx-auto px-6 py-6">
-        <div className="grid grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           
           {/* Left Column - Main Form */}
-          <div className="col-span-9 space-y-6">
+          <div className="lg:col-span-9 space-y-6">
             
             {/* Temel Bilgiler */}
             <Card>
@@ -241,15 +238,15 @@ export default function BeneficiaryDetailPage({ params }: { params: Promise<{ id
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-12 gap-4">
-                  <div className="col-span-2">
+                  <div className="col-span-12 sm:col-span-3 md:col-span-2">
                     <div className="w-full aspect-[3/4] bg-gray-100 rounded border flex items-center justify-center">
                       <User className="h-12 w-12 text-gray-400" />
                     </div>
                     <p className="text-xs text-center text-gray-500 mt-1">Fotoğraf</p>
                   </div>
 
-                  <div className="col-span-10 grid grid-cols-3 gap-4">
-                    <div className="space-y-1.5 col-span-2">
+                  <div className="col-span-12 sm:col-span-9 md:col-span-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="space-y-1.5 sm:col-span-2 lg:col-span-2">
                       <Label className="text-sm">İsim <span className="text-red-600">*</span></Label>
                       <Input 
                         {...register("name")}
@@ -278,7 +275,7 @@ export default function BeneficiaryDetailPage({ params }: { params: Promise<{ id
                 <CardTitle className="text-base font-medium">Kimlik ve İletişim</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div className="space-y-1.5">
                     <Label className="text-sm">TC Kimlik No</Label>
                     <div className="flex gap-2">
@@ -346,7 +343,7 @@ export default function BeneficiaryDetailPage({ params }: { params: Promise<{ id
                 <CardTitle className="text-base font-medium">Adres Bilgileri</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div className="space-y-1.5">
                     <Label className="text-sm">Şehir/Bölge</Label>
                     <Input 
@@ -465,7 +462,7 @@ export default function BeneficiaryDetailPage({ params }: { params: Promise<{ id
                 <CardTitle className="text-base font-medium">Kayıt Bilgileri</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                   <div>
                     <span className="text-gray-500">Kayıt Tarihi:</span>
                     <span className="ml-2 font-medium">
@@ -485,7 +482,7 @@ export default function BeneficiaryDetailPage({ params }: { params: Promise<{ id
           </div>
 
           {/* Right Column - Bağlantılı Kayıtlar */}
-          <div className="col-span-3">
+          <div className="lg:col-span-3">
             <Card className="sticky top-24">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base font-medium">Bağlantılı Kayıtlar</CardTitle>
@@ -515,7 +512,6 @@ export default function BeneficiaryDetailPage({ params }: { params: Promise<{ id
           </div>
 
         </div>
-      </div>
     </form>
   )
 }

@@ -302,7 +302,7 @@ export const components = {
 
 export const layout = {
   container: {
-    maxWidth: '1280px',
+    maxWidth: 'none', // No max-width constraint for desktop-first design
     padding: {
       mobile: '16px',
       tablet: '24px',

@@ -1,0 +1,858 @@
+'use client';
+
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Plus, Calendar as CalendarIcon, List, Search, Filter, X, Edit, Trash2, Users, MapPin } from 'lucide-react';
+import { toast } from 'sonner';
+import { format } from 'date-fns';
+import { tr } from 'date-fns/locale';
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Button } from '@/shared/components/ui/button';
+import { Input } from '@/shared/components/ui/input';
+import { Badge } from '@/shared/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/shared/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/shared/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/shared/components/ui/alert-dialog';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/shared/components/ui/tabs';
+import { DatePicker } from '@/shared/components/ui/date-picker';
+
+import { appwriteApi } from '@/shared/lib/api/appwrite-api';
+import { useAuthStore } from '@/shared/stores/authStore';
+import type { MeetingDocument } from '@/entities/collections';
+import { meetingTypeLabels, meetingStatusLabels } from '@/shared/lib/validations/meeting';
+import { MeetingForm } from './MeetingForm';
+import { cn } from '@/shared/lib/utils';
+
+export default function MeetingsManager() {
+  const queryClient = useQueryClient();
+  const { user } = useAuthStore();
+
+  // View mode state
+  const [viewMode, setViewMode] = useState<'calendar' | 'list'>('calendar');
+
+  // Search and filter state
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [meetingTypeFilter, setMeetingTypeFilter] = useState('all');
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
+  const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
+  const [activeTab, setActiveTab] = useState<'invited' | 'attended' | 'informed' | 'open'>('invited');
+
+  // Modal state
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [selectedMeeting, setSelectedMeeting] = useState<MeetingDocument | null>(null);
+  const [meetingToDelete, setMeetingToDelete] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+
+  const limit = 20;
+
+  // Fetch meetings for list view
+  const { data: meetingsResponse, isLoading: isLoadingMeetings } = useQuery({
+    queryKey: ['meetings', page, search, statusFilter, meetingTypeFilter, dateFrom, dateTo],
+    queryFn: () =>
+      appwriteApi.meetings.getMeetings({
+        page,
+        limit,
+        search,
+        filters: {
+          status: statusFilter !== 'all' ? statusFilter : undefined,
+          meeting_type: meetingTypeFilter !== 'all' ? meetingTypeFilter : undefined,
+          date_from: dateFrom ? dateFrom.toISOString() : undefined,
+          date_to: dateTo ? dateTo.toISOString() : undefined,
+        },
+      }),
+    enabled: viewMode === 'list',
+  });
+
+  // Fetch meetings for calendar view (current month)
+  const currentMonth = new Date();
+  const monthStart = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+  const monthEnd = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
+
+  const { data: calendarMeetingsResponse, isLoading: isLoadingCalendar } = useQuery({
+    queryKey: ['meetings-calendar', monthStart, monthEnd],
+    queryFn: () =>
+      appwriteApi.meetings.getMeetings({
+        limit: 1000,
+        filters: {
+          date_from: monthStart.toISOString(),
+          date_to: monthEnd.toISOString(),
+        },
+      }),
+    enabled: viewMode === 'calendar',
+  });
+
+  // Fetch meetings by tab
+  const { data: tabMeetingsResponse, isLoading: isLoadingTab } = useQuery({
+    queryKey: ['meetings-tab', activeTab, user?.id],
+    queryFn: () => {
+      if (!user?.id) return Promise.resolve({ data: [], error: null });
+      return appwriteApi.meetings.getMeetingsByTab(user.id, activeTab);
+    },
+    enabled: viewMode === 'list' && !!user?.id,
+  });
+
+  // Get stats
+  const { data: statsResponse } = useQuery({
+    queryKey: ['meetings-stats'],
+    queryFn: async () => {
+      const [total, scheduled, ongoing, completed] = await Promise.all([
+        appwriteApi.meetings.getMeetings({ limit: 1 }),
+        appwriteApi.meetings.getMeetings({ filters: { status: 'scheduled' }, limit: 1 }),
+        appwriteApi.meetings.getMeetings({ filters: { status: 'ongoing' }, limit: 1 }),
+        appwriteApi.meetings.getMeetings({ filters: { status: 'completed' }, limit: 1 }),
+      ]);
+      return {
+        total: total.total || 0,
+        scheduled: scheduled.total || 0,
+        ongoing: ongoing.total || 0,
+        completed: completed.total || 0,
+      };
+    },
+  });
+
+  const meetings = meetingsResponse?.data || [];
+  const calendarMeetings = calendarMeetingsResponse?.data || [];
+  const tabMeetings = tabMeetingsResponse?.data || [];
+  const total = meetingsResponse?.total || 0;
+  const totalPages = Math.ceil(total / limit);
+
+  // Delete mutation
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => appwriteApi.meetings.deleteMeeting(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['meetings'] });
+      queryClient.invalidateQueries({ queryKey: ['meetings-stats'] });
+      toast.success('Toplantı başarıyla silindi');
+      setMeetingToDelete(null);
+    },
+    onError: (error: any) => {
+      toast.error(`Toplantı silinirken hata oluştu: ${error.message}`);
+    },
+  });
+
+  const handleCreateSuccess = () => {
+    setShowCreateModal(false);
+    setSelectedMeeting(null);
+    setSelectedDate(undefined);
+  };
+
+  const handleMeetingClick = (meeting: MeetingDocument) => {
+    setSelectedMeeting(meeting);
+  };
+
+  const handleDateClick = (date: Date) => {
+    setSelectedDate(date);
+    setShowCreateModal(true);
+  };
+
+  const handleDelete = (id: string) => {
+    setMeetingToDelete(id);
+  };
+
+  const confirmDelete = () => {
+    if (meetingToDelete) {
+      deleteMutation.mutate(meetingToDelete);
+    }
+  };
+
+  const clearFilters = () => {
+    setSearch('');
+    setStatusFilter('all');
+    setMeetingTypeFilter('all');
+    setDateFrom(undefined);
+    setDateTo(undefined);
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'scheduled':
+        return 'default';
+      case 'ongoing':
+        return 'secondary';
+      case 'completed':
+        return 'outline';
+      case 'cancelled':
+        return 'destructive';
+      default:
+        return 'default';
+    }
+  };
+
+  const getMeetingTypeColor = (type: string) => {
+    switch (type) {
+      case 'general':
+        return 'bg-blue-100 text-blue-800';
+      case 'committee':
+        return 'bg-purple-100 text-purple-800';
+      case 'board':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  return (
+    <div className="space-y-6 p-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Toplantı Yönetimi</h1>
+          <p className="text-gray-500">Toplantıları planlayın, yönetin ve takip edin</p>
+        </div>
+        <div className="flex items-center gap-2">
+          {/* View Mode Toggle */}
+          <div className="flex rounded-md border">
+            <Button
+              variant={viewMode === 'calendar' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('calendar')}
+            >
+              <CalendarIcon className="h-4 w-4 mr-1" />
+              Takvim
+            </Button>
+            <Button
+              variant={viewMode === 'list' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('list')}
+            >
+              <List className="h-4 w-4 mr-1" />
+              Liste
+            </Button>
+          </div>
+          <Button onClick={() => setShowCreateModal(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Yeni Toplantı
+          </Button>
+        </div>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">Toplam Toplantı</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{statsResponse?.total || 0}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-blue-600">Planlanmış</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-600">{statsResponse?.scheduled || 0}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-yellow-600">Devam Eden</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-yellow-600">{statsResponse?.ongoing || 0}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-green-600">Tamamlanan</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">{statsResponse?.completed || 0}</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Filters Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Filter className="h-5 w-5" />
+            Filtreler
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+            <div className="space-y-2">
+              <Input
+                placeholder="Toplantı başlığı ile ara"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="h-9"
+              />
+            </div>
+            <div className="space-y-2">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="h-9">
+                  <SelectValue placeholder="Durum" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tümü</SelectItem>
+                  <SelectItem value="scheduled">Planlandı</SelectItem>
+                  <SelectItem value="ongoing">Devam Ediyor</SelectItem>
+                  <SelectItem value="completed">Tamamlandı</SelectItem>
+                  <SelectItem value="cancelled">İptal Edildi</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Select value={meetingTypeFilter} onValueChange={setMeetingTypeFilter}>
+                <SelectTrigger className="h-9">
+                  <SelectValue placeholder="Tür" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tümü</SelectItem>
+                  <SelectItem value="general">Genel</SelectItem>
+                  <SelectItem value="committee">Komite</SelectItem>
+                  <SelectItem value="board">Yönetim Kurulu</SelectItem>
+                  <SelectItem value="other">Diğer</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={clearFilters} className="h-9">
+                <X className="mr-1 h-4 w-4" />
+                Temizle
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Calendar View */}
+      {viewMode === 'calendar' && (
+        <>
+          {isLoadingCalendar ? (
+            <Card>
+              <CardContent className="flex items-center justify-center py-12">
+                <div className="text-center">
+                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto mb-4" />
+                  <p className="text-gray-500">Toplantılar yükleniyor...</p>
+                </div>
+              </CardContent>
+            </Card>
+          ) : calendarMeetings.length === 0 ? (
+            <Card>
+              <CardContent className="text-center py-12">
+                <p className="text-gray-500">Bu ay için planlanmış toplantı yok</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card>
+              <CardHeader>
+                <CardTitle>Takvim Görünümü</CardTitle>
+                <CardDescription>
+                  {format(currentMonth, 'MMMM yyyy', { locale: tr })} ayı toplantıları
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <CalendarView
+                  meetings={calendarMeetings}
+                  currentMonth={currentMonth}
+                  onDateClick={handleDateClick}
+                  onMeetingClick={handleMeetingClick}
+                />
+              </CardContent>
+            </Card>
+          )}
+        </>
+      )}
+
+      {/* List View */}
+      {viewMode === 'list' && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>Toplantı Listesi</CardTitle>
+              <div className="text-sm text-gray-500">{total} Toplantı</div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <Tabs value={activeTab} onValueChange={(value: any) => setActiveTab(value)}>
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="invited">Davet</TabsTrigger>
+                <TabsTrigger value="attended">Katılım</TabsTrigger>
+                <TabsTrigger value="informed">Bilgi Verilenler</TabsTrigger>
+                <TabsTrigger value="open">Açık Durumdakiler</TabsTrigger>
+              </TabsList>
+
+              {/* Invited Tab */}
+              <TabsContent value="invited">
+                {isLoadingTab ? (
+                  <div className="text-center py-8">
+                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto" />
+                  </div>
+                ) : tabMeetings.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    Henüz davet edildiğiniz bir toplantı bulunmamaktadır
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {tabMeetings.map((meeting) => (
+                      <Card
+                        key={meeting.$id}
+                        className="cursor-pointer transition-all hover:shadow-md hover:bg-blue-50"
+                        onClick={() => handleMeetingClick(meeting)}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1 space-y-1">
+                              <div className="flex items-center gap-3">
+                                <span className="text-sm text-gray-500">
+                                  {format(new Date(meeting.meeting_date), 'dd MMM yyyy HH:mm', { locale: tr })}
+                                </span>
+                                <h4 className="font-semibold">{meeting.title}</h4>
+                                <Badge className={getMeetingTypeColor(meeting.meeting_type)}>
+                                  {meetingTypeLabels[meeting.meeting_type]}
+                                </Badge>
+                              </div>
+                              <div className="flex items-center gap-4 text-sm text-gray-600">
+                                {meeting.location && (
+                                  <div className="flex items-center gap-1">
+                                    <MapPin className="h-3 w-3" />
+                                    <span>{meeting.location}</span>
+                                  </div>
+                                )}
+                                <div className="flex items-center gap-1">
+                                  <Users className="h-3 w-3" />
+                                  <span>{meeting.participants.length} katılımcı</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Badge variant={getStatusColor(meeting.status)}>
+                                {meetingStatusLabels[meeting.status]}
+                              </Badge>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleMeetingClick(meeting);
+                                }}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDelete(meeting.$id);
+                                }}
+                              >
+                                <Trash2 className="h-4 w-4 text-red-500" />
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+
+              {/* Attended Tab */}
+              <TabsContent value="attended">
+                {isLoadingTab ? (
+                  <div className="text-center py-8">
+                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto" />
+                  </div>
+                ) : tabMeetings.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    Katılım sağladığınız toplantı bulunmamaktadır
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {tabMeetings.map((meeting) => (
+                      <Card
+                        key={meeting.$id}
+                        className="cursor-pointer transition-all hover:shadow-md hover:bg-blue-50"
+                        onClick={() => handleMeetingClick(meeting)}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1 space-y-1">
+                              <div className="flex items-center gap-3">
+                                <span className="text-sm text-gray-500">
+                                  {format(new Date(meeting.meeting_date), 'dd MMM yyyy HH:mm', { locale: tr })}
+                                </span>
+                                <h4 className="font-semibold">{meeting.title}</h4>
+                                <Badge className={getMeetingTypeColor(meeting.meeting_type)}>
+                                  {meetingTypeLabels[meeting.meeting_type]}
+                                </Badge>
+                              </div>
+                              <div className="flex items-center gap-4 text-sm text-gray-600">
+                                {meeting.location && (
+                                  <div className="flex items-center gap-1">
+                                    <MapPin className="h-3 w-3" />
+                                    <span>{meeting.location}</span>
+                                  </div>
+                                )}
+                                <div className="flex items-center gap-1">
+                                  <Users className="h-3 w-3" />
+                                  <span>{meeting.participants.length} katılımcı</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Badge variant={getStatusColor(meeting.status)}>
+                                {meetingStatusLabels[meeting.status]}
+                              </Badge>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleMeetingClick(meeting);
+                                }}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDelete(meeting.$id);
+                                }}
+                              >
+                                <Trash2 className="h-4 w-4 text-red-500" />
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+
+              {/* Informed Tab */}
+              <TabsContent value="informed">
+                {isLoadingTab ? (
+                  <div className="text-center py-8">
+                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto" />
+                  </div>
+                ) : tabMeetings.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    Bilgi verildiğiniz toplantı bulunmamaktadır
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {tabMeetings.map((meeting) => (
+                      <Card
+                        key={meeting.$id}
+                        className="cursor-pointer transition-all hover:shadow-md hover:bg-blue-50"
+                        onClick={() => handleMeetingClick(meeting)}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1 space-y-1">
+                              <div className="flex items-center gap-3">
+                                <span className="text-sm text-gray-500">
+                                  {format(new Date(meeting.meeting_date), 'dd MMM yyyy HH:mm', { locale: tr })}
+                                </span>
+                                <h4 className="font-semibold">{meeting.title}</h4>
+                                <Badge className={getMeetingTypeColor(meeting.meeting_type)}>
+                                  {meetingTypeLabels[meeting.meeting_type]}
+                                </Badge>
+                              </div>
+                              <div className="flex items-center gap-4 text-sm text-gray-600">
+                                {meeting.location && (
+                                  <div className="flex items-center gap-1">
+                                    <MapPin className="h-3 w-3" />
+                                    <span>{meeting.location}</span>
+                                  </div>
+                                )}
+                                <div className="flex items-center gap-1">
+                                  <Users className="h-3 w-3" />
+                                  <span>{meeting.participants.length} katılımcı</span>
+                                </div>
+                              </div>
+                            </div>
+                            <Badge variant={getStatusColor(meeting.status)}>
+                              {meetingStatusLabels[meeting.status]}
+                            </Badge>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+
+              {/* Open Tab */}
+              <TabsContent value="open">
+                {isLoadingTab ? (
+                  <div className="text-center py-8">
+                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto" />
+                  </div>
+                ) : tabMeetings.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    Açık durumda toplantı bulunmamaktadır
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {tabMeetings.map((meeting) => (
+                      <Card
+                        key={meeting.$id}
+                        className="cursor-pointer transition-all hover:shadow-md hover:bg-blue-50"
+                        onClick={() => handleMeetingClick(meeting)}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1 space-y-1">
+                              <div className="flex items-center gap-3">
+                                <span className="text-sm text-gray-500">
+                                  {format(new Date(meeting.meeting_date), 'dd MMM yyyy HH:mm', { locale: tr })}
+                                </span>
+                                <h4 className="font-semibold">{meeting.title}</h4>
+                                <Badge className={getMeetingTypeColor(meeting.meeting_type)}>
+                                  {meetingTypeLabels[meeting.meeting_type]}
+                                </Badge>
+                              </div>
+                              <div className="flex items-center gap-4 text-sm text-gray-600">
+                                {meeting.location && (
+                                  <div className="flex items-center gap-1">
+                                    <MapPin className="h-3 w-3" />
+                                    <span>{meeting.location}</span>
+                                  </div>
+                                )}
+                                <div className="flex items-center gap-1">
+                                  <Users className="h-3 w-3" />
+                                  <span>{meeting.participants.length} katılımcı</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Badge variant={getStatusColor(meeting.status)}>
+                                {meetingStatusLabels[meeting.status]}
+                              </Badge>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleMeetingClick(meeting);
+                                }}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDelete(meeting.$id);
+                                }}
+                              >
+                                <Trash2 className="h-4 w-4 text-red-500" />
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Create Meeting Form */}
+      <MeetingForm
+        isOpen={showCreateModal}
+        onClose={() => {
+          setShowCreateModal(false);
+          setSelectedDate(undefined);
+        }}
+        onSuccess={() => {
+          queryClient.invalidateQueries({ queryKey: ['meetings'] });
+          queryClient.invalidateQueries({ queryKey: ['meetings-stats'] });
+        }}
+        selectedDate={selectedDate}
+      />
+
+      {/* Edit Meeting Form */}
+      {selectedMeeting && (
+        <MeetingForm
+          isOpen={!!selectedMeeting}
+          onClose={() => setSelectedMeeting(null)}
+          onSuccess={() => {
+            queryClient.invalidateQueries({ queryKey: ['meetings'] });
+            queryClient.invalidateQueries({ queryKey: ['meetings-stats'] });
+          }}
+          meeting={selectedMeeting}
+        />
+      )}
+
+      {/* Delete Confirmation */}
+      <AlertDialog open={!!meetingToDelete} onOpenChange={(open) => !open && setMeetingToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Toplantıyı Sil</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bu toplantıyı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>İptal</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-red-500 hover:bg-red-600">
+              Sil
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+}
+
+// Calendar View Component
+function CalendarView({
+  meetings,
+  currentMonth,
+  onDateClick,
+  onMeetingClick
+}: {
+  meetings: MeetingDocument[];
+  currentMonth: Date;
+  onDateClick: (date: Date) => void;
+  onMeetingClick: (meeting: MeetingDocument) => void;
+}) {
+  const monthStart = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+  const monthEnd = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
+  const startDate = new Date(monthStart);
+  startDate.setDate(startDate.getDate() - startDate.getDay()); // Start from Sunday
+
+  const endDate = new Date(monthEnd);
+  endDate.setDate(endDate.getDate() + (6 - endDate.getDay())); // End on Saturday
+
+  const days = [];
+  const current = new Date(startDate);
+
+  while (current <= endDate) {
+    days.push(new Date(current));
+    current.setDate(current.getDate() + 1);
+  }
+
+  const getMeetingsForDate = (date: Date) => {
+    return meetings.filter(meeting => {
+      const meetingDate = new Date(meeting.meeting_date);
+      return meetingDate.toDateString() === date.toDateString();
+    });
+  };
+
+  const isCurrentMonth = (date: Date) => {
+    return date.getMonth() === currentMonth.getMonth();
+  };
+
+  const isToday = (date: Date) => {
+    const today = new Date();
+    return date.toDateString() === today.toDateString();
+  };
+
+  const weekDays = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
+
+  return (
+    <div className="calendar-view">
+      {/* Week Header */}
+      <div className="grid grid-cols-7 gap-1 mb-2">
+        {weekDays.map(day => (
+          <div key={day} className="p-2 text-center text-sm font-medium text-muted-foreground">
+            {day}
+          </div>
+        ))}
+      </div>
+
+      {/* Calendar Grid */}
+      <div className="grid grid-cols-7 gap-1">
+        {days.map((date, index) => {
+          const dayMeetings = getMeetingsForDate(date);
+          const isCurrentMonthDay = isCurrentMonth(date);
+          const isTodayDay = isToday(date);
+
+          return (
+            <div
+              key={index}
+              className={cn(
+                'min-h-[100px] p-2 border rounded-lg transition-all cursor-pointer',
+                isCurrentMonthDay
+                  ? 'bg-card hover:bg-accent/50'
+                  : 'bg-muted/30 text-muted-foreground',
+                isTodayDay && 'ring-2 ring-primary ring-offset-1'
+              )}
+              onClick={() => isCurrentMonthDay && onDateClick(date)}
+            >
+              <div className={cn(
+                'text-sm font-medium mb-1',
+                isTodayDay && 'text-primary font-bold'
+              )}>
+                {date.getDate()}
+              </div>
+
+              {/* Meetings for this day */}
+              <div className="space-y-1">
+                {dayMeetings.slice(0, 2).map((meeting) => (
+                  <div
+                    key={meeting.$id}
+                    className={cn(
+                      'text-xs p-1 rounded truncate cursor-pointer transition-all',
+                      'bg-primary/10 text-primary hover:bg-primary/20',
+                      getStatusColor(meeting.status) === 'default' && 'bg-blue-100 text-blue-800',
+                      getStatusColor(meeting.status) === 'secondary' && 'bg-yellow-100 text-yellow-800',
+                      getStatusColor(meeting.status) === 'destructive' && 'bg-red-100 text-red-800'
+                    )}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onMeetingClick(meeting);
+                    }}
+                    title={meeting.title}
+                  >
+                    {format(new Date(meeting.meeting_date), 'HH:mm')} - {meeting.title}
+                  </div>
+                ))}
+
+                {dayMeetings.length > 2 && (
+                  <div className="text-xs text-muted-foreground">
+                    +{dayMeetings.length - 2} daha fazla
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}

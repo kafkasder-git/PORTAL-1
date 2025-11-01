@@ -20,10 +20,12 @@ export default function Error({
   useEffect(() => {
     // Log error to console in development
     if (process.env.NODE_ENV === 'development') {
-      console.error('Route Error Context:', {
-        error,
+      console.error('Route Error Context:', error);
+      console.error('Error Details:', {
+        message: error.message,
         digest: error.digest,
         stack: error.stack,
+        name: error.name,
       });
       console.error('Current URL:', window.location.href);
       console.error('User Agent:', navigator.userAgent);

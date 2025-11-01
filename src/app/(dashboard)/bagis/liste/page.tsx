@@ -137,7 +137,7 @@ export default function DonationsPage() {
         }
       >
         {/* Stats */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-3 gap-4">
         <ExecutiveCard
         title="Toplam Bağış"
         value={total}
@@ -192,7 +192,7 @@ export default function DonationsPage() {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
         placeholder="Bağışçı adı veya fiş numarası ile ara..."
-        className="pl-10 h-10 text-sm sm:h-12 sm:text-base sm:pl-12"
+        className="pl-12 h-12 text-base"
         value={search}
         onChange={(e) => {
         setSearch(e.target.value);

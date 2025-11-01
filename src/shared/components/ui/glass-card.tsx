@@ -48,7 +48,7 @@ export const GlassCard = React.forwardRef<HTMLDivElement, GlassCardProps>(
           border && 'border border-white/20 dark:border-white/10',
           shadow && 'shadow-glass',
           'before:absolute before:inset-0 before:rounded-xl',
-          'before:bg-gradient-to-br before:from-white/10 before:to-transparent',
+          'before:bg-linear-to-br before:from-white/10 before:to-transparent',
           'before:pointer-events-none',
           className
         )}

@@ -115,7 +115,7 @@ export default function AidApplicationDetailPage({ params }: { params: Promise<{
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Mevcut Aşama</Label>
                 <div className={`p-3 rounded-md ${STAGE_LABELS[application.stage].color} font-medium flex items-center gap-2`}>
@@ -154,7 +154,7 @@ export default function AidApplicationDetailPage({ params }: { params: Promise<{
           <CardDescription>Portal Plus tarzı yardım türleri</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             {application.one_time_aid && application.one_time_aid > 0 && (
               <div className="p-4 border rounded-lg bg-blue-50">
                 <div className="flex items-center gap-2 mb-2">
@@ -243,7 +243,7 @@ export default function AidApplicationDetailPage({ params }: { params: Promise<{
             )}
 
             <Separator />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-sm font-medium text-gray-500">Kayıt Tarihi</p>
                 <p className="text-base">{new Date(application.$createdAt).toLocaleDateString('tr-TR', {

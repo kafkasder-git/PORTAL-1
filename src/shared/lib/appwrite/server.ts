@@ -16,8 +16,12 @@ import { validateServerSDKUsage } from './sdk-guard';
 // validateServerConfig(); // ❌ Removed to prevent import-time crash
 
 // Safe validation at module load - warns but doesn't throw
-validateServerConfigSafe();
-validateServerSDKUsage();
+// Only validate if using Appwrite backend (skip for mock backend)
+const backendProvider = process.env.NEXT_PUBLIC_BACKEND_PROVIDER;
+if (backendProvider === 'appwrite') {
+  validateServerConfigSafe();
+  validateServerSDKUsage();
+}
 
 /**
  * Server-side Appwrite client
@@ -27,10 +31,20 @@ validateServerSDKUsage();
  * Note: Configuration is validated lazily to prevent import-time crashes.
  * Call initializeServerClient() explicitly if you need strict validation.
  */
-export const serverClient = new Client()
-  .setEndpoint(appwriteConfig.endpoint)
-  .setProject(appwriteConfig.projectId)
-  .setKey(appwriteConfig.apiKey);
+export const serverClient = (() => {
+  const instance = new Client();
+  // Only set config if available (prevents errors with mock backend)
+  if (appwriteConfig.endpoint) {
+    instance.setEndpoint(appwriteConfig.endpoint);
+  }
+  if (appwriteConfig.projectId) {
+    instance.setProject(appwriteConfig.projectId);
+  }
+  if (appwriteConfig.apiKey) {
+    instance.setKey(appwriteConfig.apiKey);
+  }
+  return instance;
+})();
 
 /**
  * Server Account service

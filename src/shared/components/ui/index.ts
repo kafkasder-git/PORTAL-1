@@ -30,7 +30,6 @@ export * from './select';
 export * from './separator';
 export * from './sidebar';
 export * from './skeleton';
-export * from './sparkles';
 export * from './stat-card';
 export * from './step-progress';
 export * from './switch';

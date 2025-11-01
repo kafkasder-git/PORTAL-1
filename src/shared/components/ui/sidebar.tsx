@@ -2,7 +2,7 @@
 import { cn } from "@/shared/lib/utils";
 import React, { useState, createContext, useContext } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { IconMenu2, IconX } from "@tabler/icons-react";
+import { Menu, X } from "lucide-react";
 
 interface Links {
   label: string;
@@ -119,7 +119,7 @@ className={cn(
 {...props}
 >
 <div className="flex justify-end z-20 w-full">
-<IconMenu2
+<Menu
 className="text-foreground hover:text-brand-primary transition-colors"
 onClick={() => setOpen(!open)}
 />
@@ -143,7 +143,7 @@ className
 className="absolute right-10 top-10 z-50 text-foreground hover:text-brand-primary transition-colors"
 onClick={() => setOpen(!open)}
 >
-<IconX />
+<X />
 </div>
 {children}
 </motion.div>

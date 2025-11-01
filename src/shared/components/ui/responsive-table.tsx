@@ -8,7 +8,7 @@ export interface ResponsiveColumn {
   label: string;
   width?: string;
   render?: (value: unknown, row: Record<string, unknown>) => ReactNode;
-  hidden?: 'mobile' | 'tablet' | 'desktop' | 'mobile-tablet';
+  hidden?: boolean;
 }
 
 interface ResponsiveTableProps {
@@ -23,10 +23,7 @@ interface ResponsiveTableProps {
 }
 
 /**
- * Responsive table component that adapts layout based on screen size
- * Desktop: Traditional table
- * Tablet: Card-based with key columns
- * Mobile: Stacked card layout
+ * Desktop table component - Traditional table layout only
  */
 export function ResponsiveTable({
   columns,
@@ -56,13 +53,13 @@ export function ResponsiveTable({
 
   return (
     <div className="space-y-4">
-      {/* Desktop View - Traditional Table */}
-      <div className="hidden lg:block overflow-x-auto">
+      {/* Desktop Table */}
+      <div className="block overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-gray-50 border-b">
               {columns
-                .filter((col) => col.hidden !== 'desktop')
+                .filter((col) => !col.hidden)
                 .map((col) => (
                   <th
                     key={col.key}
@@ -84,7 +81,7 @@ export function ResponsiveTable({
                 onClick={() => onRowClick?.(row)}
               >
                 {columns
-                  .filter((col) => col.hidden !== 'desktop')
+                  .filter((col) => !col.hidden)
                   .map((col) => (
                     <td key={`${String(row[rowKey])}-${col.key}`} className="px-4 py-3 text-sm text-gray-900">
                       {col.render ? col.render(row[col.key], row) : String(row[col.key] || '-')}
@@ -97,69 +94,12 @@ export function ResponsiveTable({
         </table>
       </div>
 
-      {/* Tablet View - Cards with Key Columns */}
-      <div className="hidden md:lg:grid gap-4 grid-cols-1 lg:hidden">
-        {data.map((row) => (
-          <Card
-            key={String(row[rowKey])}
-            className="p-4 hover:shadow-lg transition-shadow cursor-pointer"
-            onClick={() => onRowClick?.(row)}
-          >
-            <div className="grid grid-cols-2 gap-3">
-              {columns
-                .filter((col) => col.hidden !== 'tablet' && col.hidden !== 'mobile-tablet')
-                .slice(0, 4)
-                .map((col) => (
-                  <div key={`${String(row[rowKey])}-${col.key}`}>
-                    <p className="text-xs font-medium text-gray-500 uppercase">{col.label}</p>
-                    <p className="text-sm text-gray-900 mt-1">
-                      {col.render ? col.render(row[col.key], row) : String(row[col.key] || '-')}
-                    </p>
-                  </div>
-                ))}
-            </div>
-            {actions && (
-              <div className="mt-4 pt-4 border-t">
-                <div className="flex gap-2">{actions(row)}</div>
-              </div>
-            )}
-          </Card>
-        ))}
-      </div>
-
-      {/* Mobile View - Stacked Cards */}
-      <div className="md:hidden space-y-4">
-        {data.map((row) => (
-          <Card
-            key={String(row[rowKey])}
-            className="p-4 space-y-3 hover:shadow-lg transition-shadow cursor-pointer"
-            onClick={() => onRowClick?.(row)}
-          >
-            {columns
-              .filter((col) => col.hidden !== 'mobile' && col.hidden !== 'mobile-tablet')
-              .slice(0, 3)
-              .map((col) => (
-                <div key={`${String(row[rowKey])}-${col.key}`} className="flex justify-between items-start">
-                  <p className="text-xs font-medium text-gray-500 uppercase">{col.label}</p>
-                  <p className="text-sm text-gray-900 text-right max-w-[50%]">
-                    {col.render ? col.render(row[col.key], row) : String(row[col.key] || '-')}
-                  </p>
-                </div>
-              ))}
-            {actions && (
-              <div className="flex gap-2 pt-3 border-t">
-                {actions(row)}
-              </div>
-            )}
-          </Card>
-        ))}
-      </div>
     </div>
   );
 }
 
 /**
- * Responsive grid list for larger items
+ * Desktop grid list for larger items
  */
 interface ResponsiveGridProps {
   data: Record<string, unknown>[];
@@ -167,7 +107,7 @@ interface ResponsiveGridProps {
   isLoading?: boolean;
   isEmpty?: boolean;
   emptyMessage?: string;
-  itemsPerRow?: { mobile: number; tablet: number; desktop: number };
+  itemsPerRow?: number;
 }
 
 export function ResponsiveGrid({
@@ -176,7 +116,7 @@ export function ResponsiveGrid({
   isLoading,
   isEmpty,
   emptyMessage = 'Veri bulunamadı',
-  itemsPerRow = { mobile: 1, tablet: 2, desktop: 3 },
+  itemsPerRow = 3,
 }: ResponsiveGridProps) {
   if (isLoading) {
     return (
@@ -194,10 +134,8 @@ export function ResponsiveGrid({
     );
   }
 
-  const gridCols = `grid-cols-${itemsPerRow.mobile} md:grid-cols-${itemsPerRow.tablet} lg:grid-cols-${itemsPerRow.desktop}`;
-
   return (
-    <div className={`grid gap-4 grid-cols-${itemsPerRow.mobile} md:grid-cols-${itemsPerRow.tablet} lg:grid-cols-${itemsPerRow.desktop}`}>
+    <div className={`grid gap-4 grid-cols-${itemsPerRow}`}>
       {data.map((item, index) => (
         <div key={`item-${index}`}>{renderCard(item)}</div>
       ))}

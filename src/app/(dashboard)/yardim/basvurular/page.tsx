@@ -55,7 +55,7 @@ export default function AidApplicationsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-row items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Yardım Başvuruları</h1>
           <p className="text-gray-600 mt-2">
@@ -65,7 +65,7 @@ export default function AidApplicationsPage() {
 
         <Dialog open={showCreateForm} onOpenChange={setShowCreateForm}>
           <DialogTrigger asChild>
-            <Button className="gap-2 sm:w-auto w-full">
+            <Button className="gap-2">
               <Plus className="h-4 w-4" />
               Yeni Başvuru
             </Button>
@@ -90,8 +90,8 @@ export default function AidApplicationsPage() {
           <CardTitle>Arama ve Filtreleme</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="md:col-span-2 relative">
+          <div className="grid grid-cols-4 gap-4">
+            <div className="col-span-2 relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 placeholder="Kişi / Kurum / Partner"

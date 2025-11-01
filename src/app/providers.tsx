@@ -17,16 +17,28 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
     () =>
       new QueryClient({
-        defaultOptions: {
-          queries: {
-            staleTime: 60 * 1000, // 1 minute
-            refetchOnWindowFocus: false,
+      defaultOptions: {
+      queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes - better for management system
+      gcTime: 10 * 60 * 1000, // 10 minutes cache time
+        refetchOnWindowFocus: false,
+          retry: (failureCount, error) => {
+              // Don't retry on 4xx errors
+              if (error instanceof Error && 'status' in error && typeof error.status === 'number' && error.status >= 400 && error.status < 500) {
+                return false;
+              }
+              return failureCount < 2;
+            },
+          },
+          mutations: {
+            retry: 1,
           },
         },
       })
   );
 
   const [mounted, setMounted] = useState(false);
+  const [isHydrating, setIsHydrating] = useState(true);
   const hasHydrated = useAuthStore((state) => state._hasHydrated);
   const initializeAuth = useAuthStore((state) => state?.initializeAuth);
 
@@ -49,12 +61,50 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   // Manual rehydration for skipHydration: true
   useEffect(() => {
-    useAuthStore.persist.rehydrate();
+    let mounted = true;
+    
+    const rehydrate = async () => {
+      try {
+        await useAuthStore.persist.rehydrate();
+        if (mounted) {
+          setIsHydrating(false);
+        }
+      } catch (error) {
+        console.error('Rehydration error:', error);
+        if (mounted) {
+          setIsHydrating(false);
+        }
+      }
+    };
+
+    // Set a timeout to prevent infinite loading (max 5 seconds)
+    const timeoutId = setTimeout(() => {
+      if (mounted) {
+        console.warn('⚠️ Hydration timeout - rendering anyway');
+        setIsHydrating(false);
+      }
+    }, 5000);
+
+    rehydrate().then(() => {
+      clearTimeout(timeoutId);
+    });
+
+    return () => {
+      mounted = false;
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Update isHydrating when hasHydrated changes
+  useEffect(() => {
+    if (hasHydrated) {
+      setIsHydrating(false);
+    }
+  }, [hasHydrated]);
 
   // Wait for both mounted and hydration complete before initializing auth
   useEffect(() => {
@@ -70,9 +120,16 @@ export function Providers({ children }: { children: React.ReactNode }) {
     }
   }, [mounted, hasHydrated, initializeAuth]);
 
-  // Show nothing until hydration complete (prevents hydration mismatch)
-  if (!hasHydrated) {
-    return null;
+  // Show loading screen instead of null to prevent white screen
+  if (isHydrating || !hasHydrated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto" />
+          <p className="text-gray-600 text-sm">Uygulama yükleniyor...</p>
+        </div>
+      </div>
+    );
   }
 
   return (

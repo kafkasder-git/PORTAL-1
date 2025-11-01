@@ -14,45 +14,40 @@ interface StatCardProps {
     direction?: 'up' | 'down' | 'neutral';
   };
   description?: string;
-  variant?: 'blue' | 'red' | 'green' | 'purple' | 'orange' | 'cyan' | 'default';
+  variant?: 'primary' | 'success' | 'warning' | 'accent' | 'info' | 'default';
   className?: string;
 }
 
 const variantStyles = {
   default: {
-    iconBg: 'bg-slate-100 dark:bg-slate-800',
-    iconColor: 'text-slate-600 dark:text-slate-400',
-    borderColor: 'border-slate-200 dark:border-slate-700',
+    iconBg: 'bg-primary/10',
+    iconColor: 'text-primary',
+    accentColor: 'from-primary/20',
   },
-  blue: {
-    iconBg: 'bg-blue-50 dark:bg-blue-950/20',
-    iconColor: 'text-blue-600 dark:text-blue-400',
-    borderColor: 'border-blue-200 dark:border-blue-700',
+  primary: {
+    iconBg: 'bg-primary/10',
+    iconColor: 'text-primary',
+    accentColor: 'from-primary/20',
   },
-  red: {
-    iconBg: 'bg-red-50 dark:bg-red-950/20',
-    iconColor: 'text-red-600 dark:text-red-400',
-    borderColor: 'border-red-200 dark:border-red-700',
+  success: {
+    iconBg: 'bg-success/10',
+    iconColor: 'text-success',
+    accentColor: 'from-success/20',
   },
-  green: {
-    iconBg: 'bg-green-50 dark:bg-green-950/20',
-    iconColor: 'text-green-600 dark:text-green-400',
-    borderColor: 'border-green-200 dark:border-green-700',
+  warning: {
+    iconBg: 'bg-warning/10',
+    iconColor: 'text-warning',
+    accentColor: 'from-warning/20',
   },
-  purple: {
-    iconBg: 'bg-purple-50 dark:bg-purple-950/20',
-    iconColor: 'text-purple-600 dark:text-purple-400',
-    borderColor: 'border-purple-200 dark:border-purple-700',
+  accent: {
+    iconBg: 'bg-accent/10',
+    iconColor: 'text-accent',
+    accentColor: 'from-accent/20',
   },
-  orange: {
-    iconBg: 'bg-orange-50 dark:bg-orange-950/20',
-    iconColor: 'text-orange-600 dark:text-orange-400',
-    borderColor: 'border-orange-200 dark:border-orange-700',
-  },
-  cyan: {
-    iconBg: 'bg-cyan-50 dark:bg-cyan-950/20',
-    iconColor: 'text-cyan-600 dark:text-cyan-400',
-    borderColor: 'border-cyan-200 dark:border-cyan-700',
+  info: {
+    iconBg: 'bg-info/10',
+    iconColor: 'text-info',
+    accentColor: 'from-info/20',
   },
 };
 
@@ -62,7 +57,7 @@ export function StatCard({
   icon: Icon,
   trend,
   description,
-  variant = 'default',
+  variant = 'primary',
   className,
 }: StatCardProps) {
   const styles = variantStyles[variant];
@@ -71,42 +66,48 @@ export function StatCard({
     <Card
       variant="elevated"
       className={cn(
-        'transition-all duration-300 hover:shadow-lg',
-        styles.borderColor,
+        'group transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-primary/20',
+        'bg-linear-to-br from-card via-card to-card/95',
         className
       )}
     >
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+        <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
           {title}
         </CardTitle>
-        <div className={cn('p-2 rounded-lg', styles.iconBg)}>
-          <Icon className={cn('h-5 w-5', styles.iconColor)} />
+        <div className={cn('p-2.5 rounded-xl transition-all duration-300 group-hover:scale-110', styles.iconBg)}>
+          <Icon className={cn('h-5 w-5 transition-transform', styles.iconColor)} />
         </div>
       </CardHeader>
       <CardContent>
-        <div className="flex items-baseline justify-between">
-          <div className="text-3xl font-bold tracking-tight">{value}</div>
-          {trend && (
-            <Badge
-              variant={
-                trend.direction === 'up'
-                  ? 'default'
-                  : trend.direction === 'down'
-                  ? 'destructive'
-                  : 'secondary'
-              }
-              className="gap-1 text-xs"
-            >
-              {trend.direction === 'up' && <TrendingUp className="h-3 w-3" />}
-              {trend.direction === 'down' && <TrendingDown className="h-3 w-3" />}
-              {trend.value}
-            </Badge>
+        <div className="space-y-3">
+          <div className="flex items-baseline justify-between">
+            <div className="text-3xl font-bold tracking-tight text-foreground break-words">
+              {value}
+            </div>
+            {trend && (
+              <Badge
+                variant={
+                  trend.direction === 'up'
+                    ? 'success'
+                    : trend.direction === 'down'
+                    ? 'destructive'
+                    : 'secondary'
+                }
+                className="gap-1.5 text-xs font-semibold ml-2 flex-shrink-0"
+              >
+                {trend.direction === 'up' && <TrendingUp className="h-3 w-3" />}
+                {trend.direction === 'down' && <TrendingDown className="h-3 w-3" />}
+                <span>{trend.value}</span>
+              </Badge>
+            )}
+          </div>
+          {description && (
+            <p className="text-xs text-muted-foreground font-medium">
+              {description}
+            </p>
           )}
         </div>
-        {description && (
-          <p className="text-xs text-muted-foreground mt-2">{description}</p>
-        )}
       </CardContent>
     </Card>
   );

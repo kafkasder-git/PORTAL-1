@@ -15,7 +15,6 @@ import {
   Building2,
   Settings,
   ChevronDown,
-  ChevronRight,
   PanelLeftClose,
   PanelLeftOpen,
   Search,
@@ -47,9 +46,9 @@ interface Module {
 const modules: Module[] = [
   {
     id: 'genel',
-    name: 'Ana Sayfa',
+    name: 'Dashboard',
     icon: <Home className="w-5 h-5" />,
-    subPages: [{ name: 'Dashboard', href: '/genel' }],
+    subPages: [{ name: 'Ana Sayfa', href: '/genel' }],
   },
   {
     id: 'bagis',
@@ -74,7 +73,7 @@ const modules: Module[] = [
   },
   {
     id: 'burs',
-    name: 'Burs',
+    name: 'Burs Programı',
     icon: <GraduationCap className="w-5 h-5" />,
     subPages: [
       { name: 'Öğrenciler', href: '/burs/ogrenciler' },
@@ -124,34 +123,36 @@ const modules: Module[] = [
 ];
 
 interface SidebarProps {
-  isMobileOpen?: boolean;
-  onMobileToggle?: () => void;
+  onCollapsedChange?: (collapsed: boolean) => void;
 }
 
-export function Sidebar({ isMobileOpen = false, onMobileToggle }: SidebarProps) {
+export function Sidebar({ onCollapsedChange }: SidebarProps) {
   const pathname = usePathname();
   const [expandedModules, setExpandedModules] = useState<string[]>(['genel']);
-  const [isCollapsed, setIsCollapsed] = useState(false);
-
-  // Load collapsed state from localStorage on mount
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem('sidebar-collapsed');
-      if (stored !== null) {
-        setIsCollapsed(stored === 'true');
-      }
-    } catch (error) {
-      // Handle localStorage access errors gracefully
-      console.warn('Unable to access localStorage:', error);
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    if (typeof window === 'undefined') {
+      return false;
     }
-  }, []);
 
-  // Toggle sidebar and save to localStorage
+    try {
+      const stored = window.localStorage.getItem('sidebar-collapsed');
+      return stored === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      onCollapsedChange?.(isCollapsed);
+    }
+  }, [onCollapsedChange, isCollapsed]);
+
   const toggleSidebar = () => {
     const newState = !isCollapsed;
     setIsCollapsed(newState);
     localStorage.setItem('sidebar-collapsed', String(newState));
-    // Dispatch storage event for cross-tab sync
+    onCollapsedChange?.(newState);
     window.dispatchEvent(new Event('storage'));
   };
 
@@ -165,297 +166,281 @@ export function Sidebar({ isMobileOpen = false, onMobileToggle }: SidebarProps) 
 
   const isActive = (href: string) => pathname === href;
 
-  // Quick action handlers (placeholder)
-  const handleSearch = () => {
-    console.log('Search clicked');
-  };
-
-  const handleNotifications = () => {
-    console.log('Notifications clicked');
-  };
-
   return (
-    <TooltipProvider delayDuration={300}>
-      {/* Mobile Overlay */}
-      {isMobileOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-          onClick={onMobileToggle}
-          aria-label="Close sidebar overlay"
-        />
-      )}
-
-      {/* Sidebar */}
+    <TooltipProvider delayDuration={200}>
       <aside
-        className={cn(
-          'fixed left-0 top-16 h-[calc(100vh-4rem)] bg-slate-900 text-slate-100 border-r border-slate-700 z-40 overflow-y-auto transition-all duration-300 ease-in-out backdrop-blur-xl',
-          isCollapsed ? 'w-20 sidebar-collapsed' : 'w-64 sidebar-expanded',
-          isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-        )}
-        aria-label="Sidebar"
-        aria-expanded={!isCollapsed}
+      className={cn(
+      'fixed left-0 top-0 h-screen z-40 overflow-hidden transition-all duration-300 ease-in-out',
+      'bg-sidebar border-r border-sidebar-border shadow-xl',
+      isCollapsed ? 'w-20' : 'w-80'
+      )}
+      aria-label="Navigation sidebar"
       >
-        {/* Quick Actions Bar */}
-        <div
-          className={cn('px-4 pb-4 pt-4', isCollapsed && 'flex flex-col items-center')}
-          aria-label="Quick actions"
-        >
-          {!isCollapsed ? (
-            <div className="flex gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleSearch}
-                className="flex-1 justify-start hover:bg-accent hover:text-accent-foreground transition-colors"
-                data-testid="search-button"
-              >
-                <Search className="w-4 h-4 mr-2" />
-                Ara
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleNotifications}
-                className="relative hover:bg-slate-800/30 hover:text-slate-100 transition-colors duration-200"
-                aria-label="Bildirimler (3)"
-                data-testid="notification-button"
-              >
-                <Bell className="w-4 h-4" />
-                <Badge
-                  variant="destructive"
-                  className="absolute -top-1 -right-1 h-5 min-w-5 flex items-center justify-center p-0 px-1.5 text-xs"
-                  data-testid="notification-badge"
-                >
-                  3
-                </Badge>
-              </Button>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-2">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleSearch}
-                    className="w-10 h-10 p-0 hover:bg-accent hover:text-accent-foreground transition-colors"
-                    aria-label="Ara"
-                    data-testid="search-button-collapsed"
-                  >
-                    <Search className="w-4 h-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="right">Ara</TooltipContent>
-              </Tooltip>
-
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleNotifications}
-                    className="relative hover:bg-slate-800/30 hover:text-slate-100 transition-colors duration-200"
-                    aria-label="Bildirimler (3)"
-                    data-testid="notification-button"
-                  >
-                    <Bell className="w-4 h-4" />
-                    <Badge
-                      variant="destructive"
-                      className="absolute -top-1 -right-1 h-5 min-w-5 flex items-center justify-center p-0 px-1.5 text-xs"
-                      data-testid="notification-badge-collapsed"
-                    >
-                      3
-                    </Badge>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="right">Bildirimler (3)</TooltipContent>
-              </Tooltip>
-            </div>
-          )}
-        </div>
-
-        {/* Navigation Modules */}
-        <nav className="px-4 space-y-1">
-          {modules.map((module, moduleIndex) => {
-            const isExpanded = expandedModules.includes(module.id);
-            const hasActiveSubpage = module.subPages.some((sub) => isActive(sub.href));
-
-            return (
-              <div key={module.id} className="transition-all duration-200 ease-in-out">
-                {!isCollapsed ? (
-                  // Expanded view - full module with subpages
-                  <>
-                    <button
-                      onClick={() => toggleModule(module.id)}
-                      className={cn(
-                        'w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-heading font-medium transition-all duration-200 ease-in-out',
-                        hasActiveSubpage
-                          ? 'bg-slate-800/50 text-slate-100 shadow-sm border-l-4 border-slate-400'
-                          : 'text-slate-300 hover:text-slate-100 hover:bg-slate-800/50 hover:shadow-sm border-l-4 border-transparent hover:border-slate-600'
-                      )}
-                    >
-                      <div className="flex items-center gap-3">
-                        {module.icon}
-                        <span className="letter-spacing-tight">{module.name}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {module.badge && (
-                          <Badge variant="secondary" className="h-5 min-w-5 px-1.5">
-                            {module.badge}
-                          </Badge>
-                        )}
-                        <div className="transition-transform duration-200">
-                          {isExpanded ? (
-                            <ChevronDown className="w-4 h-4" />
-                          ) : (
-                            <ChevronRight className="w-4 h-4" />
-                          )}
-                        </div>
-                      </div>
-                    </button>
-
-                    {isExpanded && (
-                      <div className="mt-1 ml-4 space-y-0.5">
-                        {module.subPages.map((subPage, subIndex) => (
-                          <Link
-                            key={subPage.href}
-                            href={subPage.href}
-                            onClick={onMobileToggle}
-                            className={cn(
-                              'block px-3 py-2 rounded-md text-sm font-body transition-all duration-200',
-                              isActive(subPage.href)
-                                ? 'bg-slate-700/50 text-slate-100 font-medium shadow-sm'
-                                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 hover:pl-4',
-                              // Stagger animation delays
-                              subIndex === 0 && 'delay-75',
-                              subIndex === 1 && 'delay-100',
-                              subIndex === 2 && 'delay-150'
-                            )}
-                          >
-                            {subPage.name}
-                          </Link>
-                        ))}
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  // Collapsed view - icon only with tooltip
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        onClick={() => {
-                          if (module.subPages.length === 1) {
-                            window.location.href = module.subPages[0].href;
-                          } else {
-                            toggleModule(module.id);
-                          }
-                        }}
-                        className={cn(
-                          'w-full flex items-center justify-center p-3 rounded-lg transition-all duration-200 ease-in-out',
-                          hasActiveSubpage
-                            ? 'bg-slate-800/50 text-slate-100 shadow-sm'
-                            : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
-                        )}
-                        aria-label={module.name}
-                      >
-                        {module.icon}
-                        {module.badge && (
-                          <Badge
-                            variant="secondary"
-                            className="absolute top-1 right-1 h-5 min-w-5 px-1.5 text-xs"
-                          >
-                            {module.badge}
-                          </Badge>
-                        )}
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">
-                      <div>
-                        <p className="font-semibold">{module.name}</p>
-                        {module.subPages.length > 1 && (
-                          <ul className="mt-1 space-y-1 text-xs text-muted-foreground">
-                            {module.subPages.map((sub) => (
-                              <li key={sub.href}>• {sub.name}</li>
-                            ))}
-                          </ul>
-                        )}
-                      </div>
-                    </TooltipContent>
-                  </Tooltip>
-                )}
-              </div>
-            );
-          })}
-        </nav>
-
-        {/* Bottom Section: Collapse Toggle & Settings */}
-        <div className="sticky bottom-0 bg-slate-900 border-t border-slate-700 mt-auto">
-          {/* Collapse Toggle */}
-          <div className="p-4">
+        <div className="h-full flex flex-col overflow-y-auto">
+          {/* Header */}
+          <div className="h-20 flex items-center justify-between border-b border-sidebar-border px-4 shrink-0 bg-linear-to-br from-sidebar to-sidebar/95">
             {!isCollapsed ? (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={toggleSidebar}
-                className="w-full justify-start hover:bg-slate-800 hover:text-slate-100 transition-colors"
-                aria-label="Toggle sidebar"
-                data-testid="sidebar-toggle"
-              >
-                <PanelLeftClose className="w-4 h-4 mr-2" />
-                Daralt
-              </Button>
+              <Link href="/genel" className="flex items-center gap-3 group">
+                <div className="p-2.5 rounded-xl bg-linear-to-br from-sidebar-primary to-accent shadow-lg">
+                  <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <span className="font-bold text-white text-sm leading-tight">KAFKASDER</span>
+                  <span className="text-sidebar-foreground/70 text-xs">Yönetim</span>
+                </div>
+              </Link>
             ) : (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={toggleSidebar}
-                    className="w-full justify-center hover:bg-slate-800 hover:text-slate-100 transition-colors"
-                    aria-label="Toggle sidebar"
-                    data-testid="sidebar-toggle"
-                  >
-                    <PanelLeftOpen className="w-4 h-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="right">Genişlet</TooltipContent>
-              </Tooltip>
+              <div className="flex items-center justify-center w-full">
+                <div className="p-2.5 rounded-xl bg-linear-to-br from-sidebar-primary to-accent shadow-lg">
+                  <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+              </div>
             )}
           </div>
 
-          {/* Settings Link */}
-          <div className="px-4 pb-4 pb-safe">
+          {/* Quick Actions Bar */}
+          <div className={cn('px-3 py-3 border-b border-sidebar-border', isCollapsed && 'px-1.5')}>
             {!isCollapsed ? (
-              <Link
-                href="/settings"
-                className={cn(
-                  'w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-heading font-semibold transition-colors',
-                  isActive('/settings')
-                    ? 'bg-slate-800/50 text-slate-100'
-                    : 'text-slate-300 hover:bg-slate-800/50 hover:text-slate-100'
-                )}
-              >
-                <Settings className="w-5 h-5" />
-                <span>Ayarlar</span>
-              </Link>
+              <div className="flex gap-2">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="flex-1 text-sidebar-foreground hover:bg-sidebar-accent h-9 justify-start text-xs"
+                    >
+                      <Search className="w-4 h-4 mr-2 shrink-0" />
+                      Ara
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">Hızlı Arama</TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      className="relative text-sidebar-foreground hover:bg-sidebar-accent h-9 w-9"
+                    >
+                      <Bell className="w-4 h-4" />
+                      <Badge
+                        variant="destructive"
+                        className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-[10px] font-bold"
+                      >
+                        3
+                      </Badge>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">Bildirimler</TooltipContent>
+                </Tooltip>
+              </div>
             ) : (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Link
-                    href="/settings"
-                    className={cn(
-                      'flex items-center justify-center p-3 rounded-lg transition-colors',
-                      isActive('/settings')
-                        ? 'bg-slate-800/50 text-slate-100'
-                        : 'text-slate-300 hover:bg-slate-800/50 hover:text-slate-100'
-                    )}
-                    aria-label="Ayarlar"
-                  >
-                    <Settings className="w-5 h-5" />
-                  </Link>
-                </TooltipTrigger>
-                <TooltipContent side="right">Ayarlar</TooltipContent>
-              </Tooltip>
+              <div className="flex flex-col gap-1 items-center">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      className="text-sidebar-foreground hover:bg-sidebar-accent h-9 w-9"
+                    >
+                      <Search className="w-4 h-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">Ara</TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      className="relative text-sidebar-foreground hover:bg-sidebar-accent h-9 w-9"
+                    >
+                      <Bell className="w-4 h-4" />
+                      <Badge
+                        variant="destructive"
+                        className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 text-[9px]"
+                      >
+                        3
+                      </Badge>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">Bildirimler</TooltipContent>
+                </Tooltip>
+              </div>
+            )}
+          </div>
+
+          {/* Navigation */}
+          <nav className="px-2 py-3 space-y-1 flex-1 overflow-y-auto">
+            {modules.map((module) => {
+              const isExpanded = expandedModules.includes(module.id);
+              const hasActiveSubpage = module.subPages.some((sub) => isActive(sub.href));
+
+              return (
+                <div key={module.id}>
+                  {!isCollapsed ? (
+                    <>
+                      <button
+                        onClick={() => toggleModule(module.id)}
+                        className={cn(
+                          'w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200',
+                          hasActiveSubpage
+                            ? 'bg-sidebar-primary text-white shadow-md'
+                            : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                        )}
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="shrink-0 w-5 h-5">
+                            {module.icon}
+                          </div>
+                          <span className="truncate">{module.name}</span>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          {module.badge && (
+                            <Badge variant="secondary" className="h-5 min-w-5 px-1.5 text-xs font-bold">
+                              {module.badge}
+                            </Badge>
+                          )}
+                          <ChevronDown
+                            className={cn(
+                              'w-4 h-4 transition-transform duration-200',
+                              isExpanded && 'rotate-180'
+                            )}
+                          />
+                        </div>
+                      </button>
+
+                      {isExpanded && (
+                        <div className="mt-1 ml-5 space-y-1 pl-3 border-l-2 border-sidebar-primary/30">
+                          {module.subPages.map((subPage) => (
+                            <Link
+                              key={subPage.href}
+                              href={subPage.href}
+                              className={cn(
+                                'block px-3 py-2 rounded-lg text-sm transition-all duration-200',
+                                isActive(subPage.href)
+                                  ? 'bg-sidebar-primary/20 text-sidebar-primary font-semibold'
+                                  : 'text-sidebar-foreground/80 hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground'
+                              )}
+                            >
+                              {subPage.name}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => {
+                            if (module.subPages.length === 1) {
+                              window.location.href = module.subPages[0].href;
+                            } else {
+                              toggleModule(module.id);
+                            }
+                          }}
+                          className={cn(
+                            'w-full flex items-center justify-center p-2.5 rounded-lg transition-all duration-200',
+                            hasActiveSubpage
+                              ? 'bg-sidebar-primary text-white shadow-md'
+                              : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                          )}
+                          aria-label={module.name}
+                        >
+                          {module.icon}
+                          {module.badge && (
+                            <Badge
+                              variant="destructive"
+                              className="absolute top-1 right-1 h-4 min-w-4 px-0.5 text-[10px]"
+                            >
+                              {module.badge}
+                            </Badge>
+                          )}
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="right" className="text-xs">
+                        <p className="font-semibold">{module.name}</p>
+                        {module.subPages.length > 1 && (
+                          <ul className="mt-1.5 space-y-1">
+                            {module.subPages.map((sub) => (
+                              <li key={sub.href} className="text-[11px]">
+                                • {sub.name}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                </div>
+              );
+            })}
+          </nav>
+
+          {/* Footer */}
+          <div className="border-t border-sidebar-border bg-linear-to-t from-sidebar/50 to-transparent p-3 space-y-1.5 mt-auto">
+            {!isCollapsed ? (
+              <>
+                <Link
+                  href="/settings"
+                  className={cn(
+                    'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200',
+                    isActive('/settings')
+                      ? 'bg-sidebar-primary text-white shadow-md'
+                      : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                  )}
+                >
+                  <Settings className="w-5 h-5 shrink-0" />
+                  <span>Ayarlar</span>
+                </Link>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={toggleSidebar}
+                  className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent h-9"
+                >
+                  <PanelLeftClose className="w-4 h-4 mr-3 shrink-0" />
+                  <span className="text-sm">Daralt</span>
+                </Button>
+              </>
+            ) : (
+              <>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Link
+                      href="/settings"
+                      className={cn(
+                        'flex items-center justify-center p-2.5 rounded-lg transition-all duration-200',
+                        isActive('/settings')
+                          ? 'bg-sidebar-primary text-white shadow-md'
+                          : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                      )}
+                      aria-label="Ayarlar"
+                    >
+                      <Settings className="w-5 h-5" />
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">Ayarlar</TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      onClick={toggleSidebar}
+                      className="w-full text-sidebar-foreground hover:bg-sidebar-accent h-10"
+                    >
+                      <PanelLeftOpen className="w-5 h-5" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">Genişlet</TooltipContent>
+                </Tooltip>
+              </>
             )}
           </div>
         </div>

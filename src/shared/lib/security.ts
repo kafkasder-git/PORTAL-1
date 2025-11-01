@@ -1,4 +1,5 @@
 import DOMPurify from 'isomorphic-dompurify';
+import { externalLogger } from './logging/external-logger';
 
 // Input sanitization utilities
 export class InputSanitizer {
@@ -165,7 +166,7 @@ export class AuditLogger {
   private static logs: AuditLog[] = [];
   private static maxLogs = 1000; // Keep last 1000 logs in memory
 
-  static log(logData: Omit<AuditLog, 'id' | 'timestamp'>): void {
+  static async log(logData: Omit<AuditLog, 'id' | 'timestamp'>): Promise<void> {
     const auditLog: AuditLog = {
       ...logData,
       id: crypto.randomUUID(),
@@ -179,12 +180,16 @@ export class AuditLogger {
       this.logs = this.logs.slice(-this.maxLogs);
     }
 
-    // In production, send to logging service
-    if (process.env.NODE_ENV === 'production') {
-      console.log('🔍 AUDIT:', JSON.stringify(auditLog));
-      // TODO: Send to external logging service
-      // auditService.send(auditLog);
-    } else {
+    // Send to external logging service
+    try {
+    await externalLogger.info('Security Audit Event', {
+      auditLog,
+      timestamp: new Date().toISOString(),
+        source: 'security-audit',
+    });
+    } catch (error) {
+      console.warn('Failed to send audit log to external service:', error);
+      // Fallback to console logging
       console.log('🔍 AUDIT:', auditLog.action, auditLog.resource, auditLog.status);
     }
   }

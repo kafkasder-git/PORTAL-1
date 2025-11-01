@@ -199,6 +199,12 @@ export function validateServerConfig() {
 export function validateServerConfigSafe(): boolean {
   const clientValid = validateAppwriteConfigSafe();
   
+  // Check backend provider - skip API key validation if using mock backend
+  const backendProvider = process.env.NEXT_PUBLIC_BACKEND_PROVIDER;
+  if (backendProvider !== 'appwrite') {
+    return true;
+  }
+  
   if (!appwriteConfig.apiKey) {
     console.warn('⚠️ APPWRITE_API_KEY is not defined. Server-side operations may not work properly.');
     configValidationWarnings.push('APPWRITE_API_KEY is not defined');

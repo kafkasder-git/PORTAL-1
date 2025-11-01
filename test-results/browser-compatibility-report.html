@@ -1,0 +1,108 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Browser Compatibility Report</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    h1, h2, h3 { color: #333; }
+    table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    th { background-color: #f2f2f2; }
+    .status-pass { color: green; }
+    .status-fail { color: red; }
+    .status-warning { color: orange; }
+    .status-info { color: blue; }
+    .summary { background-color: #e7f3ff; padding: 15px; border-radius: 5px; }
+  </style>
+</head>
+<body>
+  <h1>Browser Compatibility Test Report</h1>
+  <p><strong>Generated:</strong> 11/1/2025, 12:31:43 AM</p>
+  
+  <div class="summary">
+    <h2>Summary</h2>
+    <p><strong>Total Tests:</strong> 7</p>
+    <p><strong>Passed:</strong> 2</p>
+    <p><strong>Failed:</strong> 3</p>
+    <p><strong>Warnings:</strong> 2</p>
+  </div>
+  
+  <h2>Test Results by Browser</h2>
+  
+      <h3>Chrome</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Test</th>
+            <th>Status</th>
+            <th>Duration</th>
+            <th>Message</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+      <tr>
+        <td>initialLoad</td>
+        <td class="status-pass">PASS</td>
+        <td>2759ms</td>
+        <td>Page loaded successfully</td>
+      </tr>
+    
+      <tr>
+        <td>authFlow</td>
+        <td class="status-warning">WARNING</td>
+        <td>1443ms</td>
+        <td>Auth session not persisted in localStorage</td>
+      </tr>
+    
+      <tr>
+        <td>errorBoundary</td>
+        <td class="status-fail">FAIL</td>
+        <td>648ms</td>
+        <td>page.evaluate: Error: Test error for boundary
+    at eval (eval at evaluate (:290:30), <anonymous>:1:12)
+    at UtilityScript.evaluate (<anonymous>:292:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)</td>
+      </tr>
+    
+      <tr>
+        <td>loadingState</td>
+        <td class="status-fail">FAIL</td>
+        <td>629ms</td>
+        <td>Only 0/5 variants found</td>
+      </tr>
+    
+      <tr>
+        <td>hydration</td>
+        <td class="status-pass">PASS</td>
+        <td>3698ms</td>
+        <td>Hydration completed without errors</td>
+      </tr>
+    
+      <tr>
+        <td>navigation</td>
+        <td class="status-warning">WARNING</td>
+        <td>710ms</td>
+        <td>No navigation links found</td>
+      </tr>
+    
+      <tr>
+        <td>browser-launch</td>
+        <td class="status-fail">FAIL</td>
+        <td>0ms</td>
+        <td>Failed to launch browser: Cannot set properties of undefined (setting 'duration')</td>
+      </tr>
+    
+          
+        </tbody>
+      </table>
+      <p><strong>Summary:</strong> 2/7 passed</p>
+    
+  
+  
+</body>
+</html>
+  

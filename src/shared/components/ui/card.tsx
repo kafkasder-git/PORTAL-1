@@ -4,22 +4,24 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/shared/lib/utils"
 
 const cardVariants = cva(
-"bg-card text-card-foreground flex flex-col rounded-lg border border-border transition-all duration-300",
-{
-variants: {
-variant: {
-default: "shadow-card hover:shadow-card-hover",
-interactive: "shadow-card hover:shadow-card-hover hover:border-primary/20 cursor-pointer hover:-translate-y-0.5",
-elevated: "shadow-card-premium hover:shadow-card-hover border-border",
-outline: "bg-transparent border border-border/60 hover:border-border",
-ghost: "border-0 shadow-none bg-transparent",
-},
-  size: {
-    default: "gap-6 py-6",
-  sm: "gap-4 py-4",
-  lg: "gap-8 py-8",
-    xl: "gap-10 py-10",
-    },
+  "rounded-lg border border-border transition-all duration-300 flex flex-col",
+  {
+    variants: {
+      variant: {
+        default: "bg-card shadow-card hover:shadow-card-hover hover:border-primary/20",
+        interactive: "bg-card shadow-card hover:shadow-card-hover hover:border-primary/40 cursor-pointer hover:scale-[1.01] hover:-translate-y-1",
+        elevated: "bg-gradient-executive-card shadow-executive hover:shadow-executive-hover",
+        outline: "bg-transparent border-2 border-border/60 hover:border-primary/30",
+        ghost: "border-0 shadow-none bg-transparent",
+        accent: "bg-card border-accent/20 shadow-card hover:shadow-card-hover hover:border-accent/40",
+      },
+      size: {
+      default: "gap-6 p-6",
+      sm: "gap-4 p-4",
+      lg: "gap-8 p-8",
+      xl: "gap-10 p-10",
+        desktop: "gap-8 p-8 xl:gap-12 xl:p-12",
+      },
     },
     defaultVariants: {
       variant: "default",
@@ -47,7 +49,7 @@ function Card({
       data-variant={variant}
       className={cn(
         cardVariants({ variant, size }),
-        animated && "hover:scale-[1.02] transition-transform duration-200",
+        animated && "transition-transform duration-200",
         className
       )}
       {...props}
@@ -60,7 +62,7 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card-header"
       className={cn(
-        "@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6",
+        "flex flex-col gap-1.5 border-b border-border/50 pb-4",
         className
       )}
       {...props}
@@ -72,7 +74,7 @@ function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-title"
-      className={cn("font-heading font-semibold leading-none", className)}
+      className={cn("font-heading text-lg font-bold text-foreground", className)}
       {...props}
     />
   )
@@ -82,7 +84,7 @@ function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-description"
-      className={cn("font-body text-sm text-muted-foreground", className)}
+      className={cn("text-sm text-muted-foreground", className)}
       {...props}
     />
   )
@@ -92,10 +94,7 @@ function CardAction({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-action"
-      className={cn(
-        "col-start-2 row-span-2 row-start-1 self-start justify-self-end",
-        className
-      )}
+      className={cn("flex items-center gap-2", className)}
       {...props}
     />
   )
@@ -105,7 +104,7 @@ function CardContent({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-content"
-      className={cn("px-6", className)}
+      className={cn("flex-1", className)}
       {...props}
     />
   )
@@ -115,7 +114,7 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-footer"
-      className={cn("flex items-center px-6 [.border-t]:pt-6", className)}
+      className={cn("flex items-center gap-3 border-t border-border/50 pt-4", className)}
       {...props}
     />
   )

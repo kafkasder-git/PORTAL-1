@@ -46,7 +46,9 @@ export class ErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     // Log error to console in development
     if (process.env.NODE_ENV === 'development') {
-      console.error(`[ErrorBoundary:${this.props.name || 'unnamed'}] caught error`, error, errorInfo);
+      console.error(`[ErrorBoundary:${this.props.name || 'unnamed'}] caught error:`, error.message || error);
+      console.error('Error stack:', error.stack);
+      console.error('Component stack:', errorInfo.componentStack);
     }
 
     // Call custom error handler if provided

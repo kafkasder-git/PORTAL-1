@@ -72,7 +72,7 @@ export default function SettingsPage() {
     switch (activeTab) {
       case 'organization':
         return (
-          <Card className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+          <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
             <CardHeader>
               <CardTitle>Organizasyon Bilgileri</CardTitle>
               <CardDescription>Dernek organizasyon bilgilerini güncelleyin</CardDescription>
@@ -96,7 +96,7 @@ export default function SettingsPage() {
                   className="border-slate-200 focus:border-slate-400"
                 />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="org-phone">Telefon</Label>
                   <Input
@@ -123,7 +123,7 @@ export default function SettingsPage() {
 
       case 'email':
         return (
-          <Card className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+          <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
             <CardHeader>
               <CardTitle>E-posta Ayarları</CardTitle>
               <CardDescription>SMTP sunucu ayarlarını yapılandırın</CardDescription>
@@ -142,7 +142,7 @@ export default function SettingsPage() {
               
               {settings.email.enabled && (
                 <div className="space-y-4 pt-4 border-t">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="smtp-host">SMTP Sunucu *</Label>
                       <Input
@@ -164,7 +164,7 @@ export default function SettingsPage() {
                       />
                     </div>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="smtp-user">SMTP Kullanıcı</Label>
                       <Input
@@ -203,7 +203,7 @@ export default function SettingsPage() {
 
       case 'notifications':
         return (
-          <Card className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+          <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
             <CardHeader>
               <CardTitle>Bildirim Ayarları</CardTitle>
               <CardDescription>Sistem bildirim tercihlerinizi yönetin</CardDescription>
@@ -247,7 +247,7 @@ export default function SettingsPage() {
 
       case 'security':
         return (
-          <Card className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+          <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
             <CardHeader>
               <CardTitle>Güvenlik Ayarları</CardTitle>
               <CardDescription>Şifre ve güvenlik politikalarını yapılandırın</CardDescription>
@@ -289,7 +289,7 @@ export default function SettingsPage() {
 
       case 'system':
         return (
-          <Card className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+          <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
             <CardHeader>
               <CardTitle>Sistem Ayarları</CardTitle>
               <CardDescription>Genel sistem parametrelerini yönetin</CardDescription>
@@ -352,7 +352,7 @@ export default function SettingsPage() {
     >
       <div className="space-y-6">
         {/* Tab Navigation */}
-        <Card className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+        <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
           <CardContent className="p-0">
             <div className="flex flex-wrap">
               {tabs.map((tab) => {
@@ -383,7 +383,7 @@ export default function SettingsPage() {
 
         {/* Status */}
         {hasChanges && (
-          <Card className="border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950">
+          <Card className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950">
             <CardContent className="p-4">
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className="border-amber-300 text-amber-700">
