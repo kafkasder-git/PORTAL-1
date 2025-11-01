@@ -70,6 +70,8 @@ interface MeetingFormProps {
 export function MeetingForm({ isOpen, onClose, onSuccess, meeting, selectedDate }: MeetingFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [participants, setParticipants] = useState<string[]>(meeting?.participants || []);
+  const [showParticipantDialog, setShowParticipantDialog] = useState(false);
+  const [newParticipantName, setNewParticipantName] = useState('');
 
   const isEditing = !!meeting;
 
@@ -92,26 +94,89 @@ export function MeetingForm({ isOpen, onClose, onSuccess, meeting, selectedDate 
   const onSubmit = async (data: MeetingFormData) => {
     setIsSubmitting(true);
     try {
-      // TODO: Implement actual API call
-      console.log('Meeting data:', { ...data, participants });
+      // Combine date and time into a single ISO datetime string
+      const meetingDateTime = new Date(data.meeting_date);
+      const [hours, minutes] = data.meeting_time.split(':');
+      meetingDateTime.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0);
 
-      toast.success(
-        isEditing
-          ? 'Toplantı başarıyla güncellendi'
-          : 'Toplantı başarıyla oluşturuldu'
-      );
+      // Format meeting date as ISO string
+      const meetingDateISO = meetingDateTime.toISOString();
+
+      // Create the meeting data
+      const meetingData = {
+        title: data.title,
+        description: data.description,
+        meeting_date: meetingDateISO,
+        location: data.location,
+        meeting_type: data.meeting_type,
+        participants: participants,
+        agenda: data.agenda,
+        // Store duration in notes for now (can be a separate field in future)
+        notes: data.notes
+          ? `${data.notes}\n\nSüre: ${data.duration} dakika`
+          : `Süre: ${data.duration} dakika`,
+        status: 'scheduled' as const,
+      };
+
+      if (isEditing && meeting) {
+        // Update existing meeting
+        const response = await fetch(`/api/meetings/${meeting.$id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(meetingData),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          throw new Error(result.error || 'Toplantı güncellenemedi');
+        }
+
+        toast.success(result.message || 'Toplantı başarıyla güncellendi');
+      } else {
+        // Create new meeting
+        const response = await fetch('/api/meetings', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(meetingData),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          throw new Error(result.error || 'Toplantı oluşturulamadı');
+        }
+
+        toast.success(result.message || 'Toplantı başarıyla oluşturuldu');
+      }
 
       onSuccess();
       onClose();
       form.reset();
+      setParticipants([]);
     } catch (error: any) {
+      console.error('Meeting submission error:', error);
       toast.error(
-        isEditing
+        error.message ||
+        (isEditing
           ? 'Toplantı güncellenirken hata oluştu'
-          : 'Toplantı oluşturulurken hata oluştu'
+          : 'Toplantı oluşturulurken hata oluştu')
       );
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  // Participant management
+  const handleAddParticipant = () => {
+    if (newParticipantName.trim()) {
+      setParticipants([...participants, newParticipantName.trim()]);
+      setNewParticipantName('');
+      setShowParticipantDialog(false);
     }
   };
 
@@ -275,7 +340,12 @@ export function MeetingForm({ isOpen, onClose, onSuccess, meeting, selectedDate 
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <Label className="text-base font-medium">Katılımcılar</Label>
-                <Button type="button" variant="outline" size="sm">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowParticipantDialog(true)}
+                >
                   <UserPlus className="h-4 w-4 mr-2" />
                   Katılımcı Ekle
                 </Button>
@@ -363,6 +433,44 @@ export function MeetingForm({ isOpen, onClose, onSuccess, meeting, selectedDate 
           </form>
         </Form>
       </DialogContent>
+
+      {/* Add Participant Dialog */}
+      <Dialog open={showParticipantDialog} onOpenChange={setShowParticipantDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Katılımcı Ekle</DialogTitle>
+            <DialogDescription>
+              Toplantıya katılacak kişinin adını girin
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Input
+              placeholder="Katılımcı adı"
+              value={newParticipantName}
+              onChange={(e) => setNewParticipantName(e.target.value)}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  handleAddParticipant();
+                }
+              }}
+            />
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowParticipantDialog(false);
+                  setNewParticipantName('');
+                }}
+              >
+                İptal
+              </Button>
+              <Button onClick={handleAddParticipant}>
+                Ekle
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }

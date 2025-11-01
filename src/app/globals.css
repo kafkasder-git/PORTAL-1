@@ -380,6 +380,8 @@
     line-height: 1.6;
     text-size-adjust: 100%;
     font-feature-settings: "liga" 1, "calt" 1;
+    /* Smooth transitions for theme changes */
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
   }
 
   /* Font Family Utilities */
@@ -611,6 +613,29 @@
 }
 
 @layer utilities {
+  /* Dark mode utilities */
+  .transition-theme {
+    transition-property: background-color, border-color, color, fill, stroke, opacity;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+  }
+
+  .dark-only {
+    display: none;
+  }
+
+  .light-only {
+    display: block;
+  }
+
+  .dark .dark-only {
+    display: block;
+  }
+
+  .dark .light-only {
+    display: none;
+  }
+
   /* Shadow Utilities */
   .shadow-glass {
     box-shadow: var(--shadow-glass);
@@ -905,8 +930,19 @@
     .animate-float-slow,
     .animate-bar-bounce,
     .animate-spin,
-    .animate-pulse {
+    .animate-pulse,
+    .transition-theme {
       animation: none;
+      transition: none;
     }
+  }
+
+  /* Global theme transitions */
+  *,
+  *::before,
+  *::after {
+    transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
   }
 }

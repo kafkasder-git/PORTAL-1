@@ -126,7 +126,7 @@ export function ModernCarousel({
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 0.3 }}
-                  className="block w-48 h-48 bg-linear-to-br from-primary/20 to-primary/5 rounded-xl flex items-center justify-center"
+                  className="w-48 h-48 bg-linear-to-br from-primary/20 to-primary/5 rounded-xl flex items-center justify-center"
                 >
                   <div className="text-6xl opacity-20">
                     {items[currentIndex].icon || '📊'}

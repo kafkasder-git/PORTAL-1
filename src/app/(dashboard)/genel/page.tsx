@@ -271,7 +271,7 @@ export default function DashboardPage() {
                         key={index}
                         className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/40 transition-colors group"
                       >
-                        <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors flex-shrink-0">
+                        <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors shrink-0">
                           <Icon className="h-4 w-4 text-primary" />
                         </div>
                         <div className="flex-1 min-w-0">
@@ -449,14 +449,14 @@ export default function DashboardPage() {
                       key={index}
                       className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/40 transition-colors group"
                     >
-                      <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors flex-shrink-0">
+                      <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors shrink-0">
                         <Icon className="h-4 w-4 text-primary" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium">{action.title}</p>
                         <p className="text-xs text-muted-foreground">{action.description}</p>
                       </div>
-                      <Badge variant="secondary" className="text-xs flex-shrink-0">
+                      <Badge variant="secondary" className="text-xs shrink-0">
                         {action.time}
                       </Badge>
                     </div>

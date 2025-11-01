@@ -51,34 +51,92 @@ export function sanitizeEmail(email: string): string | null {
 /**
  * Sanitize phone number (Turkish format)
  * Removes all non-digit characters and validates format
+ * Supports both mobile and landline numbers
  */
 export function sanitizePhone(phone: string): string | null {
   if (!phone) return null;
 
+  const original = phone;
   // Remove all non-digit characters
   const digits = phone.replace(/\D/g, '');
 
-  // Turkish mobile phone format: +90 5XX XXX XX XX (must start with 5 for mobile)
-  // Mobile numbers start with 5 (5XX is the mobile prefix)
-
-  if (digits.length === 12 && digits.startsWith('905')) {
-    // Format: 905551234567 (12 digits starting with 905) -> +905551234567
-    return `+${digits}`;
-  } else if (digits.length === 11 && digits.startsWith('905')) {
-    // Format: 905551234567 (already 11 digits with 90) -> +905551234567
-    return `+${digits}`;
-  } else if (digits.length === 11 && digits.startsWith('05')) {
-    // Format: 05551234567 (11 digits with leading 0) -> +905551234567
-    // Remove leading 0 and add +90
-    return `+90${digits.substring(1)}`;
-  } else if (digits.length === 10 && digits.startsWith('5')) {
-    // Format: 5551234567 (10 digits without country code) -> +905551234567
-    return `+90${digits}`;
+  // Validate length
+  if (digits.length < 10 || digits.length > 12) {
+    return null;
   }
 
-  // Reject landline numbers (not starting with 5 after country code)
-  // Reject too short or too long numbers
+  // Mobile numbers (Turkish mobile numbers start with 05, 5, 905, or 905)
+  // Format: 05551234567 (11 digits with leading 0) -> +905551234567
+  if (digits.length === 11 && digits.startsWith('05')) {
+    return `+90${digits.substring(1)}`;
+  }
+  // Format: 5551234567 (10 digits) -> +905551234567
+  else if (digits.length === 10 && digits.startsWith('5')) {
+    return `+90${digits}`;
+  }
+  // Format: 905551234567 (11 digits with 90) -> +905551234567
+  else if (digits.length === 11 && digits.startsWith('90')) {
+    return `+${digits}`;
+  }
+  // Format: 905551234567 (12 digits starting with 905) -> +905551234567
+  else if (digits.length === 12 && digits.startsWith('905')) {
+    return `+${digits}`;
+  }
+
+  // Landline numbers are intentionally not supported in sanitizePhone
+  // This function is specifically for mobile phone numbers
+  // If you need to validate landlines, use a different function
+
+  // If nothing matched, it's invalid
   return null;
+}
+
+/**
+ * Validate phone number with detailed error messages
+ * Returns error message if invalid, null if valid
+ */
+export function validatePhone(phone: string): string | null {
+  if (!phone || phone.trim() === '') {
+    return 'Telefon numarası zorunludur';
+  }
+
+  const sanitized = sanitizePhone(phone);
+  if (!sanitized) {
+    return 'Geçerli bir Türk telefon numarası giriniz (örn: 05551234567, +905551234567, 02125551234)';
+  }
+
+  return null;
+}
+
+/**
+ * Format phone number for display
+ * Converts +905551234567 to 0555 123 45 67
+ */
+export function formatPhoneForDisplay(phone: string): string {
+  const sanitized = sanitizePhone(phone);
+  if (!sanitized) return phone;
+
+  // Remove +90 prefix
+  const digits = sanitized.replace('+90', '');
+
+  if (digits.startsWith('5')) {
+    // Mobile: 5551234567 -> 0555 123 45 67
+    return `0${digits.substring(0, 3)} ${digits.substring(3, 6)} ${digits.substring(6, 8)} ${digits.substring(8, 10)}`;
+  } else {
+    // Landline: 2125551234 -> 0212 555 12 34
+    return `0${digits.substring(0, 3)} ${digits.substring(3, 6)} ${digits.substring(6, 8)} ${digits.substring(8, 10)}`;
+  }
+}
+
+/**
+ * Check if phone number is mobile (true) or landline (false)
+ */
+export function isMobilePhone(phone: string): boolean | null {
+  const sanitized = sanitizePhone(phone);
+  if (!sanitized) return null;
+
+  const digits = sanitized.replace('+90', '');
+  return digits.startsWith('5');
 }
 
 /**

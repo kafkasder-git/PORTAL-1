@@ -2,6 +2,8 @@
 
 import { ReactNode } from 'react';
 import { Card } from '@/shared/components/ui/card';
+import { ChevronDown, ChevronUp, Search } from 'lucide-react';
+import { cn } from '@/shared/lib/utils';
 
 export interface ResponsiveColumn {
   key: string;
@@ -9,6 +11,8 @@ export interface ResponsiveColumn {
   width?: string;
   render?: (value: unknown, row: Record<string, unknown>) => ReactNode;
   hidden?: boolean;
+  mobileLabel?: string;
+  mobileRender?: (row: Record<string, unknown>) => ReactNode;
 }
 
 interface ResponsiveTableProps {
@@ -20,10 +24,12 @@ interface ResponsiveTableProps {
   rowKey: string;
   onRowClick?: (row: Record<string, unknown>) => void;
   actions?: (row: Record<string, unknown>) => ReactNode;
+  searchable?: boolean;
+  searchPlaceholder?: string;
 }
 
 /**
- * Desktop table component - Traditional table layout only
+ * Fully responsive table with mobile card view
  */
 export function ResponsiveTable({
   columns,
@@ -34,6 +40,8 @@ export function ResponsiveTable({
   rowKey,
   onRowClick,
   actions,
+  searchable = true,
+  searchPlaceholder = 'Ara...',
 }: ResponsiveTableProps) {
   if (isLoading) {
     return (
@@ -53,8 +61,20 @@ export function ResponsiveTable({
 
   return (
     <div className="space-y-4">
+      {/* Mobile Search Bar */}
+      {searchable && (
+        <div className="md:hidden relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <input
+            type="text"
+            placeholder={searchPlaceholder}
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+          />
+        </div>
+      )}
+
       {/* Desktop Table */}
-      <div className="block overflow-x-auto">
+      <div className="hidden md:block overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-gray-50 border-b">
@@ -75,9 +95,11 @@ export function ResponsiveTable({
             {data.map((row, index) => (
               <tr
                 key={String(row[rowKey])}
-                className={`border-b hover:bg-primary/5 transition-colors cursor-pointer ${
+                className={cn(
+                  'border-b hover:bg-primary/5 transition-colors',
+                  onRowClick && 'cursor-pointer',
                   index % 2 === 0 ? 'bg-card' : 'bg-muted/30'
-                }`}
+                )}
                 onClick={() => onRowClick?.(row)}
               >
                 {columns
@@ -94,6 +116,56 @@ export function ResponsiveTable({
         </table>
       </div>
 
+      {/* Mobile Card View */}
+      <div className="md:hidden space-y-3">
+        {data.map((row, index) => (
+          <div
+            key={String(row[rowKey])}
+            className={cn(
+              'bg-white border border-gray-200 rounded-lg p-4 shadow-sm',
+              onRowClick && 'cursor-pointer hover:shadow-md active:shadow-sm transition-shadow'
+            )}
+            onClick={() => onRowClick?.(row)}
+          >
+            {columns.some((col) => col.mobileRender) ? (
+              // Use custom mobile renderer if available
+              columns
+                .filter((col) => col.mobileRender)
+                .map((col) => (
+                  <div key={col.key} className="mb-3 last:mb-0">
+                    {col.mobileRender!(row)}
+                  </div>
+                ))
+            ) : (
+              // Default mobile layout - show first 3 columns with labels
+              <div className="space-y-2">
+                {columns.slice(0, 3).map((col) => (
+                  <div key={col.key} className="flex items-start justify-between">
+                    <span className="text-xs font-medium text-gray-500 w-1/3">
+                      {col.mobileLabel || col.label}
+                    </span>
+                    <span className="text-sm text-gray-900 text-right flex-1 ml-2">
+                      {col.render
+                        ? col.render(row[col.key], row)
+                        : String(row[col.key] || '-')}
+                    </span>
+                  </div>
+                ))}
+                {columns.length > 3 && (
+                  <div className="text-xs text-gray-500 text-center pt-2 border-t border-gray-100">
+                    Daha fazla bilgi görmek için dokunun
+                  </div>
+                )}
+              </div>
+            )}
+            {actions && (
+              <div className="mt-3 pt-3 border-t border-gray-100">
+                {actions(row)}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

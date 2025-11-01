@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/sha
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 import { Badge } from '@/shared/components/ui/badge';
+import { getMeetingStatusBadgeVariant, getMeetingStatusCalendarClasses, MEETING_STATUS_COLORS } from '@/shared/lib/colors';
 import {
   Select,
   SelectContent,
@@ -193,18 +194,7 @@ export default function MeetingsManager() {
   };
 
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'scheduled':
-        return 'default';
-      case 'ongoing':
-        return 'secondary';
-      case 'completed':
-        return 'outline';
-      case 'cancelled':
-        return 'destructive';
-      default:
-        return 'default';
-    }
+    return getMeetingStatusBadgeVariant(status as keyof typeof MEETING_STATUS_COLORS) as "default" | "secondary" | "outline" | "destructive";
   };
 
   const getMeetingTypeColor = (type: string) => {
@@ -827,12 +817,10 @@ function CalendarView({
                   <div
                     key={meeting.$id}
                     className={cn(
-                      'text-xs p-1 rounded truncate cursor-pointer transition-all',
-                      'bg-primary/10 text-primary hover:bg-primary/20',
-                      getStatusColor(meeting.status) === 'default' && 'bg-blue-100 text-blue-800',
-                      getStatusColor(meeting.status) === 'secondary' && 'bg-yellow-100 text-yellow-800',
-                      getStatusColor(meeting.status) === 'destructive' && 'bg-red-100 text-red-800'
-                    )}
+                    'text-xs p-1 rounded truncate cursor-pointer transition-all',
+                    'bg-primary/10 text-primary hover:bg-primary/20',
+                    getMeetingStatusCalendarClasses(meeting.status as any)
+                     )}
                     onClick={(e) => {
                       e.stopPropagation();
                       onMeetingClick(meeting);
