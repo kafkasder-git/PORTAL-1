@@ -154,6 +154,9 @@ export function sanitizeTcNo(tcNo: string): string | null {
   // First digit cannot be 0
   if (digits[0] === '0') return null;
 
+  // Check for repeated pattern (all same digits)
+  if (/^(\d)\1{10}$/.test(digits)) return null;
+
   // Validate TC Kimlik No algorithm
   const arr = digits.split('').map(Number);
 
@@ -162,6 +165,7 @@ export function sanitizeTcNo(tcNo: string): string | null {
   const sum2 = arr[1] + arr[3] + arr[5] + arr[7];
   const digit10 = (sum1 * 7 - sum2) % 10;
 
+  if (digit10 < 0) return null;
   if (digit10 !== arr[9]) return null;
 
   // Calculate 11th digit

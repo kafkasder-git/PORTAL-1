@@ -211,7 +211,16 @@ const generateId = (): string => {
  */
 export const createBeneficiary = async (data: BeneficiaryQuickAdd): Promise<ApiResponse<Beneficiary>> => {
   await delay();
-  
+
+  // Validate required fields
+  if (!data.firstName || !data.lastName || !data.nationality || !data.category || !data.fundRegion || !data.fileConnection || !data.fileNumber) {
+    return {
+      success: false,
+      data: null,
+      error: 'Gerekli alanlar eksik'
+    };
+  }
+
   try {
     const newBeneficiary: Beneficiary = {
       id: generateId(),
@@ -222,7 +231,7 @@ export const createBeneficiary = async (data: BeneficiaryQuickAdd): Promise<ApiR
       createdBy: 'current-user',
       updatedBy: 'current-user'
     };
-    
+
     mockBeneficiaries.push(newBeneficiary);
     // sync to appwrite-style store
     mockAppwriteBeneficiaries.push({
@@ -250,7 +259,7 @@ export const createBeneficiary = async (data: BeneficiaryQuickAdd): Promise<ApiR
       status: 'TASLAK',
       approval_status: 'pending'
     } as BeneficiaryDocument);
-    
+
     return {
       success: true,
       data: newBeneficiary,
@@ -505,22 +514,27 @@ export const uploadBeneficiaryPhoto = async (id: string, file: File): Promise<Ap
  */
 export const checkMernis = async (identityNumber: string): Promise<ApiResponse<MernisCheckResponse>> => {
   await delay(2000); // Mernis kontrolü uzun sürer
-  
+
+  // Validate input
+  if (!identityNumber || typeof identityNumber !== 'string' || identityNumber.length < 11) {
+    return {
+      success: false,
+      error: 'Geçersiz TC Kimlik No'
+    };
+  }
+
   try {
     // Mock Mernis kontrolü
     // Gerçek implementasyonda Mernis API'si kullanılacak
     const isValid = identityNumber.length === 11 && /^\d{11}$/.test(identityNumber);
-    
+
     if (!isValid) {
       return {
-        success: true,
-        data: {
-          isValid: false,
-          message: 'Geçersiz TC Kimlik No'
-        }
+        success: false,
+        error: 'Geçersiz TC Kimlik No'
       };
     }
-    
+
     // Mock başarılı kontrol
     return {
       success: true,
